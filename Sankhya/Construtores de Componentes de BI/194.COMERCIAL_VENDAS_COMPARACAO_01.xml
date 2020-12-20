@@ -1,0 +1,35 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI1" description="1. Data Inicial (Período 01)" metadata="date" required="true" keep-last="false" keep-date="false"/>
+		<parameter id="DTFIM1" description="2. Data Final (Período 01)" metadata="date" required="true" keep-last="false" keep-date="false"/>
+		<parameter id="DTINI2" description="3. Data Inicial (Período 02)" metadata="date" required="true" keep-last="false" keep-date="false"/>
+		<parameter id="DTFIM2" description="4. Data Final (Período 02)" metadata="date" required="true" keep-last="false" keep-date="false"/>
+		<parameter id="OPERACAO" description="5. Operação" metadata="multiList:Text" listType="sql" required="true" keep-last="false" keep-date="false">
+			<expression type="SQL">
+				<![CDATA[select DISTINCT CODTIPOPER AS VALUE, DESCROPER AS LABEL FROM TGFTOP WHERE CODTIPOPER IN (500,501,502)]]>
+			</expression>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_t8nr39" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<simple-value id="svl_t8nr4a">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[select sum(vlrtotal1) as vlrtotal1, sum(vlrtotal2) vlrtotal2, sum(qtd1) qtd1, sum(qtd2) qtd2, sum(frete1) frete1, sum(frete2) frete2, sum(ticket_medio1) ticket_medio1, sum(ticket_medio2) ticket_medio2 from ( SELECT sum(vlrnota) as vlrtotal1, count(nunota) as qtd1, sum(vlrfrete) as frete1,  sum(vlrnota)/count(nunota) as ticket_medio1, 0 AS vlrtotal2, 0 as qtd2, 0 as frete2, 0 as ticket_medio2  FROM sankhya.TGFCAB CAB WITH(NOLOCK) WHERE DTNEG >= :DTINI1 and DTNEG <= :DTFIM1 and CAST(CAB.CODTIPOPER AS VARCHAR(3)) IN (:OPERACAO) union SELECT 0 as vlrtotal1, 0 as qtd1, 0 as frete1, 0 as ticket_medio1, sum(vlrnota) as vlrtotal2, count(nunota) as qtd2,       sum(vlrfrete) as frete2,  sum(vlrnota)/count(nunota) as ticket_medio2  FROM sankhya.TGFCAB CAB WITH(NOLOCK) WHERE DTNEG >= :DTINI2 and DTNEG <= :DTFIM2 and CAST(CAB.CODTIPOPER AS VARCHAR(3)) IN (:OPERACAO)) A]]>
+				</expression>
+				<metadata>
+					<field name="vlrtotal1" label="vlrtotal1" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="vlrtotal2" label="vlrtotal2" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="qtd1" label="qtd1" type="I" visible="true" useFooter="false" mask="#.##0"/>
+					<field name="qtd2" label="qtd2" type="I" visible="true" useFooter="false" mask="#.##0"/>
+					<field name="frete1" label="frete1" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="frete2" label="frete2" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="ticket_medio1" label="ticket_medio1" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="ticket_medio2" label="ticket_medio2" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+				</metadata>
+				<value-expression>
+					<![CDATA[Datas:  <b>:DTINI1 a :DTFIM1</b> $vlrtotal1 $qtd1    <b>:DTINI2 a :DTFIM2</b> $vlrtotal2 $qtd2  :OPERACAO]]>
+				</value-expression>
+			</simple-value>
+		</container>
+	</level>
+</gadget>

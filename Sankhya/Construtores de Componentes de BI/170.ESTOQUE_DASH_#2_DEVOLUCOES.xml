@@ -1,0 +1,17 @@
+<gadget refresh-time="60000">
+	<level id="lvl_mneydw" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<simple-value id="svl_mneydx" tamTexto="30">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT COUNT(DISTINCT NUNOTA) AS DEVOLUCOES FROM sankhya.TGFCAB CAB WITH (NOLOCK) WHERE CAB.DTNEG = CAST(GETDATE() AS VARCHAR(12))   AND CODTIPOPER = 600]]>
+				</expression>
+				<metadata>
+					<field name="DEVOLUCOES" label="DEVOLUCOES" type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<value-expression>
+					<![CDATA[<br><span style='font-size: 48px;'><div style='text-align: center;'>Devoluções: <b>$DEVOLUCOES</b></div></span>]]>
+				</value-expression>
+			</simple-value>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,52 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATAI" description="1.Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATAF" description="2.Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_wm598u" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="50">
+				<grid id="grd_wm598v">
+					<title>
+						<![CDATA[Receitas]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT NUNOTA AS NOTA,   DHBAIXA AS DATA,   ISNULL(FIN.HISTORICO,'') AS HISTORICO,   VlRCHEQUE AS VALOR,   CTA.DESCRICAO AS CONTA,   TIT.DESCRTIPTIT AS TIPO_TITULO,   CUS.DESCRCENCUS AS CENTRO_RESULTADO,   '#00008C' AS FGCOLOR,   '##EAFFFF' AS BKCOLOR FROM sankhya.TGFFIN FIN WITH (NOLOCK)   INNER JOIN sankhya.TGFTIT TIT WITH (NOLOCK) ON (FIN.CODTIPTIT = TIT.CODTIPTIT)   INNER JOIN sankhya.TSICTA CTA WITH (NOLOCK) ON (FIN.CODCTABCOINT = CTA.CODCTABCOINT)   INNER JOIN sankhya.TSICUS CUS WITH (NOLOCK) ON (FIN.CODCENCUS = CUS.CODCENCUS) WHERE (DHBAIXA BETWEEN :DATAI AND :DATAF)   AND FIN.RECDESP = 1   AND CTA.CODCTABCOINT = 8   AND (DHBAIXA IS NOT NULL)]]>
+					</expression>
+					<metadata>
+						<field name="NOTA" label="NOTA" type="I" visible="true" useFooter="false"/>
+						<field name="DATA" label="DATA" type="D" visible="true" useFooter="false"/>
+						<field name="HISTORICO" label="HISTORICO" type="S" visible="true" useFooter="false"/>
+						<field name="VALOR" label="VALOR" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+						<field name="CONTA" label="CONTA" type="S" visible="true" useFooter="false"/>
+						<field name="TIPO_TITULO" label="TIPO_TITULO" type="S" visible="true" useFooter="false"/>
+						<field name="CENTRO_RESULTADO" label="CENTRO_RESULTADO" type="S" visible="true" useFooter="false"/>
+						<field name="FGCOLOR" label="FGCOLOR" type="S" visible="true" useFooter="false"/>
+						<field name="BKCOLOR" label="BKCOLOR" type="S" visible="true" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+			<container orientacao="V" tamanhoRelativo="50">
+				<grid id="grd_wm598w">
+					<title>
+						<![CDATA[Despesas]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT NUNOTA AS NOTA,   DHBAIXA AS DATA,   ISNULL(FIN.HISTORICO,'') AS HISTORICO,   VlRCHEQUE AS VALOR,   CTA.DESCRICAO AS CONTA,   TIT.DESCRTIPTIT AS TIPO_TITULO,   CUS.DESCRCENCUS AS CENTRO_RESULTADO,   '#871003' AS FGCOLOR,   '#FFECEC' AS BKCOLOR   FROM sankhya.TGFFIN FIN WITH (NOLOCK)   INNER JOIN sankhya.TGFTIT TIT WITH (NOLOCK) ON (FIN.CODTIPTIT = TIT.CODTIPTIT)   INNER JOIN sankhya.TSICTA CTA WITH (NOLOCK) ON (FIN.CODCTABCOINT = CTA.CODCTABCOINT)   INNER JOIN sankhya.TSICUS CUS WITH (NOLOCK) ON (FIN.CODCENCUS = CUS.CODCENCUS) WHERE (DHBAIXA BETWEEN :DATAI AND :DATAF)   AND FIN.RECDESP = -1   AND CTA.CODCTABCOINT = 8   AND (DHBAIXA IS NOT NULL)]]>
+					</expression>
+					<metadata>
+						<field name="NOTA" label="NOTA" type="I" visible="true" useFooter="false"/>
+						<field name="DATA" label="DATA" type="D" visible="true" useFooter="false"/>
+						<field name="HISTORICO" label="HISTORICO" type="S" visible="true" useFooter="false"/>
+						<field name="VALOR" label="VALOR" type="F" visible="true" useFooter="true" mask=" R$ #.##0,00"/>
+						<field name="CONTA" label="CONTA" type="S" visible="true" useFooter="false"/>
+						<field name="TIPO_TITULO" label="TIPO_TITULO" type="S" visible="true" useFooter="false"/>
+						<field name="CENTRO_RESULTADO" label="CENTRO_RESULTADO" type="S" visible="true" useFooter="false"/>
+						<field name="FGCOLOR" label="FGCOLOR" type="S" visible="true" useFooter="false"/>
+						<field name="BKCOLOR" label="BKCOLOR" type="S" visible="true" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+		</container>
+	</level>
+</gadget>

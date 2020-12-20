@@ -1,0 +1,38 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODPROD" description="Código do Produto" metadata="entity:Produto@CODPROD" required="true" keep-last="false" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_0gfzdl" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="50">
+				<grid id="grd_0gfzgy">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[ /* 6 MÍDIAS */  SELECT --7dias(  (SELECT COUNT(CODIGO)  FROM sankhya.AD_AGENDAMIDIAS WITH(NOLOCK)  WHERE (CODPROD IN (SELECT CODPROD       FROM sankhya.TGFICP WITH (NOLOCK)       WHERE CODMATPRIMA = :CODPROD)         OR CODPROD = :CODPROD)         AND DATA >= DATEADD(DAY,-7,GETDATE())         AND STATUS = 'Realizada') AS 'ultimos7dias',   --15dias(  (SELECT COUNT(CODIGO)  FROM sankhya.AD_AGENDAMIDIAS WITH(NOLOCK)  WHERE (CODPROD IN (SELECT CODPROD       FROM sankhya.TGFICP WITH (NOLOCK)       WHERE CODMATPRIMA = :CODPROD)         OR CODPROD = :CODPROD)         AND DATA >= DATEADD(DAY,-15,GETDATE())         AND STATUS = 'Realizada') AS 'ultimos15dias',    --30dias(  (SELECT COUNT(CODIGO)  FROM sankhya.AD_AGENDAMIDIAS WITH(NOLOCK)  WHERE (CODPROD IN (SELECT CODPROD       FROM sankhya.TGFICP WITH (NOLOCK)       WHERE CODMATPRIMA = :CODPROD)         OR CODPROD = :CODPROD)         AND DATA >= DATEADD(DAY,-15,GETDATE())         AND STATUS = 'Realizada') AS 'ultimos30dias', --45dias(  (SELECT COUNT(CODIGO)  FROM sankhya.AD_AGENDAMIDIAS WITH(NOLOCK)  WHERE (CODPROD IN (SELECT CODPROD       FROM sankhya.TGFICP WITH (NOLOCK)       WHERE CODMATPRIMA = :CODPROD)         OR CODPROD = :CODPROD)         AND DATA >= DATEADD(DAY,-15,GETDATE())         AND STATUS = 'Realizada') AS 'ultimos45dias', --60dias(  (SELECT COUNT(CODIGO)  FROM sankhya.AD_AGENDAMIDIAS WITH(NOLOCK)  WHERE (CODPROD IN (SELECT CODPROD       FROM sankhya.TGFICP WITH (NOLOCK)       WHERE CODMATPRIMA = :CODPROD)         OR CODPROD = :CODPROD)         AND DATA >= DATEADD(DAY,-15,GETDATE())         AND STATUS = 'Realizada') AS 'ultimos60dias', --120dias(  (SELECT COUNT(CODIGO)  FROM sankhya.AD_AGENDAMIDIAS WITH(NOLOCK)  WHERE (CODPROD IN (SELECT CODPROD       FROM sankhya.TGFICP WITH (NOLOCK)       WHERE CODMATPRIMA = :CODPROD)         OR CODPROD = :CODPROD)         AND DATA >= DATEADD(DAY,-15,GETDATE())         AND STATUS = 'Realizada') AS 'ultimos120dias', --150dias(  (SELECT COUNT(CODIGO)  FROM sankhya.AD_AGENDAMIDIAS WITH(NOLOCK)  WHERE (CODPROD IN (SELECT CODPROD       FROM sankhya.TGFICP WITH (NOLOCK)       WHERE CODMATPRIMA = :CODPROD)         OR CODPROD = :CODPROD)         AND DATA >= DATEADD(DAY,-15,GETDATE())         AND STATUS = 'Realizada') AS 'ultimos150dias', --180dias(  (SELECT COUNT(CODIGO)  FROM sankhya.AD_AGENDAMIDIAS WITH(NOLOCK)  WHERE (CODPROD IN (SELECT CODPROD       FROM sankhya.TGFICP WITH (NOLOCK)       WHERE CODMATPRIMA = :CODPROD)         OR CODPROD = :CODPROD)         AND DATA >= DATEADD(DAY,-15,GETDATE())         AND STATUS = 'Realizada') AS 'ultimos180dias' ]]>
+					</expression>
+					<metadata>
+						<field name="ultimos7dias" label="ultimos7dias" type="I" visible="true" useFooter="false"/>
+						<field name="ultimos15dias" label="ultimos15dias" type="I" visible="true" useFooter="false"/>
+						<field name="ultimos30dias" label="ultimos30dias" type="I" visible="true" useFooter="false"/>
+						<field name="ultimos45dias" label="ultimos45dias" type="I" visible="true" useFooter="false"/>
+						<field name="ultimos60dias" label="ultimos60dias" type="I" visible="true" useFooter="false"/>
+						<field name="ultimos120dias" label="ultimos120dias" type="I" visible="true" useFooter="false"/>
+						<field name="ultimos150dias" label="ultimos150dias" type="I" visible="true" useFooter="false"/>
+						<field name="ultimos180dias" label="ultimos180dias" type="I" visible="true" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+			<container orientacao="V" tamanhoRelativo="50">
+				<grid id="grd_0gfzg6">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[/* 6 MÍDIAS */   SELECT   --7dias(    (SELECT COUNT(CODIGO)   FROM sankhya.AD_AGENDAMIDIAS WITH(NOLOCK)   WHERE (CODPROD IN (SELECT CODPROD        from sankhya.TGFICP WITH (NOLOCK)        WHERE CODMATPRIMA = :codprod)          OR CODPROD = :codprod)          AND DATA >= DATEADD(DAY,-1,GETDATE())          AND DATA <= DATEADD(DAY,7,GETDATE())          AND STATUS = 'Planejada') AS 'proximos7dias', --15dias(    (SELECT COUNT(CODIGO)   FROM sankhya.AD_AGENDAMIDIAS WITH(NOLOCK)   WHERE (CODPROD IN (SELECT CODPROD        from sankhya.TGFICP WITH (NOLOCK)        WHERE CODMATPRIMA = :codprod)          OR CODPROD = :codprod)          AND DATA >= DATEADD(DAY,-1,GETDATE())          AND DATA <= DATEADD(DAY,7,GETDATE())          AND STATUS = 'Planejada') AS 'proximos15dias', --30dias(    (SELECT COUNT(CODIGO)   FROM sankhya.AD_AGENDAMIDIAS WITH(NOLOCK)   WHERE (CODPROD IN (SELECT CODPROD        from sankhya.TGFICP WITH (NOLOCK)        WHERE CODMATPRIMA = :codprod)          OR CODPROD = :codprod)          AND DATA >= DATEADD(DAY,-1,GETDATE())          AND DATA <= DATEADD(DAY,7,GETDATE())          AND STATUS = 'Planejada') AS 'proximos30dias']]>
+					</expression>
+					<metadata>
+						<field name="proximos7dias" label="proximos7dias" type="I" visible="true" useFooter="false"/>
+						<field name="proximos15dias" label="proximos15dias" type="I" visible="true" useFooter="false"/>
+						<field name="proximos30dias" label="proximos30dias" type="I" visible="true" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+		</container>
+	</level>
+</gadget>

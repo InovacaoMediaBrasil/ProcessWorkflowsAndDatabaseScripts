@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Etiqueta Teste2 - Inovação" language="groovy" columnCount="2" printOrder="Horizontal" pageWidth="623" pageHeight="882" columnWidth="286" columnSpacing="1" leftMargin="21" rightMargin="29" topMargin="27" bottomMargin="25">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="NUNOTA" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="NOMEPARC" class="java.lang.String"/>
+	<field name="NUNOTA" class="java.math.BigDecimal"/>
+	<field name="NUMEND" class="java.lang.String"/>
+	<field name="CEP" class="java.lang.String"/>
+	<field name="COMPLEMENTO" class="java.lang.String"/>
+	<field name="NOMECID" class="java.lang.String"/>
+	<field name="UF" class="java.lang.String"/>
+	<field name="NOMEEND" class="java.lang.String"/>
+	<field name="TIPO" class="java.lang.String"/>
+	<field name="NOMEBAI" class="java.lang.String"/>
+	<field name="NUMNOTA" class="java.math.BigDecimal"/>
+	<field name="DECRMODTRANS" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="72" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="6" width="208" height="13"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NOMEPARC}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="19" width="285" height="16"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{TIPO} + " " + $F{NOMEEND} + ", " + $F{NUMEND} + " - " +
+( $F{COMPLEMENTO} != null ? $F{COMPLEMENTO} : "" )]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="35" width="285" height="17"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NOMEBAI} + " - " + $F{NOMECID} + " / " + $F{UF}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="52" width="100" height="16"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{CEP}.substring(0,5) + "-" + $F{CEP}.substring(5,8)]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="246" y="6" width="39" height="13"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"TOP 1 NUNOTA","TGFCAB","TGFCAB.NUNOTA = (SELECT TOP 1 NUNOTAORIG FROM TGFVAR WHERE TGFVAR.NUNOTA="+ $F{NUNOTA}+")" )]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="208" y="6" width="38" height="13"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Pedido:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="185" y="52" width="100" height="20"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"DECRMODTRANS","AD_MODTRANSPORTE,TGFCAB","TGFCAB.AD_IDMOD=AD_MODTRANSPORTE.IDMOD AND NUNOTA=" + $F{NUNOTA})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

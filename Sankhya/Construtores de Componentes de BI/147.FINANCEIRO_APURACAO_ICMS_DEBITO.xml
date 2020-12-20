@@ -1,0 +1,48 @@
+ <gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_azc3l40" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_azc3l41">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT GRUPO,   COUNT(C.NUNOTA) AS QTD,   SUM(C.VLRNOTA) AS Valor,   SUM(C.BASEICMS) AS BASEICMS,   SUM(C.VLRICMS) AS VLRICMS,   SUM(C.VLRICMSDIFALDEST) AS 'RATICMSDEST',   SUM(C.VLRICMSDIFALREM) AS 'RATICMSORI' FROM sankhya.TGFCAB C WITH (NOLOCK)   INNER JOIN sankhya.TGFTOP T (NOLOCK) ON (T.CODTIPOPER = C.CODTIPOPER AND T.DHALTER = C.DHTIPOPER) WHERE DTNEG BETWEEN  :DTINI AND :DTFIM   AND T.CODTIPOPER IN (150,151,152,153,154,550,554,555,556,559,560,561,562,563)   AND STATUSNFE = 'A'   GROUP BY GRUPO]]>
+				</expression>
+				<metadata>
+					<field name="GRUPO" label="Tipo" type="S" visible="true" useFooter="false"/>
+					<field name="QTD" label="Quantidade de Notas" type="I" visible="true" useFooter="true"/>
+					<field name="Valor" label="Valor Total" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="BASEICMS" label="Base ICMS" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="VLRICMS" label="Valor de ICMS" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="RATICMSDEST" label="Rateio ICMS Destino" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="RATICMSORI" label="Rateio ICMS Origem" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click navigate-to="lvl_aj1bj1d">
+					<param id="GRUPO">$GRUPO</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_aj1bj1d" description="POR ESTADOS">
+		<args>
+			<arg id="GRUPO" type="text"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_aj1bj1e">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT UF.UF,   COUNT(CAB.NUNOTA) AS 'QTD',   SUM(VLRNOTA) AS 'VLRNOTA',   SUM(CAB.BASEICMS) AS 'BICMS',   SUM(CAB.VLRICMS) AS 'VLRICMS',   SUM(CAB.VLRICMSDIFALDEST) AS 'RATICMSDEST',   SUM(CAB.VLRICMSDIFALREM) AS 'RATICMSORI' FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON PAR.CODPARC = CAB.CODPARC   INNER JOIN sankhya.TSICID CID WITH (NOLOCK) ON CID.CODCID = PAR.CODCID   INNER JOIN sankhya.TSIUFS UF  WITH (NOLOCK) ON UF.CODUF = CID.UF   INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFTOP T WITH (NOLOCK) ON (T.CODTIPOPER = CAB.CODTIPOPER AND T.DHALTER = CAB.DHTIPOPER AND T.GRUPO = :GRUPO) WHERE DTNEG BETWEEN :DTINI AND :DTFIM   AND CAB.CODTIPOPER IN (550,556,600,557,558,150,151,152,153,561,562)   AND CAB.STATUSNFE = 'A' GROUP BY UF.UF]]>
+				</expression>
+				<metadata>
+					<field name="UF" label="UF" type="S" visible="true" useFooter="false"/>
+					<field name="QTD" label="QUANTIDADE DE NOTA" type="I" visible="true" useFooter="true"/>
+					<field name="VLRNOTA" label="VALOR TOTAL NOTA" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="BICMS" label="BASE ICMS" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="VLRICMS" label="VALOR ICMS" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="RATICMSDEST" label="RATEIO ICMS DESTINO" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="RATICMSORI" label="RATEIO ICMS ORIGEM" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

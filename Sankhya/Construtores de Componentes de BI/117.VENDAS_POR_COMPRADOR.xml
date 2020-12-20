@@ -1,0 +1,34 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA1" description="Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false" order="0"/>
+		<parameter id="DATA2" description="Data Final" metadata="date" required="true" keep-last="true" keep-date="false" order="1"/>
+		<parameter id="OPERACAO" description="Código da Operação" metadata="multiList:Text" listType="text" required="true" keep-last="false" keep-date="false" order="2">
+			<item value="500 " label=" Ativo"/>
+			<item value="501 " label=" Receptivo"/>
+			<item value="502 " label=" Ecommerce"/>
+			<item value="503 " label=" Sankhya"/>
+			<item value="504 " label=" Bonificado"/>
+			<item value="515 " label=" Leads"/>
+		</parameter>
+		<parameter id="STATUSPGTO" description="Status de Pagamento" metadata="singleList:Text" listType="text" required="false" keep-last="false" keep-date="false" order="3">
+			<item value="A " label=" Ambos"/>
+			<item value="P " label=" Pendente"/>
+			<item value="E " label=" Efetuado"/>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_a6lbf33" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_a6lbf34">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PRO.CODPROD AS Codigo,   LTRIM(RTRIM(PRO.DESCRPROD)) + ' ' + ISNULL(PRO.COMPLDESC, '') AS Produto,   SUM(ITE.QTDNEG) AS Quantidade,   PRO.CODVOL AS UnidadePadrao FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFITE ITE WITH (NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA   INNER JOIN sankhya.TGFPRO PRO WITH (NOLOCK) ON PRO.CODPROD = ITE.CODPROD WHERE CAB.DTNEG BETWEEN :DATA1 AND :DATA2   AND ITE.USOPROD != 'D'   AND CAB.CODTIPOPER IN :OPERACAO   AND ((:STATUSPGTO = 'P' AND AD_STATUSPGTO = 'P')    OR (:STATUSPGTO = 'E' AND AD_STATUSPGTO = 'E')    OR :STATUSPGTO = 'A') GROUP BY PRO.CODPROD, DESCRPROD, COMPLDESC, PRO.CODVOL ORDER BY Quantidade DESC]]>
+				</expression>
+				<metadata>
+					<field name="Codigo" label="Codigo" type="I" visible="true" useFooter="false"/>
+					<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="Quantidade" label="Quantidade" type="I" visible="true" useFooter="false"/>
+					<field name="UnidadePadrao" label="UnidadePadrao" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,33 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="OPERACAO" description="Código de Operação" metadata="multiList:Text" listType="text" required="true" keep-last="false" keep-date="false">
+			<item value="500 " label=" Ativo"/>
+			<item value="501 " label=" Receptivo"/>
+			<item value="502 " label=" Ecommerce"/>
+			<item value="503 " label=" Sankhya"/>
+			<item value="515 " label=" Outros"/>
+		</parameter>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false" order="0"/>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="true" keep-date="false" order="1"/>
+		<parameter id="STATUSPGTO" description="Status de Pagamento" metadata="singleList:Text" listType="text" required="true" keep-last="false" keep-date="false" order="3">
+			<item value="A " label=" Ambos"/>
+			<item value="P " label=" Pendente"/>
+			<item value="E " label=" Efetuado"/>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_xy1kcz" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_xy1kc0">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PRO.CODGRUPOPROD AS CODIGO_GRUPO,   GRU.DESCRGRUPOPROD AS DESCRICAO_GRUPO,   COUNT(PRO.CODPROD) AS QUANTIDADE_DE_PRODUTOS,   SUM(ITE.VLRTOT-ITE.VLRDESC) AS FATURAMENTO_EM_REAIS FROM sankhya.TGFCAB CAB WITH(NOLOCK)   INNER JOIN sankhya.TGFITE ITE WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON PRO.CODPROD = ITE.CODPROD   INNER JOIN sankhya.TGFGRU GRU WITH(NOLOCK) ON PRO.CODGRUPOPROD = GRU.CODGRUPOPROD WHERE CAB.DTNEG >= :DATA_INICIAL    AND CAB.DTNEG <= :DATA_FINAL   AND (CAB.CODTIPOPER IN :OPERACAO)   AND ((:STATUSPGTO = 'P' AND AD_STATUSPGTO = 'P')    OR (:STATUSPGTO = 'E' AND AD_STATUSPGTO = 'E')    OR :STATUSPGTO = 'A') GROUP BY PRO.CODGRUPOPROD,   GRU.DESCRGRUPOPROD ORDER BY PRO.CODGRUPOPROD]]>
+				</expression>
+				<metadata>
+					<field name="CODIGO_GRUPO" label="CODIGO_GRUPO" type="I" visible="true" useFooter="false"/>
+					<field name="DESCRICAO_GRUPO" label="DESCRICAO_GRUPO" type="S" visible="true" useFooter="false"/>
+					<field name="QUANTIDADE_DE_PRODUTOS" label="QUANTIDADE_DE_PRODUTOS" type="F" visible="true" useFooter="true" mask="#.##0,0;-n"/>
+					<field name="FATURAMENTO_EM_REAIS" label="FATURAMENTO_EM_REAIS" type="C" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

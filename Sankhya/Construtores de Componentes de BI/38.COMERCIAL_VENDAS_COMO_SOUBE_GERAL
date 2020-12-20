@@ -1,0 +1,42 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="PAGO" description="Pagamento Efetuado" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false"/>
+		<parameter id="NPAGO" description="Pagamento Pendente" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false"/>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="false" order="0"/>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="false" order="1"/>
+	</prompt-parameters>
+	<level id="lvl_yz10yn" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_yz10yr" type="bar">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT COMO.DESCRICAO AS COMOSOUBE,   SUM(CAB.vlrnota) AS QTDTOTAL FROM SANKHYA.TGFCAB CAB WITH (NOLOCK)   JOIN SANKHYA.AD_COMOSOUBE COMO WITH (NOLOCK) ON (COMO.ID = CAB.AD_CODCOMOSOUBE) WHERE DTNEG >= :DATA_INICIAL   AND DTNEG <= :DATA_FINAL   AND CAB.CODTIPOPER IN (500,501,502,503,515)   AND (((:PAGO = 'S' AND :NPAGO = 'N' AND AD_STATUSPGTO = 'E')    OR (:PAGO = 'N' AND :NPAGO = 'S' AND AD_STATUSPGTO = 'P'))    OR ((:PAGO = 'S' AND :NPAGO = 'S' AND AD_STATUSPGTO IN ('E','P'))    OR (:PAGO = 'N' AND :NPAGO = 'N' AND AD_STATUSPGTO IS NULL))) GROUP BY COMO.DESCRICAO ORDER BY QTDTOTAL DESC]]>
+				</expression>
+				<metadata>
+					<field name="COMOSOUBE" label="COMOSOUBE" type="S" visible="true" useFooter="false"/>
+					<field name="QTDTOTAL" label="QTDTOTAL" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+				</metadata>
+				<horizontal-axis>
+					<linear>
+						<mask>DD/MM/YYYY</mask>
+						<title>Quantidade</title>
+					</linear>
+				</horizontal-axis>
+				<vertical-axis>
+					<category field="COMOSOUBE" rotation="0" dropLabel="false">
+						<title>Mídia</title>
+					</category>
+				</vertical-axis>
+				<series>
+					<serie type="bar">
+						<xField>$QTDTOTAL</xField>
+						<yField>$COMOSOUBE</yField>
+						<display>
+							<![CDATA[Mídias]]>
+						</display>
+						<color>0x66cccc</color>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

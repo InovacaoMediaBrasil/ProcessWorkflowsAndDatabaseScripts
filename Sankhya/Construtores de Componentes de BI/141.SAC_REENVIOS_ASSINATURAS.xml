@@ -1,0 +1,24 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_oxookg" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_oxookh">
+				<title>
+					<![CDATA[Relatório de Reenvios de Assinaturas]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT FL.NUNOTA,   FL.DATA,   VEN.APELIDO AS RESPONSAVEL,   R.VLRFRETE FROM sankhya.AD_PEDIDOVTEXSCREENVIO R WITH (NOLOCK)   INNER JOIN sankhya.AD_PEDIDOVTEXSCREENVIOFLUXO FL WITH (NOLOCK) ON FL.ORDERID = R.ORDERID AND FL.CODREENVIO = R.CODREENVIO   INNER JOIN sankhya.TGFCAB CAB WITH (NOLOCK) ON CAB.NUNOTA = FL.NUNOTA   INNER JOIN sankhya.TGFVEN VEN WITH (NOLOCK) ON VEN.CODVEND = CAB.CODVEND --inner join sankhya.AD_PEDIDOVTEXSCREENVIOMOVIMENTO m on m.ORDERID = r.ORDERID WHERE FL.DATA BETWEEN :DTINI   AND DATEADD(DAY,1,:DTFIM)   AND FL.OCORRENCIA = 'P' --and exists (select 1 from sankhya.AD_PEDIDOVTEXSCREENVIOFLUXO WHERE OCORRENCIA = 'T' AND ORDERID = R.ORDERID AND CODREENVIO = R.CODREENVIO)   AND NOT EXISTS (SELECT 1       FROM sankhya.AD_PEDIDOVTEXSCREENVIOFLUXO WITH (NOLOCK)       WHERE OCORRENCIA IN ('C')         AND ORDERID = R.ORDERID         AND CODREENVIO = R.CODREENVIO)   AND EXISTS (SELECT 1      FROM sankhya.TGFITE ITE WITH (NOLOCK)        INNER JOIN sankhya.TGFPRO PRO WITH (NOLOCK) ON PRO.CODPROD = ITE.CODPROD      WHERE NUNOTA = FL.NUNOTA        AND CODGRUPOPROD BETWEEN 500000 AND 599999)]]>
+				</expression>
+				<metadata>
+					<field name="NUNOTA" label="PEDIDO" type="I" visible="true" useFooter="false"/>
+					<field name="DATA" label="DATA" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					<field name="RESPONSAVEL" label="RESPONSAVEL" type="S" visible="true" useFooter="false"/>
+					<field name="VLRFRETE" label="VLRFRETE" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

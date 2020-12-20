@@ -1,0 +1,19 @@
+<gadget refresh-time="60000">
+	<level id="lvl_mneydw" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_mneyew" type="gauge" tamTexto="30">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[/* FLUXO -> OCORRÊNCIA DE IMPRESSÃO E NOTA*/ SELECT COUNT(DISTINCT AD_PEDORIGINAL) AS QTD FROM sankhya.TGFCAB AS C WITH(NOLOCK) WHERE C.CODTIPOPER = 505    AND C.DTNEG >=   -- RELATÓRIO DE PEDIDOS PARADOS  (SELECT MIN(DTNEG)  FROM sankhya.TGFCAB WITH(NOLOCK)  WHERE AD_PEDORIGINAL IN (SELECT PEDORIGINAL         FROM sankhya.AD_PEDIDOVTEXSCFLUXO WITH(NOLOCK)         WHERE OCORRENCIA = 'I')  AND AD_PEDORIGINAL NOT IN (SELECT PEDORIGINAL         FROM sankhya.AD_PEDIDOVTEXSCFLUXO WITH(NOLOCK)         WHERE OCORRENCIA IN ('N', 'C', 'R','T'))  AND CODTIPOPER = 505 AND DTNEG >= DATEADD(DAY,-40,GETDATE()))  AND C.AD_PEDORIGINAL IN (SELECT F1.PEDORIGINAL         FROM sankhya.AD_PEDIDOVTEXSCFLUXO AS F1 WITH(NOLOCK)         WHERE F1.OCORRENCIA = 'E'   AND NOT EXISTS (SELECT 1      FROM sankhya.AD_PEDIDOVTEXSCFLUXO AS F2 WITH(NOLOCK)      WHERE (F2.NUNOTA = F1.NUNOTA        AND F2.OCORRENCIA IN ('C','R'))        OR (F2.PEDORIGINAL = F1.PEDORIGINAL        AND F2.OCORRENCIA IN ('V','F') )                 )) ]]>
+				</expression>
+				<metadata>
+					<field name="QTD" label="QTD" type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<show-ticks>true</show-ticks>
+				<min-value>0</min-value>
+				<max-value>1500</max-value>
+				<value-field>$QTD</value-field>
+				<alert-colors values="0,300,500,750,1000,1500" colors="0x9900,0xccff99,0xffff00,0xff6600,0xff0000"/>
+			</chart>
+		</container>
+	</level>
+</gadget>

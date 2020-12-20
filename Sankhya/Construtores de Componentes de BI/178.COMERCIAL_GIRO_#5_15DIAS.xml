@@ -1,0 +1,19 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODPROD" description="Código do Produto" metadata="entity:Produto@CODPROD" required="true" keep-last="false" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_n3l3os" description="Principal">
+		<simple-value id="svl_n3l3ot">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)*-1 AS SOMA, (ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)/15)*-1 AS MEDIA  FROM sankhya.TGFITE ITE WITH(NOLOCK) INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA LEFT JOIN sankhya.TGFVOA VOA WITH(NOLOCK) ON VOA.CODVOL = ITE.CODVOL AND ITE.CODPROD = VOA.CODPROD  WHERE  ITE.CODPROD = :CODPROD AND CAB.DTNEG >= DATEADD(DAY,-15,GETDATE())  AND RESERVA = 'N' AND ATUALESTOQUE IN (-1) ]]>
+			</expression>
+			<metadata>
+				<field name="SOMA" label="SOMA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+				<field name="MEDIA" label="MEDIA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+			</metadata>
+			<value-expression>
+				<![CDATA[<table style="table-layout: fixed; width: 100px;border: 1px solid #AAA">   <tr>     <th style="background-color: #444; color: #FFF;"><span style='font-size: 22px;'><div style='text-align: center;'>15 DIAS</div></span></th>   </tr>   <tr>     <td><span style='font-size: 22px;'><b><div style='text-align: center;'>$SOMA</div></b></span></td>   </tr>   <tr>     <td><div style='text-align: center;'>média/dia:<br><b>$MEDIA</b></div></td>   </tr> </table>]]>
+			</value-expression>
+		</simple-value>
+	</level>
+</gadget>

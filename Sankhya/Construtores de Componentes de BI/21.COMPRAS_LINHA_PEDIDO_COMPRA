@@ -1,0 +1,57 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATA_FINAL" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+		<parameter id="PARCEIRO" description="Fornecedor" metadata="entity:Parceiro@CODPARC" required="false" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_52zahp" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_a7avke4">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT PAR.CODPARC,   ISNULL(PAR.RAZAOSOCIAL, PAR.NOMEPARC) AS PARCEIRO FROM SANKHYA.TGFCAB CAB with(nolock)   INNER JOIN SANKHYA.TGFPAR PAR with(nolock) ON PAR.CODPARC = CAB.CODPARC WHERE DTNEG >= :DATA_INICIAL   AND DTNEG <= :DATA_FINAL   AND CODTIPOPER IN (100,                         101,                         102,                         103,                         104,                         105,                         106,                         107,                         108,                         109,                         110,                         111)  AND  PAR.CODPARC = CASE WHEN :parceiro IS NOT NULL THEN :parceiro       ELSE PAR.CODPARC        END ]]>
+				</expression>
+				<metadata>
+					<field name="CODPARC" label="CODPARC" type="I" visible="true" useFooter="false"/>
+					<field name="PARCEIRO" label="PARCEIRO" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click navigate-to="lvl_a7avkew">
+					<param id="CODPARC">$CODPARC</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_a7avkew" description="Gráfico">
+		<args>
+			<arg id="CODPARC" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_a7avkex" type="column">
+				<expression type="sql">
+					<![CDATA[ SELECT          CONVERT(VARCHAR,MONTH(CabecalhoNota.DTNEG)) + '/' + CONVERT(VARCHAR,YEAR(CabecalhoNota.DTNEG)) AS DATA,          SUM(CabecalhoNota.VLRNOTA) AS VALOR  FROM          TGFCAB CabecalhoNota  WHERE CabecalhoNota.CODTIPOPER IN (50, 51, 52, 53, 54, 55, 57)          AND CabecalhoNota.CODPARC = :CODPARC          AND CabecalhoNota.DTNEG >= :DATA_INICIAL          AND CabecalhoNota.DTNEG <= :DATA_FINAL  GROUP BY          MONTH(DTNEG), YEAR(DTNEG)]]>
+				</expression>
+				<metadata>
+					<field name="DATA" label="DATA" type="S" visible="true" useFooter="false"/>
+					<field name="VALOR" label="VALOR" type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<horizontal-axis>
+					<category field="DATA" rotation="0" dropLabel="false"/>
+				</horizontal-axis>
+				<vertical-axis>
+					<linear>
+						<mask/>
+						<title>valor</title>
+					</linear>
+				</vertical-axis>
+				<series>
+					<serie type="column">
+						<xField>DATA</xField>
+						<yField>VALOR</yField>
+						<display>
+							<![CDATA[Compras]]>
+						</display>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

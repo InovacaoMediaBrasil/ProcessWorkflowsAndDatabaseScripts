@@ -1,0 +1,83 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="MARCA" description="1. Marca do Produto" metadata="text" required="false" keep-last="false" keep-date="false" order="0"/>
+		<parameter id="CODPROD" description="2. Código do Produto" metadata="integer" required="false" keep-last="false" keep-date="false" order="1"/>
+	</prompt-parameters>
+	<level id="lvl_8kre5y" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_8kre5z" multiplaSelecao="N" tamTexto="12">
+				<title>
+					<![CDATA[Produtos]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT Produto.CODPROD,   Produto.DESCRPROD,   Produto.COMPLDESC,   Produto.MARCA,   Produto.CODVOL,   sankhya.PRECODECUSTO(Produto.CODPROD,Produto.CODVOL) AS CUSTOATUAL FROM  TGFPRO Produto WITH (NOLOCK) WHERE (:MARCA IS NOT NULL AND Produto.MARCA LIKE '%' + :Marca + '%') OR   (:CODPROD <> 0 AND PRODUTO.CODPROD = :CODPROD) OR   (:MARCA IS NULL AND :CODPROD IS NULL AND PRODUTO.CODPROD > 0) ORDER BY Produto.CODPROD]]>
+				</expression>
+				<metadata>
+					<field name="CODPROD" label="Código" type="I" visible="true" useFooter="false"/>
+					<field name="DESCRPROD" label="Descrição" type="S" visible="true" useFooter="false"/>
+					<field name="COMPLDESC" label="Complemento" type="S" visible="true" useFooter="false"/>
+					<field name="MARCA" label="Marca" type="S" visible="true" useFooter="false"/>
+					<field name="CODVOL" label="Volume" type="S" visible="true" useFooter="false"/>
+					<field name="CUSTOATUAL" label="Custo Atual" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click navigate-to="lvl_8kre57">
+					<param id="CODPROD">$CODPROD</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_8kre57" description="Gráfico">
+		<args>
+			<arg id="CODPROD" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="50">
+				<simple-value id="svl_8kre73" tamTexto="12">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT Produto.CODPROD,    Produto.DESCRPROD,    Produto.COMPLDESC,   ROUND((sankhya.PRECODECUSTO(PRODUTO.CODPROD,PRODUTO.CODVOL) - Custo.CUSREP) * 100, 2) as PORCENTAGEM FROM  TGFPRO Produto WITH (NOLOCK)   INNER JOIN TGFCUS Custo WITH (NOLOCK) ON Custo.CODPROD=Produto.CODPROD WHERE Custo.DTATUAL=(SELECT MAX(DTATUAL) FROM TGFCUS WHERE CODPROD = PRODUTO.CODPROD AND CUSREP <> 0 AND CUSREP <>   sankhya.PRECODECUSTO(PRODUTO.CODPROD,PRODUTO.CODVOL))   AND  Produto.CODPROD = :CODPROD]]>
+					</expression>
+					<metadata>
+						<field name="CODPROD" label="CODPROD" type="I" visible="true" useFooter="false"/>
+						<field name="DESCRPROD" label="DESCRPROD" type="S" visible="true" useFooter="false"/>
+						<field name="COMPLDESC" label="COMPLDESC" type="S" visible="true" useFooter="false"/>
+						<field name="PORCENTAGEM" label="PORCENTAGEM" type="I" visible="true" useFooter="false"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<table width="100%">     <tr>         <td width="40%"><b>Código do produto: $CODPROD</b></td>         <td width="60%" colspan="3"><b>Descrição:</b> $DESCRPROD</td>       </tr>     <tr>        <td><b>Aumento em relação ao último custo:</b> $PORCENTAGEM%</td>        <td colspan="3"><b>Complemento: </b>$COMPLDESC</td>     </tr>     <tr>        <td colspan="3"><b>Custo de Reposição do item</b></td>     </tr> </table>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="50">
+				<chart id="cht_8kre7p" type="column">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT   CUSTO.CODPROD,  CUSTO.DTATUAL,  CUSTO.CUSREP FROM   TGFCUS AS CUSTO WITH (NOLOCK) WHERE   CUSTO.CODPROD = :CODPROD AND CUSTO.CUSREP > 0]]>
+					</expression>
+					<metadata>
+						<field name="CODPROD" label="Código Produto" type="I" visible="true" useFooter="false"/>
+						<field name="DTATUAL" label="Data" type="D" visible="true" useFooter="false"/>
+						<field name="CUSREP" label="CustoResp" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					</metadata>
+					<horizontal-axis>
+						<category field="Data" rotation="-45" dropLabel="false">
+							<title>Data</title>
+						</category>
+					</horizontal-axis>
+					<vertical-axis>
+						<linear>
+							<mask>R$ #.##0,00</mask>
+							<title>Valor</title>
+						</linear>
+					</vertical-axis>
+					<series>
+						<serie type="line" circle-intersection="true">
+							<xField>$DTATUAL</xField>
+							<yField>$CUSREP</yField>
+							<display>Dados produto</display>
+							<color>0x990000</color>
+						</serie>
+					</series>
+				</chart>
+			</container>
+		</container>
+	</level>
+</gadget>

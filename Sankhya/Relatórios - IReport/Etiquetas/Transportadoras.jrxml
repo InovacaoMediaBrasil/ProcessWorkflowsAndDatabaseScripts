@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Transportadoras" pageWidth="283" pageHeight="425" columnWidth="267" leftMargin="8" rightMargin="8" topMargin="0" bottomMargin="6">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="236"/>
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<import value="java.lang.*"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<field name="CODPARC" class="java.math.BigDecimal"/>
+	<field name="NOMEPARC" class="java.lang.String"/>
+	<field name="NUNOTA" class="java.math.BigDecimal"/>
+	<field name="NUMNOTA" class="java.math.BigDecimal"/>
+	<field name="TELEFONE" class="java.lang.String"/>
+	<field name="NUMEND" class="java.lang.String"/>
+	<field name="CEP" class="java.lang.String"/>
+	<field name="COMPLEMENTO" class="java.lang.String"/>
+	<field name="CGC_CPF" class="java.lang.String"/>
+	<field name="NOMECID" class="java.lang.String"/>
+	<field name="UF" class="java.lang.String"/>
+	<field name="NOMEEND" class="java.lang.String"/>
+	<field name="TIPO" class="java.lang.String"/>
+	<field name="NOMEBAI" class="java.lang.String"/>
+	<variable name="DIR_ASSETS" class="java.lang.String">
+		<variableExpression><![CDATA["C:\\Sankhya\\Modelos\\"]]></variableExpression>
+	</variable>
+	<variable name="PEDORIGINAL" class="java.lang.String">
+		<variableExpression><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"AD_PEDORIGINAL","TGFCAB","NUNOTA=" + $F{NUNOTA})]]></variableExpression>
+	</variable>
+	<variable name="CODMODTRANSP" class="java.lang.String">
+		<variableExpression><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"AD_IDMOD","TGFCAB","NUNOTA=" + $F{NUNOTA})]]></variableExpression>
+	</variable>
+	<variable name="CODVEND" class="java.lang.String">
+		<variableExpression><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"CODVEND","TGFCAB","NUNOTA=" + $F{NUNOTA})]]></variableExpression>
+	</variable>
+	<variable name="CODENVIO" class="java.lang.String">
+		<variableExpression><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"CODENVIO","AD_CPENVIOS","NUNOTA=" + $F{NUNOTA})]]></variableExpression>
+	</variable>
+	<variable name="DATAMATRIX" class="java.lang.String">
+		<variableExpression><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"MATRIX","AD_CPENVIOS","NUNOTA=" + $F{NUNOTA})]]></variableExpression>
+	</variable>
+	<variable name="OS" class="java.lang.String">
+		<variableExpression><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"OS","AD_CPENVIOS","NUNOTA=" + $F{NUNOTA})]]></variableExpression>
+	</variable>
+	<variable name="CODTRANSP" class="java.lang.String">
+		<variableExpression><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"CODTRANSP","AD_CPENVIOS","NUNOTA=" + $F{NUNOTA})]]></variableExpression>
+	</variable>
+	<variable name="CHANCELA" class="java.lang.String">
+		<variableExpression><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"CHANCELA","AD_MODTRANSPORTE","IDMOD=" + $V{CODMODTRANSP})]]></variableExpression>
+	</variable>
+	<variable name="MODALIDADE" class="java.lang.String">
+		<variableExpression><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"DECRMODTRANS","AD_MODTRANSPORTE","IDMOD=" + $V{CODMODTRANSP})]]></variableExpression>
+	</variable>
+	<variable name="VLRNOTA" class="java.lang.String">
+		<variableExpression><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"VLRNOTA","TGFCAB","NUNOTA=" + $F{NUNOTA})]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="388" splitType="Stretch">
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement key="Seal" x="0" y="10" width="80" height="70"/>
+				<imageExpression class="java.lang.String"><![CDATA[$V{DIR_ASSETS} + $V{CHANCELA}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement key="MandaeDescription" x="80" y="20" width="107" height="20" isRemoveLineWhenBlank="true">
+					<printWhenExpression><![CDATA[$V{DATAMATRIX}.equals("") && ($V{CODMODTRANSP}.equals("10") || $V{CODMODTRANSP}.equals("11"))]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{MODALIDADE}.replaceAll("MANDAÊ -","")]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement key="MandaeOS" x="80" y="40" width="107" height="20" isRemoveLineWhenBlank="true">
+					<printWhenExpression><![CDATA[$V{DATAMATRIX}.equals("") && ($V{CODMODTRANSP}.equals("10") || $V{CODMODTRANSP}.equals("11"))]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{OS}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement mode="Opaque" x="100" y="10" width="70" height="70">
+					<printWhenExpression><![CDATA[!$V{DATAMATRIX}.equals("")]]></printWhenExpression>
+				</reportElement>
+				<jr:DataMatrix xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" moduleWidth="70.0" textPosition="bottom" shape="force-none">
+					<jr:codeExpression><![CDATA[$V{DATAMATRIX}]]></jr:codeExpression>
+				</jr:DataMatrix>
+			</componentElement>
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement key="ProjectImage" x="187" y="10" width="80" height="70"/>
+				<imageExpression class="java.lang.String"><![CDATA[$V{DIR_ASSETS} + (
+    $V{CODMODTRANSP}.equals("9") ||
+    $V{CODMODTRANSP}.equals("12") ?
+        "Transportadoras\\Mercado Envios\\mercadoLivre.jpg" :
+        $V{CODVEND}.equals("94") ?
+            "Lojas\\TaniaSilva.jpg" :
+            "Lojas\\VitrineDoArtesanato.jpg")]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement key="OrderLabel" x="0" y="90" width="50" height="10"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Pedido:]]></text>
+			</staticText>
+			<textField>
+				<reportElement key="Order" x="50" y="90" width="117" height="12"/>
+				<textElement textAlignment="Left">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PEDORIGINAL} + "/" + $F{NUNOTA}.toString()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="DateLabel" x="0" y="100" width="50" height="10"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Data envio:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement key="Date" x="50" y="100" width="117" height="12"/>
+				<textElement textAlignment="Left">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="InvoiceLabel" x="167" y="90" width="50" height="10"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[NF:]]></text>
+			</staticText>
+			<textField>
+				<reportElement key="Invoice" x="217" y="90" width="50" height="12"/>
+				<textElement textAlignment="Right">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{NUMNOTA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement key="PLPOSLabel" x="167" y="100" width="50" height="12"/>
+				<textElement textAlignment="Right">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{CODMODTRANSP}.equals("9") || $V{CODMODTRANSP}.equals("12") ?
+    "PLP:" :
+    ($V{CODMODTRANSP}.equals("10") || $V{CODMODTRANSP}.equals("11")) && !$V{CODTRANSP}.equals("") ?
+        "Item:" :
+        ""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement key="PLPOS" x="217" y="100" width="50" height="12"/>
+				<textElement textAlignment="Right">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{CODMODTRANSP}.equals("9") || $V{CODMODTRANSP}.equals("12") ?
+    $V{OS} :
+    $V{CODMODTRANSP}.equals("10") || $V{CODMODTRANSP}.equals("11") ?
+       $V{CODTRANSP} :
+        ""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement key="TrackingCode" x="0" y="112" width="267" height="18"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{CODENVIO}]]></textFieldExpression>
+			</textField>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle">
+				<reportElement key="TrackingBarCode" mode="Opaque" x="8" y="130" width="250" height="72" forecolor="#000000" backcolor="#FFFFFF"/>
+				<graphicElement fill="Solid"/>
+				<imageExpression class="java.awt.Image"><![CDATA[it.businesslogic.ireport.barcode.BcImage.getBarcodeImage(6,$V{CODENVIO},false,false,null,0,0)]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement key="ReceiverLabel" x="0" y="202" width="100" height="16"/>
+				<textElement>
+					<font fontName="Arial Black" size="10" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Destinatário]]></text>
+			</staticText>
+			<textField>
+				<reportElement key="ReceiverName" x="0" y="270" width="267" height="18"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{CEP}.substring(0,5) + "-" + $F{CEP}.substring(5,8)]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement key="ReceiverAddress" x="0" y="228" width="267" height="36"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{TIPO} + " " + $F{NOMEEND} + " " + ($F{NUMEND}.equals("0") ? "S/N" : $F{NUMEND}) +
+				($F{COMPLEMENTO} == null ? "" : " " + $F{COMPLEMENTO})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement key="ReceiverLocation" positionType="Float" stretchType="RelativeToBandHeight" x="0" y="257" width="267" height="15"/>
+				<textElement>
+					<font size="10" isBold="true" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NOMEBAI} + " - " + $F{NOMECID} + "/" + $F{UF}]]></textFieldExpression>
+			</textField>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle">
+				<reportElement key="ReceiverPostalBarCode" mode="Opaque" x="47" y="287" width="170" height="53" forecolor="#000000" backcolor="#FFFFFF">
+					<printWhenExpression><![CDATA[!$V{DATAMATRIX}.equals("")]]></printWhenExpression>
+				</reportElement>
+				<graphicElement fill="Solid"/>
+				<imageExpression class="java.awt.Image"><![CDATA[it.businesslogic.ireport.barcode.BcImage.getBarcodeImage(8,$F{CEP},false,false,null,0,0)]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement key="SenderLabel" x="0" y="336" width="100" height="12"/>
+				<textElement>
+					<font fontName="Arial Black" size="8" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[Remetente]]></text>
+			</staticText>
+			<textField>
+				<reportElement key="SenderName" x="0" y="348" width="100" height="12"/>
+				<textElement>
+					<font size="8" isBold="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{CODVEND}.equals("94") ? "Tania Silva" : "Vitrine do Artesanato"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="SenderAddress" x="0" y="360" width="263" height="28"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Rua Itanhaém, 527 - Vila Prudente
+03137-020 - São Paulo/SP]]></text>
+			</staticText>
+			<textField>
+				<reportElement key="ReceiverLocation" positionType="Float" stretchType="RelativeToBandHeight" x="0" y="214" width="267" height="15"/>
+				<textElement>
+					<font size="10" isBold="true" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NOMEPARC}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

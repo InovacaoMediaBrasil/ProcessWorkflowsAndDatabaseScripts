@@ -1,0 +1,20 @@
+<gadget refresh-time="300000">
+	<level id="lvl_5g1so5" description="Principal">
+		<chart id="cht_5g1so8" type="gauge">
+			<title>
+				<![CDATA[Pedidos a Separar]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[/* Gerada pelo SankhyaW QueryBuilder */ SELECT          COUNT(CabecalhoNota.NUNOTA) AS PEDIDOS  FROM          TGFCAB CabecalhoNota  WHERE CabecalhoNota.AD_STATUSPGTO = 'E'          AND CabecalhoNota.PENDENTE = 'S'          AND CabecalhoNota.CODTIPOPER IN (500, 501, 502, 503, 504,515)]]>
+			</expression>
+			<metadata>
+				<field name="PEDIDOS" label="PEDIDOS" type="I" visible="true" useFooter="false" mask="#.##0"/>
+			</metadata>
+			<show-ticks>true</show-ticks>
+			<min-value>0</min-value>
+			<max-value>300</max-value>
+			<value-field>$PEDIDOS</value-field>
+			<alert-colors values="0,10,50,100,200,300" colors="0xcccccc,0x666666,0xffff33,0xff3300,0xff0000"/>
+		</chart>
+	</level>
+</gadget>

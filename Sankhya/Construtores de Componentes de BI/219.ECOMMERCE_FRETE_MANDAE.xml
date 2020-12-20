@@ -1,0 +1,28 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_a2tyefs" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_a2tyeft">
+				<title>
+					<![CDATA[TABELA_FRETE_MANDAE]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[select RTRIM(PAR.NOMEPARC) AS PARCEIRO, CAB.NUNOTA, CAB.AD_PEDORIGINAL, CAB.NUMNOTA AS NRONOTA , PED.DTNEG AS PEDDTNEG, CAB.DTNEG AS CABDTNEG,  PED.VLRFRETE AS PEDVLRFRETE,   CAB.CHAVENFE from sankhya.TGFCAB CAB WITH(nOLOCK) INNER JOIN sankhya.TGFPAR PAR WITH(NOLOCK) ON PAR.CODPARC = CAB.CODPARC INNER JOIN sankhya.TGFCAB PED WITH(nOLOCK) ON PED.AD_PEDORIGINAL = CAB.AD_PEDORIGINAL AND PED.CODTIPOPER IN (500,501,502,503)  WHERE CAB.CODTIPOPER = 550 AND CAB.DTNEG BETWEEN :DTINI AND :DTFIM AND CAB.AD_IDMOD IN (10,11)]]>
+				</expression>
+				<metadata>
+					<field name="PARCEIRO" label="Parceiro" type="S" visible="true" useFooter="false"/>
+					<field name="NUNOTA" label="Número Único" type="I" visible="true" useFooter="false"/>
+					<field name="AD_PEDORIGINAL" label="Pedido Original" type="I" visible="true" useFooter="false"/>
+					<field name="NRONOTA" label="Numero NFe" type="I" visible="true" useFooter="false"/>
+					<field name="PEDDTNEG" label="Data do Pedido" type="D" visible="true" useFooter="false"/>
+					<field name="CABDTNEG" label="Data da Nota" type="D" visible="true" useFooter="false"/>
+					<field name="PEDVLRFRETE" label="Valor do Frete" type="F" visible="true" useFooter="true" mask="#.##0,00;-n"/>
+					<field name="CHAVENFE" label="Chave NFe" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,32 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_ae8c7u6" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_ae8c7u7">
+				<title>
+					<![CDATA[PEDIDOS COM DIVERGÊNCIA NO VALOR DO PAGAMENTO]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CAB.NUNOTA,   CAB.AD_PEDORIGINAL,   FIN.VLRBAIXA,   FIN.VLRDESDOB,   CAB.VLRNOTA,   CAB.DTNEG,   FIN.DHBAIXA,   CAB.CODTIPOPER,   T.DESCROPER,   TPV.DESCRTIPVENDA,   VEN.APELIDO,   SUP.APELIDO AS s FROM sankhya.TGFFIN FIN WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = FIN.NUNOTA AND cab.CODTIPOPER IN (500,501,502,503,515)   INNER JOIN sankhya.TGFTPV TPV WITH(NOLOCK) ON TPV.CODTIPVENDA = CAB.CODTIPVENDA AND (DESCRTIPVENDA LIKE 'BOLETO%' OR DESCRTIPVENDA LIKE 'DEPOSIT%')   INNER JOIN sankhya.TGFTOP T WITH(NOLOCK) ON T.CODTIPOPER = CAB.CODTIPOPER AND T.DHALTER = CAB.DHTIPOPER   INNER JOIN sankhya.TGFVEN VEN WITH(NOLOCK) ON VEN.CODVEND = CAB.CODVEND   INNER JOIN sankhya.TGFVEN SUP WITH(NOLOCK) ON SUP.CODVEND = VEN.AD_CODSUPERVISOR WHERE VLRBAIXA < VLRDESDOB   AND VLRBAIXA IS NOT NULL   AND DHBAIXA IS NOT NULL   AND DHBAIXA >= :DTINI   AND DHBAIXA <= :DTFIM]]>
+				</expression>
+				<metadata>
+					<field name="NUNOTA" label="Nro Único" type="I" visible="true" useFooter="false"/>
+					<field name="AD_PEDORIGINAL" label="Pedido Original" type="I" visible="true" useFooter="false"/>
+					<field name="VLRBAIXA" label="Valor Pago (baixa)" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="VLRDESDOB" label="Valor Desdobramento (devido)" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="VLRNOTA" label="Valor do Pedido" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="DTNEG" label="Data do Pedido" type="D" visible="true" useFooter="false"/>
+					<field name="DHBAIXA" label="Data do Pagamento (baixa)" type="D" visible="true" useFooter="false"/>
+					<field name="CODTIPOPER" label="TOP" type="I" visible="true" useFooter="false"/>
+					<field name="DESCROPER" label="Descrição TOP" type="S" visible="true" useFooter="false"/>
+					<field name="DESCRTIPVENDA" label="Forma de Pagamento" type="S" visible="true" useFooter="false"/>
+					<field name="APELIDO" label="Vendedor" type="S" visible="true" useFooter="false"/>
+					<field name="s" label="Supervisor" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

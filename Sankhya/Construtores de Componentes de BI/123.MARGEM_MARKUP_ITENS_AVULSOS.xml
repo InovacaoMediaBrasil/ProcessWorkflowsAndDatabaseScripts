@@ -1,0 +1,28 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="MARCA" description="Marca" metadata="text" required="false" keep-last="true"/>
+		<parameter id="CODLOJA" description="Loja" metadata="entity:LOJA@CODLOJA" required="true" keep-last="true"/>
+		<parameter id="DATAINI" description="1. Data Inicial" metadata="date" required="false" keep-last="true"/>
+		<parameter id="DATAFIM" description="Data Final" metadata="date" required="false" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_dfziur" description="Principal">
+		<grid id="grd_dfzius">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT PRO.CODPROD as Codigo,      PRO.DESCRPROD + ISNULL(' - '+ PRO.COMPLDESC, '') as Produto,       PRO.MARCA as Marca,      LOJAS.NOMELOJA,     PRO.CODVOL as Unidade,     PRODUTOLOJA.VLRVENDA as ValorVenda,     PRODUTOLOJA.ATIVO as Ativo,      ISNULL(CUS.CUSREP,0) as Custo,         /* markup PREÇO DE VENDA / PREÇO DE CUSTO */        CASE WHEN CUS.CUSREP <> 0 THEN ISNULL(ProdutoLoja.VLRVENDA/CUS.CUSREP,0)     ELSE 0    END as Markup,    /*CASE       WHEN CUS.CUSREP IS NULL OR CUS.CUSREP = 0 THEN 0      ELSE ProdutoLoja.VLRVENDA/CUS.CUSREP    END  AS Markup,     *//* margem PREÇO DE VENDA - PREÇO DE CUSTO*/         ISNULL(ProdutoLoja.VLRVENDA - CUS.cusrep,0) as Margem,     CASE     WHEN PRO.GRUPOICMS IS NULL THEN 'Tributado Integralmente(18%)'    WHEN PRO.GRUPOICMS = 0 THEN 'Tributado Integralmente(18%)'    WHEN PRO.GRUPOICMS = 1 THEN 'Isento de ICMS [Curso Impresso]'    WHEN PRO.GRUPOICMS = 2 THEN 'Isento de ICMS [ST]'    ELSE 'Nao identificado'     END as DebitoICMS     FROM sankhya.TGFPRO PRO  INNER JOIN sankhya.AD_PRODUTOLOJA PRODUTOLOJA ON pro.codprod = produtoloja.codprod  INNER JOIN sankhya.AD_LOJA LOJAS ON LOJAS.CODLOJA = PRODUTOLOJA.CODLOJA  LEFT JOIN sankhya.TGFCUS CUS on cus.codprod = pro.codprod    and cus.DTATUAL = (SELECT MAX(DTATUAL) FROM sankhya.TGFCUS where codprod = pro.codprod)   LEFT JOIN sankhya.TGFEST EST on EST.codprod = pro.codprod   WHERE   (PRODUTOLOJA.codloja = :codloja)  AND ((PRO.MARCA like '%' + :MARCA + '%' and :MARCA is not null) or :MARCA is null)     AND PRO.ATIVO = 'S' ]]>
+			</expression>
+			<metadata>
+				<field name="Codigo" label="Codigo" type="I" visible="true" useFooter="false"/>
+				<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+				<field name="Marca" label="Marca" type="S" visible="true" useFooter="false"/>
+				<field name="NOMELOJA" label="Loja" type="S" visible="true" useFooter="false"/>
+				<field name="Unidade" label="Unidade" type="S" visible="true" useFooter="false"/>
+				<field name="ValorVenda" label="Preço de Venda" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				<field name="Ativo" label="Cadastro está Ativo?" type="S" visible="true" useFooter="false"/>
+				<field name="Custo" label="Custo" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				<field name="Markup" label="Markup" type="F" visible="true" useFooter="false"/>
+				<field name="Margem" label="Margem" type="F" visible="true" useFooter="true"/>
+				<field name="DebitoICMS" label="DebitoICMS" type="S" visible="true" useFooter="false"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

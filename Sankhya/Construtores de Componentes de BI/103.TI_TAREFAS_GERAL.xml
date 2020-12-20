@@ -1,0 +1,23 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_ubwzmc" description="Principal">
+		<simple-value id="svl_aylwd3g">
+			<title>
+				<![CDATA[INFO]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT COUNT(IDTAREFASTI) AS TOTAL, COUNT(IDTAREFASTI)/5 AS MEDIA  FROM sankhya.AD_TAREFASTI  WHERE ENTREGUEEM BETWEEN :DTINI AND :DTFIM]]>
+			</expression>
+			<metadata>
+				<field name="TOTAL" label="TOTAL" type="I" visible="true" useFooter="false"/>
+				<field name="MEDIA" label="MEDIA" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<value-expression>
+				<![CDATA[Total de Tarefas: $TOTAL Média por responsável: $MEDIA ]]>
+			</value-expression>
+		</simple-value>
+	</level>
+</gadget>

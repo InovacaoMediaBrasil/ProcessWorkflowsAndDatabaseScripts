@@ -1,0 +1,61 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_g5ly51" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_g5ly52" tamTexto="18">
+				<title>
+					<![CDATA[ANÁLISE DE MARGEM E MARKUP PARA PEDIDOS REALIZADOS EM :DTINI ATÉ :DTFIM]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[  SELECT P.NUNOTA,        p.VLRNOTA - p.vlrfrete AS vlrpedido,        p.VLRFRETE as vlrfrete,     VEN.APELIDO as Vendedor,     CAST(p.codtipoper as varchar) + ' - ' + tipoper.descroper as TipoOperacao,        sum(SANKHYA_PRODUCAO.sankhya.PRECODECUSTO(ite.CODPROD, ite.CODVOL)*QTDNEG) AS custo,        controle.vlrfrete AS FRETE,        P.VLRNOTA - sum(SANKHYA_PRODUCAO.sankhya.PRECODECUSTO(ite.CODPROD, ite.CODVOL)*QTDNEG) - p.VLRFRETE AS MARGEM,        (P.VLRNOTA-P.VLRFRETE)/CASE                      WHEN sum(SANKHYA_PRODUCAO.sankhya.PRECODECUSTO(ite.CODPROD, ite.CODVOL)*QTDNEG) = 0 THEN 0.01                      ELSE sum(SANKHYA_PRODUCAO.sankhya.PRECODECUSTO(ite.CODPROD, ite.CODVOL)*QTDNEG)                  END AS MARKUP,        (P.VLRNOTA)-sum(SANKHYA_PRODUCAO.sankhya.PRECODECUSTO(ite.CODPROD, ite.CODVOL)*QTDNEG) - controle.vlrfrete AS MARGEM_SEMFRETE,        (P.VLRNOTA)/CASE                                   WHEN sum(SANKHYA_PRODUCAO.sankhya.PRECODECUSTO(ite.CODPROD, ite.CODVOL)*QTDNEG)+controle.vlrfrete = 0 THEN 0.01                                   ELSE sum(SANKHYA_PRODUCAO.sankhya.PRECODECUSTO(ite.CODPROD, ite.CODVOL)*QTDNEG)+controle.vlrfrete                               END AS MARKUP_SEMFRETE FROM SANKHYA_PRODUCAO.sankhya.TGFCAB P  INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFVEN VEN ON VEN.CODVEND = P.CODVEND  INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFTOP TIPOPER on TIPOPER.CODTIPOPER = P.CODTIPOPER and P.DHTIPOPER  = TIPOPER.DHALTER  INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFITE ITE ON ITE.NUNOTA = P.NUNOTA  AND (CODVOL != 'KT' OR (CODVOL= 'KT' AND USOPROD = 'D'))  LEFT JOIN sankhya.ad_pedidovtexsc controle on controle.pedoriginal = p.ad_pedoriginal WHERE p.codtipoper in (500,501,502,503,515) and p.dtneg between :DTINI and :DTFIM GROUP BY           P.NUNOTA,          P.VLRNOTA,          P.VLRFRETE,          controle.VLRFRETE,   VEN.APELIDO,   P.CODTIPOPER,   TIPOPER.DESCROPER ORDER BY P.NUNOTA]]>
+				</expression>
+				<metadata>
+					<field name="NUNOTA" label="Nº do Pedido" type="I" visible="true" useFooter="false" mask="#.##0;-n"/>
+					<field name="vlrpedido" label="Valor dos itens" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="vlrfrete" label="Frete Cobrado" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="Vendedor" label="Vendedor" type="S" visible="true" useFooter="false"/>
+					<field name="TipoOperacao" label="TOP" type="S" visible="true" useFooter="false"/>
+					<field name="custo" label="CMV" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="FRETE" label="Frete Real" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="MARGEM" label="Margem Produtos" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="MARKUP" label="Markup Produtos" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+					<field name="MARGEM_SEMFRETE" label="Margem c/Frete" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="MARKUP_SEMFRETE" label="Markup c/Frete" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+				</metadata>
+				<on-click navigate-to="lvl_g5ly54">
+					<param id="NUNOTA">$NUNOTA</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_g5ly54" description="2O NIVEL">
+		<args>
+			<arg id="NUNOTA" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_g5ly55" tamTexto="18">
+				<title>
+					<![CDATA[Informações do pedido :NUNOTA]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT  P.NUNOTA,       I.CODPROD,       (RTRIM(PRO.DESCRPROD) + ' ' + RTRIM(ISNULL(PRO.COMPLDESC,''))) AS PRODUTO,      VLRUNIT,          I.QTDNEG,          I.VLRTOT,    I.VLRDESC,          sankhya.PRECODECUSTO(I.CODPROD,I.CODVOL) AS CUSTO_UNITARIO,    sankhya.PRECODECUSTO(I.CODPROD,I.CODVOL)*I.QTDNEG AS CUSTO_TOTAL,    I.VLRTOT -((sankhya.PRECODECUSTO(I.CODPROD,I.CODVOL)*I.QTDNEG) + I.VLRDESC) AS MARGEM   FROM SANKHYA_PRODUCAO.sankhya.TGFCAB P  INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFITE I ON I.NUNOTA = P.NUNOTA  INNER JOIN sankhya.TGFPRO PRO ON PRO.CODPROD = I.CODPROD  where p.NUNOTA = :NUNOTA and i.codvol <> 'KT']]>
+				</expression>
+				<metadata>
+					<field name="NUNOTA" label="Pedido" type="I" visible="true" useFooter="false" mask="#.##0;-n"/>
+					<field name="CODPROD" label="Código Produto" type="I" visible="true" useFooter="false"/>
+					<field name="PRODUTO" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="VLRUNIT" label="Valor Unitário" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="QTDNEG" label="Qtd Negociada" type="I" visible="true" useFooter="true" mask="#.##0,00;-n"/>
+					<field name="VLRTOT" label="Valor Total" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="VLRDESC" label="Desconto" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="CUSTO_UNITARIO" label="Custo Unitário" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="CUSTO_TOTAL" label="Custo Total" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="MARGEM" label="Margem" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

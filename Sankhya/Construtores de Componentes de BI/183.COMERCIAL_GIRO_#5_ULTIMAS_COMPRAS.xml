@@ -1,0 +1,38 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODPROD" description="Código do Produto" metadata="entity:Produto@CODPROD" required="true" keep-last="false" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_0gfzdl" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_0gfzge" type="column">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CAST(DATA AS DATE) AS DATA_ENTRADA,   SUM(Q) AS QUANTIDADE,   SUM(DAT) AS DIAS_DA_ULTIMA_ENTREGA FROM (SELECT LINHA,     CASE WHEN MAX(DTNEG) = MIN(DTNEG) THEN CAST(MAX(DTNEG) AS VARCHAR(11))       ELSE CAST(DATEDIFF(DAY,MIN(DTNEG),MAX(DTNEG)) AS VARCHAR(4))       END AS DAT, 0 AS Q,     MAX(DTNEG) as DATA  FROM (SELECT CAB.DTNEG,              SUM(QTDNEG) AS QTD,              ROW_NUMBER() OVER (ORDER BY CAB.DTNEG) AS LINHA            FROM  sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA WHERE CODPROD = :CODPROD AND CODTIPOPER BETWEEN 100 AND 120   AND CAB.DTNEG >= DATEADD(DAY,-180,GETDATE()) GROUP BY DTNEG  UNION   SELECT CAB.DTNEG,   SUM(QTDNEG) AS QTD,   ROW_NUMBER() OVER (ORDER BY CAB.DTNEG)+1 AS LINHA FROM sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA WHERE CODPROD = :CODPROD   AND CODTIPOPER BETWEEN 100 AND 120   AND CAB.DTNEG >= DATEADD(DAY,-180,GETDATE()) GROUP BY DTNEG) A GROUP BY LINHA HAVING MAX(DTNEG) != MIN(DTNEG)  UNION  SELECT ROW_NUMBER() OVER (ORDER BY CAB.DTNEG) AS LINHA,   0 AS DAT,   SUM(QTDNEG) AS Q,   CAB.DTNEG AS DATA FROM sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA WHERE CODPROD = :codprod   AND CODTIPOPER BETWEEN 100 AND 120   AND CAB.DTNEG >= DATEADD(DAY,-180,GETDATE()) GROUP BY DTNEG) A GROUP BY DATA ORDER BY DATA ASC]]>
+				</expression>
+				<metadata>
+					<field name="DATA_ENTRADA" label="DATA_ENTRADA" type="S" visible="true" useFooter="false"/>
+					<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="false"/>
+					<field name="DIAS_DA_ULTIMA_ENTREGA" label="DIAS_DA_ULTIMA_ENTREGA" type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<horizontal-axis>
+					<category field="" rotation="0" dropLabel="false">
+						<title>DATA</title>
+					</category>
+				</horizontal-axis>
+				<series>
+					<serie type="column">
+						<xField>$DATA_ENTRADA</xField>
+						<yField>$QUANTIDADE</yField>
+						<display>Entrada (quantidade)</display>
+						<color>0x66cc</color>
+					</serie>
+					<serie type="line" circle-intersection="true">
+						<xField>$DATA_ENTRADA</xField>
+						<yField>$DIAS_DA_ULTIMA_ENTREGA</yField>
+						<display>Dias da ultima entrega</display>
+						<color>0xffcc00</color>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

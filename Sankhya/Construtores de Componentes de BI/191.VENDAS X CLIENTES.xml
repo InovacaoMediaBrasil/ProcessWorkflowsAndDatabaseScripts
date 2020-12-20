@@ -1,0 +1,40 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="true" keep-date="false" order="0"/>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false" order="1"/>
+		<parameter id="OPERACAO" description="Código de Operação" metadata="multiList:Text" listType="text" required="true" keep-last="false" keep-date="false">
+			<item value="500 " label=" Ativo"/>
+			<item value="501 " label=" Receptivo"/>
+			<item value="502 " label=" Ecommerce"/>
+			<item value="503 " label=" Sankhya"/>
+			<item value="515 " label=" Outros"/>
+		</parameter>
+		<parameter id="STATUSPGTO" description="Status de Pagamento" metadata="singleList:Text" listType="text" required="false" keep-last="false" keep-date="false" order="3">
+			<item value="A " label=" Ambos"/>
+			<item value="P " label=" Pendente"/>
+			<item value="E " label=" Efetuado"/>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_07d5su" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_07d5sv" type="pizza">
+				<title>
+					<![CDATA[Clientes dos Pedidos]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT COUNT(CAB.CODPARC) AS QTD_CLIENTES,   CASE WHEN PAR.DTCAD < CAB.DTNEG     THEN 'JÁ CADASTRADO'   ELSE 'NOVO CLIENTE' END AS TIPO_CLIENTE FROM sankhya.TGFCAB CAB WITH(NOLOCK)   INNER JOIN sankhya.TGFPAR PAR WITH(NOLOCK) ON PAR.CODPARC = CAB.CODPARC WHERE (CAB.CODTIPOPER IN :OPERACAO)   AND CAB.DTNEG >= :DATA_INICIAL    AND CAB.DTNEG <= :DATA_FINAL   AND ((:STATUSPGTO = 'P' AND AD_STATUSPGTO = 'P')    OR (:STATUSPGTO = 'E' AND AD_STATUSPGTO = 'E')    OR :STATUSPGTO = 'A') GROUP BY CASE WHEN PAR.DTCAD < CAB.DTNEG      THEN 'JÁ CADASTRADO'      ELSE 'NOVO CLIENTE'    END]]>
+				</expression>
+				<metadata>
+					<field name="QTD_CLIENTES" label="QTD_CLIENTES" type="I" visible="true" useFooter="false"/>
+					<field name="TIPO_CLIENTE" label="TIPO_CLIENTE" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<series>
+					<serie type="pizza">
+						<field>QTD_CLIENTES</field>
+						<nameField>TIPO_CLIENTE</nameField>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

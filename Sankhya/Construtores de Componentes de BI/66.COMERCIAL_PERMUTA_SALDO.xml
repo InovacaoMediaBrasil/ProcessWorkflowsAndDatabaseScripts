@@ -1,0 +1,68 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATAFINAL" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_anghmhk" description="Principal">
+		<args>
+			<arg id="CODPARC" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_anghmie" tamTexto="18">
+				<title>
+					<![CDATA[Período selecionado: :DATA_INICIAL até :DATAFINAL]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT CAB.CODPARC AS codigoparceiro,   PAR.NOMEPARC,   ISNULL(sankhya.FN_CREDITO_PERMUTA(CAB.CODPARC,:DATA_INICIAL,:DATAFINAL),0) AS CREDITO,   ISNULL(sankhya.FN_DEBITO_PERMUTA(CAB.CODPARC,:DATA_INICIAL,:DATAFINAL),0) AS DEBITO,   ISNULL(sankhya.FN_CREDITO_PERMUTA(CAB.CODPARC,:DATA_INICIAL,:DATAFINAL),0) - ISNULL(sankhya.FN_DEBITO_PERMUTA(CAB.CODPARC,:DATA_INICIAL,:DATAFINAL),0) AS saldo FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON (PAR.CODPARC = CAB.CODPARC)   INNER JOIN sankhya.TGFFIN FIN WITH (NOLOCK) ON (FIN.NUNOTA = CAB.NUNOTA) WHERE CAB.CODTIPOPER IN (57,507)   AND FIN.DTVENC BETWEEN :DATA_INICIAL AND :DATAFINAL   AND STATUSNOTA = 'L' ORDER BY NOMEPARC]]>
+				</expression>
+				<metadata>
+					<field name="codigoparceiro" label="Cód Parceiro" type="I" visible="true" useFooter="false"/>
+					<field name="NOMEPARC" label="Parceiro" type="S" visible="true" useFooter="false"/>
+					<field name="CREDITO" label="Crédito" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="DEBITO" label="Débito" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="saldo" label="Saldo" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click navigate-to="lvl_nvhdk">
+					<param id="CODPARC">$codigoparceiro</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_nvhdk" description="Detalhe">
+		<args>
+			<arg id="CODPARC" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="50">
+				<simple-value id="null" tamTexto="25">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT Parceiro.NOMEPARC FROM SANKHYA.TGFPAR Parceiro WITH (NOLOCK) WHERE Parceiro.CODPARC = :CODPARC]]>
+					</expression>
+					<metadata>
+						<field name="NOMEPARC" label="NOMEPARC" type="S" visible="true" useFooter="false"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<p align="center">Acompanhamento de permutas com o parceiro <b>$NOMEPARC</b></p>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="50">
+				<grid id="movimentos" tamTexto="18">
+					<title>
+						<![CDATA[Período selecionado: :DATA_INICIAL até :DATAFINAL]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT DISTINCT CAB.NUNOTA,   CAB.NUMNOTA AS NRO_PEDIDO,   FIN.DTVENC AS DATA,   FIN.VLRDESDOB*FIN.RECDESP AS VALOR,   FIN.RECDESP AS RECDESP FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFFIN FIN WITH (NOLOCK) ON (FIN.NUNOTA = CAB.NUNOTA) WHERE CAB.CODPARC = :CODPARC   AND CAB.CODTIPOPER IN (57,507)   AND FIN.DTVENC BETWEEN :DATA_INICIAL AND :DATAFINAL ORDER BY RECDESP DESC]]>
+					</expression>
+					<metadata>
+						<field name="NUNOTA" label="NUNOTA" type="I" visible="true" useFooter="false"/>
+						<field name="NRO_PEDIDO" label="Nro Pedido" type="I" visible="true" useFooter="false"/>
+						<field name="DATA" label="Data" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+						<field name="VALOR" label="Valor" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+						<field name="RECDESP" label="RECDESP" type="I" visible="false" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,30 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODPROD" description="Código do Produto: " metadata="integer" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_ana1dyv" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<simple-value id="svl_ana1dyw" tamTexto="12">
+				<title>
+					<![CDATA[&nbsp;&nbsp;&nbsp;<b>Saldo atual em estoque</b>]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT sankhya.TGFPRO.CODPROD AS Codigo,     ISNULL(replace(convert(NVARCHAR, sankhya.TGFEST.AD_DTULTCONT, 106), ' ', '/'), 'Nao Contado') AS DTCONT,      sankhya.TGFPRO.DESCRPROD AS Descricao,   FISICO = CASE WHEN sankhya.TGFEST.ESTOQUE >= sankhya.TGFEST.ESTMIN        THEN CAST(CAST(sankhya.TGFEST.ESTOQUE AS INTEGER) AS VARCHAR (100) )         ELSE CAST(CAST(sankhya.TGFEST.ESTOQUE AS INTEGER) AS VARCHAR (100) ) + '  COMPRA IMEDIATA! '       END,   CAST(CAST(sankhya.TGFEST.ESTMIN AS INTEGER) AS VARCHAR (100)) AS MINIMO,    CAST(CAST(sankhya.TGFEST.RESERVADO AS INTEGER) AS VARCHAR(10)) AS RESERVAS,      CAST(sankhya.TGFEST.ESTOQUE - sankhya.TGFEST.RESERVADO AS INTEGER) AS SALDO,        SALDODISP = CASE WHEN sankhya.TGFPRO.CODVOL = 'KT'        THEN sankhya.FN_ESTOQUE_INOVACAO(:CODPROD)              ELSE          sankhya.FN_ESTOQUE_INOVACAO_NOVO(:CODPROD)      END FROM sankhya.TGFPRO WITH (NOLOCK)   INNER JOIN sankhya.TGFEST WITH (NOLOCK) ON sankhya.TGFEST.CODPROD = sankhya.TGFPRO.CODPROD WHERE sankhya.TGFPRO.CODPROD = :CODPROD]]>
+				</expression>
+				<metadata>
+					<field name="Codigo" label="Codigo" type="I" visible="true" useFooter="false"/>
+					<field name="DTCONT" label="DTCONT" type="S" visible="true" useFooter="false"/>
+					<field name="Descricao" label="Descricao" type="S" visible="true" useFooter="false"/>
+					<field name="FISICO" label="FISICO" type="S" visible="true" useFooter="false"/>
+					<field name="MINIMO" label="MINIMO" type="S" visible="true" useFooter="false"/>
+					<field name="RESERVAS" label="RESERVAS" type="S" visible="true" useFooter="false"/>
+					<field name="SALDO" label="SALDO" type="I" visible="true" useFooter="false"/>
+					<field name="SALDODISP" label="SALDODISP" type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<value-expression>
+					<![CDATA[<table style="background-color: #e9e9e9;border:3px solid #fff; width: 450px; height: 165px;" border="1" solid #fff><caption>&nbsp;</caption> <tbody> <tr> <td>&nbsp;C&oacute;digo:</td> <td>&nbsp;$Codigo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </td> </tr> <tr> <td>&nbsp;Descri&ccedil;&atilde;o</td> <td>&nbsp;$Descricao</td> </tr> <tr> <td>&nbsp;Total em Estoque:</td> <td>&nbsp;$FISICO</td> </tr> <tr> <td>&nbsp;Estoque m&iacute;nimo:</td> <td>&nbsp;$MINIMO</td> </tr> <tr> <td>&nbsp;Ultima Contagem: </td> <td>&nbsp;$DTCONT</td> </tr> <tr> <td>&nbsp;Total de reservas:</td> <td>&nbsp;$RESERVAS</td> </tr> <tr> <td>&nbsp;Saldo:</td> <td>&nbsp;$SALDO</td> </tr> <tr> <td>&nbsp;Disponivel para venda:</td> <td><b>&nbsp;$SALDODISP</b></td> </tr> </tbody> </table>]]>
+				</value-expression>
+			</simple-value>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,22 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA1" description="1.Data Inicial:" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATA2" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+		<parameter id="VENDEDOR" description="Apelido do Vendedor:" metadata="text" required="false" keep-last="true"/>
+		<parameter id="CODIGO" description="Código do Produto" metadata="integer" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_anz7ooj" description="Principal">
+		<grid id="grd_anz7ook">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[/* Autor: Decio Bento Junior    Filtros:   * CODKIT (obrigatório)   * Vendedor(Opcional)   * Período(data1 e data2) OPcional     Consultas:     * Vendedor e Periodo preenchidos: pedidos com aquele vendedor e naquela data   * Vendedor e data em branco: Pedidos com aquele Kit   * Vendedor em branco e data preenchida: pedidos com aquele kit e naquela dat,a de todos os vendedores   * Vendedor preenchido e data em branco: todos os pedidos daquele vendedor com aquele Kit.       */    IF(:VENDEDOR IS NOT NULL )(      SELECT DISTINCT VEN.APELIDO AS APELIDO, TOPE.DESCROPER, ITE.CODPROD, CAB.NUNOTA, CAB.DTNEG  FROM SANKHYA_PRODUCAO.sankhya.TGFCAB CAB   INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFITE ITE ON (ITE.NUNOTA = CAB.NUNOTA)   INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFTOP TOPE ON (TOPE.CODTIPOPER = CAB.CODTIPOPER)   INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFVEN VEN ON (VEN.CODVEND = CAB.CODVEND)   WHERE ITE.CODPROD = :CODKIT and VEN.APELIDO LIKE '%'+:VENDEDOR+'%' and cab.DTNEG between :DATA1 and :DATA2   AND CAB.PENDENTE = 'S'   AND CAB.CODTIPOPER IN (500,501,502,503,504,505,515) ) ELSE(       SELECT DISTINCT VEN.APELIDO AS APELIDO, TOPE.DESCROPER, ITE.CODPROD, CAB.NUNOTA, CAB.DTNEG  FROM SANKHYA_PRODUCAO.sankhya.TGFCAB CAB   INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFITE ITE ON (ITE.NUNOTA = CAB.NUNOTA)   INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFTOP TOPE ON (TOPE.CODTIPOPER = CAB.CODTIPOPER)   INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFVEN VEN ON (VEN.CODVEND = CAB.CODVEND)   WHERE ITE.CODPROD = :CODKIT and cab.DTNEG between :DATA1 and :DATA2   AND CAB.PENDENTE = 'S'  AND CAB.CODTIPOPER IN (500,501,502,503,504,505,515)   )]]>
+			</expression>
+			<metadata>
+				<field name="APELIDO" label="APELIDO" type="S" visible="true" useFooter="false"/>
+				<field name="DESCROPER" label="DESCROPER" type="S" visible="true" useFooter="false"/>
+				<field name="CODPROD" label="CODPROD" type="I" visible="true" useFooter="false"/>
+				<field name="NUNOTA" label="NUNOTA" type="I" visible="true" useFooter="false"/>
+				<field name="DTNEG" label="DTNEG" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

@@ -1,0 +1,40 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="false"/>
+		<parameter id="PRODUTO" description="Nome do Produto" metadata="text" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_agxxftb" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="50">
+				<grid id="grd_agxxftc">
+					<title>
+						<![CDATA[Valor dos Produtos]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT PRO.CODPROD,   (RTRIM(PRO.DESCRPROD)+ISNULL(RTRIM(PRO.COMPLDESC),'')) AS NOME,   EXC.VLRVENDA FROM SANKHYA.TGFPRO PRO WITH (NOLOCK)   INNER JOIN SANKHYA.TGFEXC EXC WITH (NOLOCK) ON (PRO.CODPROD = EXC.CODPROD)   INNER JOIN SANKHYA.TGFTAB TAB WITH (NOLOCK) ON (TAB.NUTAB = EXC.NUTAB) WHERE PRO.CODPROD IN (SELECT PRO.CODPROD       FROM SANKHYA.TGFCAB CAB WITH (NOLOCK)         INNER JOIN SANKHYA.TGFITE ITE ON (ITE.NUNOTA = CAB.NUNOTA)         INNER JOIN SANKHYA.TGFPRO PRO ON (PRO.CODPROD = ITE.CODPROD)       WHERE CAB.AD_STATUSPGTO = 'E'         AND CAB.CODTIPOPER IN (500,501,502,515)         AND (PRO.DESCRPROD LIKE '%'+:PRODUTO+'%'          OR PRO.COMPLDESC LIKE '%'+:PRODUTO+'%')         AND ITE.USOPROD != 'D'         AND CAB.DTNEG >= :DATA_INICIAL AND CAB.DTNEG <= :DATA_FINAL)         AND TAB.DTVIGOR = (SELECT MAX(DTVIGOR) FROM SANKHYA.TGFTAB TA WITH (NOLOCK)   INNER JOIN SANKHYA.TGFEXC EX WITH (NOLOCK) ON (EX.NUTAB = TA.NUTAB) WHERE EX.CODPROD = EXC.CODPROD)]]>
+					</expression>
+					<metadata>
+						<field name="CODPROD" label="CODPROD" type="I" visible="true" useFooter="false"/>
+						<field name="NOME" label="NOME" type="S" visible="true" useFooter="false"/>
+						<field name="VLRVENDA" label="VLRVENDA" type="F" visible="true" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+			<container orientacao="V" tamanhoRelativo="50">
+				<grid id="grd_agxxftf">
+					<title>
+						<![CDATA[Produtos Vendidos]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT (PRO.DESCRPROD + ISNULL(PRO.COMPLDESC,'')) AS PRODUTO,   SUM(ITE.QTDNEG) AS QUANTIDADE FROM SANKHYA.TGFCAB CAB WITH (NOLOCK)   INNER JOIN SANKHYA.TGFITE ITE WITH (NOLOCK) ON (ITE.NUNOTA = CAB.NUNOTA)   INNER JOIN SANKHYA.TGFPRO PRO WITH (NOLOCK) ON (PRO.CODPROD = ITE.CODPROD) WHERE CAB.AD_STATUSPGTO = 'E'   AND CAB.CODTIPOPER IN (500,501,502,515)   AND (PRO.DESCRPROD LIKE '%'+ :PRODUTO+'%'    OR PRO.COMPLDESC LIKE '%'+:PRODUTO+'%')   AND ITE.USOPROD != 'D'   AND CAB.DTNEG >= :DATA_INICIAL   AND CAB.DTNEG <= :DATA_FINAL GROUP BY PRO.DESCRPROD, PRO.COMPLDESC ORDER BY PRO.DESCRPROD]]>
+					</expression>
+					<metadata>
+						<field name="PRODUTO" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+						<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+		</container>
+	</level>
+</gadget>

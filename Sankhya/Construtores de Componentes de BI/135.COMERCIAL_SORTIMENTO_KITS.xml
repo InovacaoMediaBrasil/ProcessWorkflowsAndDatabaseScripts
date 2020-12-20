@@ -1,0 +1,23 @@
+<gadget>
+	<level id="lvl_n1mjkh" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_n1mjki">
+				<title>
+					<![CDATA[RELATÓRIO DE SORTIMENTO POR KIT - ]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PRO.CODPROD,   RTRIM(PRO.DESCRPROD)+' '+ ISNULL(RTRIM(PRO.COMPLDESC),'') AS produto,   sankhya.FN_ESTOQUE_INOVACAO_NOVO(PRO.CODPROD) AS saldo,   ISNULL(L.ATIVO,'NÃO') AS LAVENDERE,   ISNULL(V.ATIVO,'NÃO') AS VITRINE,   ISNULL(F.ATIVO,'NÃO') AS ARTESANATOFAST,   ISNULL(T.ATIVO,'NÃO') AS TANIA FROM sankhya.TGFPRO PRO WITH (NOLOCK)   LEFT JOIN sankhya.AD_PRODUTOLOJA L WITH (NOLOCK) ON L.CODPROD = PRO.CODPROD AND L.CODLOJA = 0   LEFT JOIN sankhya.AD_PRODUTOLOJA V WITH (NOLOCK) ON V.CODPROD = PRO.CODPROD AND V.CODLOJA = 1   LEFT JOIN sankhya.AD_PRODUTOLOJA F WITH (NOLOCK) ON F.CODPROD = PRO.CODPROD AND F.CODLOJA = 2   LEFT JOIN sankhya.AD_PRODUTOLOJA T WITH (NOLOCK) ON T.CODPROD = PRO.CODPROD AND T.CODLOJA = 3 WHERE PRO.ATIVO = 'S' and CODVOL = 'KT']]>
+				</expression>
+				<metadata>
+					<field name="CODPROD" label="Código" type="I" visible="true" useFooter="false"/>
+					<field name="produto" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="saldo" label="Saldo" type="I" visible="true" useFooter="false"/>
+					<field name="LAVENDERE" label="LojaLavendere" type="S" visible="true" useFooter="false"/>
+					<field name="VITRINE" label="LojaVitrine" type="S" visible="true" useFooter="false"/>
+					<field name="ARTESANATOFAST" label="LojaFast" type="S" visible="true" useFooter="false"/>
+					<field name="TANIA" label="LojaTania" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

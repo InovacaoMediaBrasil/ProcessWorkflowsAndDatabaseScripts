@@ -1,0 +1,161 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="MARCA" description="1. MARCA" metadata="text" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="DATA" description="2. Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_ulgpb0" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_ulgpb1">
+				<title>
+					<![CDATA[ANÁLISE DE ENTRADAS E SAÍDAS DA MARCA: :MARCA A PARTIR DE :DATA]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CODPROD,   PRODUTO,   SUM(ENTRADA) AS ENTRADA,   SUM(SAIDA) AS SAIDA,   SUM(ENTRADA)+SUM(SAIDA) AS DIFERENCA_NO_PERIODO,   CODVOL, MARCA, SUM(FISICO) AS FISICO, LOCAL_PADRAO FROM (SELECT ITE.CODPROD,     sankhya.FN_CONCATENANOMEPRODUTO(ite.codprod) AS produto,     0 AS entrada,     SUM(ITE.qtdneg)*-1 AS saida,     ITE.CODVOL, PRO.MARCA,     ISNULL(EST.ESTOQUE,0) AS FISICO,     CASE WHEN LOC.DESCRLOCAL IS NULL THEN LOCSEC.DESCRLOCAL ELSE LOC.DESCRLOCAL END AS LOCAL_PADRAO FROM sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA AND CAB.STATUSNOTA = 'L'  AND CODTIPOPER IN (SELECT DISTINCT CODTIPOPER FROM sankhya.TGFTOP WHERE atualest = 'B') AND CAB.DTNEG >= :DATA   INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON PRO.CODPROD = ITE.CODPROD AND PRO.MARCA LIKE '%'+:MARCA+'%'   LEFT JOIN sankhya.TGFEST EST WITH(NOLOCK) ON EST.CODPROD = ITE.CODPROD   LEFT JOIN sankhya.TGFLOC LOC WITH(NOLOCK) ON PRO.CODLOCALPADRAO = LOC.CODLOCAL   LEFT JOIN (SELECT MIN(CODLOC) AS CODLOCAL, CODPROD FROM sankhya.AD_LOCSEC WITH(NOLOCK) GROUP BY CODPROD) LS ON LS.CODPROD = PRO.CODPROD   LEFT JOIN sankhya.TGFLOC LOCSEC WITH(NOLOCK) ON LOCSEC.CODLOCAL = LS.CODLOCAL WHERE ITE.codvol != 'KT'   group by ITE.CODPROD, sankhya.FN_CONCATENANOMEPRODUTO(ITE.CODPROD), ITE.CODVOL, PRO.MARCA, ISNULL(EST.ESTOQUE,0), CASE WHEN LOC.DESCRLOCAL IS NULL THEN LOCSEC.DESCRLOCAL ELSE LOC.DESCRLOCAL END  --ORDER BY SUM(ITE.QTDNEG) DESC  union  SELECT ITE.CODPROD, sankhya.FN_CONCATENANOMEPRODUTO(ite.codprod) as produto, sum(ite.qtdneg) as entrada, 0 as saida, ITE.CODVOL, pro.MARCA, 0 AS FISICO, CASE WHEN LOC.DESCRLOCAL IS NULL THEN LOCSEC.DESCRLOCAL ELSE LOC.DESCRLOCAL END AS LOCAL_PADRAO  FROM sankhya.TGFITE ITE WITH(NOLOCK) INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA AND CAB.STATUSNOTA = 'L'  AND CODTIPOPER IN (SELECT DISTINCT CODTIPOPER FROM sankhya.TGFTOP WHERE atualest = 'E') AND CAB.DTNEG >= :DATA INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON PRO.CODPROD = ITE.CODPROD  AND PRO.MARCA LIKE '%'+:MARCA+'%' LEFT JOIN sankhya.TGFEST EST WITH(NOLOCK) ON EST.CODPROD = ITE.CODPROD LEFT JOIN sankhya.TGFLOC LOC WITH(NOLOCK) ON PRO.CODLOCALPADRAO = LOC.CODLOCAL LEFT JOIN (SELECT MIN(CODLOC) AS CODLOCAL, CODPROD FROM sankhya.AD_LOCSEC WITH(NOLOCK) GROUP BY CODPROD) LS ON LS.CODPROD = PRO.CODPROD LEFT JOIN sankhya.TGFLOC LOCSEC WITH(NOLOCK) ON LOCSEC.CODLOCAL = LS.CODLOCAL  WHERE ITE.codvol != 'KT'  group by ITE.CODPROD, sankhya.FN_CONCATENANOMEPRODUTO(ITE.CODPROD), ITE.CODVOL,PRO.MARCA, ISNULL(EST.ESTOQUE,0), CASE WHEN LOC.DESCRLOCAL IS NULL THEN LOCSEC.DESCRLOCAL ELSE LOC.DESCRLOCAL END   ) A  GROUP BY CODPROD, PRODUTO, CODVOL, MARCA, LOCAL_PADRAO]]>
+				</expression>
+				<metadata>
+					<field name="CODPROD" label="CÓDIGO" type="I" visible="true" useFooter="false"/>
+					<field name="PRODUTO" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="ENTRADA" label="ENTRADA" type="I" visible="true" useFooter="true"/>
+					<field name="SAIDA" label="SAIDA" type="I" visible="true" useFooter="true"/>
+					<field name="DIFERENCA_NO_PERIODO" label="DIFERENÇA NO PERÍODO" type="I" visible="true" useFooter="true"/>
+					<field name="CODVOL" label="UN" type="S" visible="true" useFooter="false"/>
+					<field name="MARCA" label="MARCA" type="S" visible="true" useFooter="false"/>
+					<field name="FISICO" label="ESTOQUE FISICO" type="I" visible="true" useFooter="false"/>
+					<field name="LOCAL_PADRAO" label="LOCAL PADRÃO" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click navigate-to="lvl_ulgpb5">
+					<param id="CODPROD">$CODPROD</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_ulgpb5" description="2o Nivel">
+		<args>
+			<arg id="CODPROD" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="100">
+				<grid id="grd_ulgpb6">
+					<title>
+						<![CDATA[INFORMAÇÕES DO PRODUTO SELECIONADO]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT ITE.CODPROD,   SANKHYA.FN_CONCATENANOMEPRODUTO(ITE.CODPROD) AS produto,   PRO.MARCA, ISNULL(EST.ESTOQUE,0) AS FISICO,   PRO.CODVOL,   CASE WHEN LOC.DESCRLOCAL IS NULL THEN LOCSEC.DESCRLOCAL ELSE LOC.DESCRLOCAL END AS LOCAL_PADRAO FROM sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON PRO.CODPROD = ITE.CODPROD AND PRO.MARCA LIKE '%'+:marca+'%' AND PRO.CODPROD = :codprod LEFT JOIN sankhya.TGFEST EST WITH(NOLOCK) ON EST.CODPROD = ITE.CODPROD   LEFT JOIN sankhya.TGFLOC LOC WITH(NOLOCK) ON PRO.CODLOCALPADRAO = LOC.CODLOCAL   LEFT JOIN (SELECT MIN(CODLOC) AS CODLOCAL, CODPROD FROM sankhya.AD_LOCSEC WITH(NOLOCK) GROUP BY CODPROD) LS ON LS.CODPROD = PRO.CODPROD   LEFT JOIN sankhya.TGFLOC LOCSEC WITH(NOLOCK) ON LOCSEC.CODLOCAL = LS.CODLOCAL WHERE ITE.codvol != 'KT'   AND ITE.CODPROD = :codprod GROUP BY ITE.CODPROD, SANKHYA.FN_CONCATENANOMEPRODUTO(ITE.CODPROD), PRO.CODVOL, PRO.MARCA, ISNULL(EST.ESTOQUE,0), CASE WHEN LOC.DESCRLOCAL IS NULL THEN LOCSEC.DESCRLOCAL ELSE LOC.DESCRLOCAL END ]]>
+					</expression>
+					<metadata>
+						<field name="CODPROD" label="CÓDIGO" type="I" visible="true" useFooter="false"/>
+						<field name="produto" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+						<field name="MARCA" label="MARCA" type="S" visible="true" useFooter="false"/>
+						<field name="FISICO" label="ESTOQUE FÍSICO" type="I" visible="true" useFooter="false"/>
+						<field name="CODVOL" label="UN" type="S" visible="true" useFooter="false"/>
+						<field name="LOCAL_PADRAO" label="LOCAL PADRÃO" type="S" visible="true" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+			<container orientacao="V" tamanhoRelativo="608">
+				<container orientacao="V" tamanhoRelativo="50">
+					<grid id="grd_ulgpce">
+						<title>
+							<![CDATA[MOVIMENTAÇÃO DE ENTRADA E SAÍDA]]>
+						</title>
+						<expression type="sql" data-source="MGEDS">
+							<![CDATA[SELECT ITE.CODPROD,   SANKHYA.FN_CONCATENANOMEPRODUTO(ITE.CODPROD) AS produto,   CASE WHEN OPERACAO.ATUALEST = 'E' THEN SUM(ITE.QTDNEG) ELSE SUM(ITE.QTDNEG)*-1 END AS QUANTIDADE,   ITE.CODVOL,   CASE WHEN OPERACAO.ATUALEST = 'E' THEN 'ENTRADA' ELSE 'SAIDA' END AS TIPO_MOVIMENTO, OPERACAO.ATUALEST, 'CONFIRMADO' AS STATUS,   CAB.STATUSNOTA,   OPERACAO.GRUPO FROM sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA AND CAB.STATUSNOTA = 'L'  AND CODTIPOPER IN (SELECT DISTINCT CODTIPOPER FROM sankhya.TGFTOP WHERE atualest IN ('E','B')) AND CAB.DTNEG >= :DATA   INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON PRO.CODPROD = ITE.CODPROD AND PRO.CODPROD = :CODPROD   INNER JOIN (SELECT GRUPO,        ATUALEST,        T.CODTIPOPER      FROM sankhya.TGFTOP T WITH(NOLOCK)   INNER JOIN (SELECT CODTIPOPER,        MAX(DHALTER) AS MAXDATA      FROM sankhya.TGFTOP WITH (NOLOCK)      WHERE ATUALEST IN ('E','B')      GROUP BY CODTIPOPER) DT ON DT.CODTIPOPER = T.CODTIPOPER AND DT.MAXDATA = T.DHALTER) AS OPERACAO ON OPERACAO.CODTIPOPER = CAB.CODTIPOPER   LEFT JOIN sankhya.TGFEST EST WITH(NOLOCK) ON EST.CODPROD = ITE.CODPROD   LEFT JOIN sankhya.TGFLOC LOC WITH(NOLOCK) ON PRO.CODLOCALPADRAO = LOC.CODLOCAL   LEFT JOIN (SELECT MIN(CODLOC) AS CODLOCAL, CODPROD FROM sankhya.AD_LOCSEC WITH(NOLOCK) GROUP BY CODPROD) LS ON LS.CODPROD = PRO.CODPROD   LEFT JOIN sankhya.TGFLOC LOCSEC WITH(NOLOCK) ON LOCSEC.CODLOCAL = LS.CODLOCAL WHERE ITE.codvol != 'KT'   AND ITE.CODPROD = :CODPROD GROUP BY ITE.CODPROD, SANKHYA.FN_CONCATENANOMEPRODUTO(ITE.CODPROD), OPERACAO.ATUALEST, ITE.CODVOL,CASE WHEN OPERACAO.ATUALEST = 'E' THEN 'ENTRADA' ELSE 'SAIDA' END, OPERACAO.ATUALEST, CAB.STATUSNOTA, OPERACAO.GRUPO,  CASE WHEN LOC.DESCRLOCAL IS NULL THEN LOCSEC.DESCRLOCAL ELSE LOC.DESCRLOCAL END]]>
+						</expression>
+						<metadata>
+							<field name="CODPROD" label="CÓDIGO" type="I" visible="true" useFooter="false"/>
+							<field name="produto" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+							<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="true"/>
+							<field name="CODVOL" label="UN" type="S" visible="true" useFooter="false"/>
+							<field name="TIPO_MOVIMENTO" label="TIPO MOVIMENTO" type="S" visible="true" useFooter="false"/>
+							<field name="ATUALEST" label="ATUALEST" type="S" visible="false" useFooter="false"/>
+							<field name="STATUS" label="STATUS" type="S" visible="true" useFooter="false"/>
+							<field name="STATUSNOTA" label="STATUSNOTA" type="S" visible="false" useFooter="false"/>
+							<field name="GRUPO" label="GRUPO" type="S" visible="true" useFooter="false"/>
+						</metadata>
+						<on-click navigate-to="lvl_ulgpcd">
+							<param id="CODPROD">$CODPROD</param>
+							<param id="GRUPO">$GRUPO</param>
+							<param id="ATUALEST">$ATUALEST</param>
+							<param id="STATUSNOTA">$STATUSNOTA</param>
+						</on-click>
+					</grid>
+				</container>
+				<container orientacao="V" tamanhoRelativo="50">
+					<grid id="grd_ulgpcr">
+						<title>
+							<![CDATA[MOVIMENTACAO - PEDIDOS EM ABERTO OU SEM MOVIMENTO DE ESTOQUE]]>
+						</title>
+						<expression type="sql" data-source="MGEDS">
+							<![CDATA[------------- MOVIMENTACAO - NOTAS SEM CONFIRMAR SELECT ITE.CODPROD,   SANKHYA.FN_CONCATENANOMEPRODUTO(ITE.CODPROD) AS produto,   CASE WHEN OPERACAO.ATUALEST = 'E' THEN SUM(ITE.QTDNEG) ELSE SUM(ITE.QTDNEG)*-1 END AS QUANTIDADE,   ITE.CODVOL,   CASE WHEN OPERACAO.ATUALEST = 'E' THEN 'ENTRADA' ELSE 'SAIDA' END AS TIPO_MOVIMENTO,   OPERACAO.ATUALEST,   CASE WHEN CAB.STATUSNOTA = 'L' THEN 'CONFIRMADO' ELSE 'EM ABERTO' END AS STATUS,   CAB.STATUSNOTA,   OPERACAO.GRUPO FROM sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA AND CAB.STATUSNOTA != 'L'  AND CODTIPOPER IN (SELECT DISTINCT CODTIPOPER FROM sankhya.TGFTOP WHERE atualest IN ('B','E')) AND CAB.DTNEG >= :DATA   INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON PRO.CODPROD = ITE.CODPROD AND PRO.CODPROD = :CODPROD INNER JOIN (SELECT GRUPO, ATUALEST, T.CODTIPOPER FROM sankhya.TGFTOP T WITH(NOLOCK)   INNER JOIN (SELECT CODTIPOPER,        MAX(DHALTER) AS MAXDATA      FROM sankhya.TGFTOP WITH(NOLOCK)      WHERE ATUALEST IN ('E','B')      GROUP BY CODTIPOPER) DT ON DT.CODTIPOPER = T.CODTIPOPER AND DT.MAXDATA = T.DHALTER) AS OPERACAO ON OPERACAO.CODTIPOPER = CAB.CODTIPOPER   LEFT JOIN sankhya.TGFEST EST WITH(NOLOCK) ON EST.CODPROD = ITE.CODPROD   LEFT JOIN sankhya.TGFLOC LOC WITH(NOLOCK) ON PRO.CODLOCALPADRAO = LOC.CODLOCAL   LEFT JOIN (SELECT MIN(CODLOC) AS CODLOCAL,        CODPROD      FROM sankhya.AD_LOCSEC WITH(NOLOCK)      GROUP BY CODPROD) LS ON LS.CODPROD = PRO.CODPROD   LEFT JOIN sankhya.TGFLOC LOCSEC WITH(NOLOCK) ON LOCSEC.CODLOCAL = LS.CODLOCAL WHERE ITE.codvol != 'KT'   AND ITE.CODPROD = :CODPROD GROUP BY ITE.CODPROD, SANKHYA.FN_CONCATENANOMEPRODUTO(ITE.CODPROD), OPERACAO.ATUALEST, ITE.CODVOL, CASE WHEN OPERACAO.ATUALEST = 'E' THEN 'ENTRADA' ELSE 'SAIDA' END, OPERACAO.ATUALEST, CAB.STATUSNOTA, OPERACAO.GRUPO, CASE WHEN LOC.DESCRLOCAL IS NULL THEN LOCSEC.DESCRLOCAL ELSE LOC.DESCRLOCAL END UNION ------------- MOVIMENTACAO - MOVIMENTOS SEM ESTOQUE SELECT ITE.CODPROD,   SANKHYA.FN_CONCATENANOMEPRODUTO(ITE.CODPROD) AS produto,   SUM(ITE.QTDNEG) AS QUANTIDADE, ITE.CODVOL,   CASE WHEN OPERACAO.ATUALEST = 'R' THEN 'RESERVA' ELSE 'SEM MOVIMENTACAO DE ESTOQUE' END AS TIPO_MOVIMENTO,   OPERACAO.ATUALEST,   CASE WHEN CAB.STATUSNOTA = 'L' THEN 'CONFIRMADO' ELSE 'EM ABERTO' END AS STATUS,   CAB.STATUSNOTA,   OPERACAO.GRUPO FROM sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA AND CODTIPOPER IN (SELECT DISTINCT CODTIPOPER FROM sankhya.TGFTOP WHERE ATUALEST NOT IN ('B','E')) AND CAB.DTNEG >= :DATA   INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON PRO.CODPROD = ITE.CODPROD AND PRO.CODPROD = :CODPROD INNER JOIN (SELECT GRUPO, ATUALEST, T.CODTIPOPER FROM sankhya.TGFTOP T WITH(NOLOCK)   INNER JOIN (SELECT CODTIPOPER,        MAX(DHALTER) AS MAXDATA      FROM sankhya.TGFTOP WITH (NOLOCK)      WHERE ATUALEST NOT IN ('B','E')      GROUP BY CODTIPOPER) DT ON DT.CODTIPOPER = T.CODTIPOPER AND DT.MAXDATA = T.DHALTER) AS OPERACAO ON OPERACAO.CODTIPOPER = CAB.CODTIPOPER   LEFT JOIN sankhya.TGFEST EST WITH(NOLOCK) ON EST.CODPROD = ITE.CODPROD   LEFT JOIN sankhya.TGFLOC LOC WITH(NOLOCK) ON PRO.CODLOCALPADRAO = LOC.CODLOCAL   LEFT JOIN (SELECT MIN(CODLOC) AS CODLOCAL,        CODPROD      FROM sankhya.AD_LOCSEC WITH(NOLOCK)      GROUP BY CODPROD) LS ON LS.CODPROD = PRO.CODPROD   LEFT JOIN sankhya.TGFLOC LOCSEC WITH(NOLOCK) ON LOCSEC.CODLOCAL = LS.CODLOCAL WHERE ITE.codvol != 'KT'   AND ITE.CODPROD = :CODPROD GROUP BY ITE.CODPROD, SANKHYA.FN_CONCATENANOMEPRODUTO(ITE.CODPROD), OPERACAO.ATUALEST, ITE.CODVOL, CASE WHEN OPERACAO.ATUALEST = 'R' THEN 'RESERVA' ELSE 'SEM MOVIMENTACAO DE ESTOQUE' END , OPERACAO.ATUALEST, CAB.STATUSNOTA, OPERACAO.GRUPO,  CASE WHEN LOC.DESCRLOCAL IS NULL THEN LOCSEC.DESCRLOCAL ELSE LOC.DESCRLOCAL END]]>
+						</expression>
+						<metadata>
+							<field name="CODPROD" label="CÓDIGO" type="I" visible="true" useFooter="false"/>
+							<field name="produto" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+							<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="true"/>
+							<field name="CODVOL" label="UN" type="S" visible="true" useFooter="false"/>
+							<field name="TIPO_MOVIMENTO" label="TIPO MOVIMENTO" type="S" visible="true" useFooter="false"/>
+							<field name="ATUALEST" label="ATUALEST" type="S" visible="false" useFooter="false"/>
+							<field name="STATUS" label="STATUS" type="S" visible="true" useFooter="false"/>
+							<field name="STATUSNOTA" label="STATUSNOTA" type="S" visible="false" useFooter="false"/>
+							<field name="GRUPO" label="GRUPO" type="S" visible="true" useFooter="false"/>
+						</metadata>
+						<on-click navigate-to="lvl_ulgpcd">
+							<param id="CODPROD">$CODPROD</param>
+							<param id="GRUPO">$GRUPO</param>
+							<param id="ATUALEST">$ATUALEST</param>
+							<param id="STATUSNOTA">$STATUSNOTA</param>
+						</on-click>
+					</grid>
+				</container>
+			</container>
+		</container>
+	</level>
+	<level id="lvl_ulgpcd" description="3o Nivel">
+		<args>
+			<arg id="CODPROD" type="integer"/>
+			<arg id="GRUPO" type="text"/>
+			<arg id="ATUALEST" type="text"/>
+			<arg id="STATUSNOTA" type="text"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="101">
+				<grid id="grd_ulgpel">
+					<title>
+						<![CDATA[INFORMAÇÕES DO PRODUTO SELECIONADO]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT ITE.CODPROD, dbo.NOMEDOPRODUTO(ite.codprod) as produto, PRO.MARCA, ISNULL(EST.ESTOQUE,0) AS FISICO, PRO.CODVOL, CASE WHEN LOC.DESCRLOCAL IS NULL THEN LOCSEC.DESCRLOCAL ELSE LOC.DESCRLOCAL END AS LOCAL_PADRAO FROM sankhya.TGFITE ITE WITH(NOLOCK) INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON PRO.CODPROD = ITE.CODPROD AND PRO.MARCA LIKE '%'+:marca+'%' AND PRO.CODPROD = :codprod LEFT JOIN sankhya.TGFEST EST WITH(NOLOCK) ON EST.CODPROD = ITE.CODPROD LEFT JOIN sankhya.TGFLOC LOC WITH(NOLOCK) ON PRO.CODLOCALPADRAO = LOC.CODLOCAL LEFT JOIN (SELECT MIN(CODLOC) AS CODLOCAL, CODPROD FROM sankhya.AD_LOCSEC WITH(NOLOCK) GROUP BY CODPROD) LS ON LS.CODPROD = PRO.CODPROD LEFT JOIN sankhya.TGFLOC LOCSEC WITH(NOLOCK) ON LOCSEC.CODLOCAL = LS.CODLOCAL WHERE  ITE.codvol != 'KT' AND ITE.CODPROD = :codprod group by ITE.CODPROD, dbo.NOMEDOPRODUTO(ITE.CODPROD), PRO.CODVOL, PRO.MARCA, ISNULL(EST.ESTOQUE,0), CASE WHEN LOC.DESCRLOCAL IS NULL THEN LOCSEC.DESCRLOCAL ELSE LOC.DESCRLOCAL END ]]>
+					</expression>
+					<metadata>
+						<field name="CODPROD" label="CÓDIGO" type="I" visible="true" useFooter="false"/>
+						<field name="produto" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+						<field name="MARCA" label="MARCA" type="S" visible="true" useFooter="false"/>
+						<field name="FISICO" label="ESTOQUE FÍSICO" type="I" visible="true" useFooter="false"/>
+						<field name="CODVOL" label="UN" type="S" visible="true" useFooter="false"/>
+						<field name="LOCAL_PADRAO" label="LOCAL PADRÃO" type="S" visible="true" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+			<container orientacao="V" tamanhoRelativo="400">
+				<grid id="grd_ulgpcw">
+					<title>
+						<![CDATA[VISUALIZANDO MOVIMENTAÇÃO DE :GRUPO DO CÓDIGO :CODPROD A PARTIR DA DATA :DATA]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[ ------------- 3O NIVEL - CONFIRMADOS SELECT ITE.NUNOTA, CAB.DTNEG, CAB.CODTIPOPER, CASE WHEN OPERACAO.ATUALEST = 'E' THEN 'ENTRADA'   WHEN OPERACAO.ATUALEST = 'B' THEN 'SAIDA'   WHEN OPERACAO.ATUALEST = 'R' THEN 'RESERVA'  ELSE 'SEM MOVIMENTACAO DE ESTOQUE' END AS TIPO_MOVIMENTO,  CASE WHEN CAB.STATUSNOTA = 'L' THEN 'CONFIRMADO' ELSE 'EM ABERTO' END AS STATUSNOTA, OPERACAO.DESCROPER, CASE WHEN OPERACAO.ATUALEST = 'E' THEN ITE.QTDNEG ELSE ITE.QTDNEG*-1 END AS QUANTIDADE, ITE.CODVOL  FROM sankhya.TGFITE ITE WITH(NOLOCK) INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA and cab.statusnota = :statusnota AND CODTIPOPER IN (SELECT DISTINCT CODTIPOPER FROM sankhya.TGFTOP WHERE atualest = :atualest) AND CAB.DTNEG >= :DATA INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON PRO.CODPROD = ITE.CODPROD AND PRO.CODPROD = :CODPROD INNER JOIN (SELECT GRUPO, ATUALEST, T.DESCROPER, T.CODTIPOPER FROM sankhya.TGFTOP T WITH(NOLOCK) INNER JOIN (SELECT CODTIPOPER, MAX(DHALTER) AS MAXDATA FROM sankhya.TGFTOP GROUP BY CODTIPOPER) DT ON DT.CODTIPOPER = T.CODTIPOPER AND DT.MAXDATA = T.DHALTER) AS OPERACAO ON OPERACAO.CODTIPOPER = CAB.CODTIPOPER AND OPERACAO.GRUPO = :GRUPO LEFT JOIN sankhya.TGFEST EST WITH(NOLOCK) ON EST.CODPROD = ITE.CODPROD LEFT JOIN sankhya.TGFLOC LOC WITH(NOLOCK) ON PRO.CODLOCALPADRAO = LOC.CODLOCAL LEFT JOIN (SELECT MIN(CODLOC) AS CODLOCAL, CODPROD FROM sankhya.AD_LOCSEC WITH(NOLOCK) GROUP BY CODPROD) LS ON LS.CODPROD = PRO.CODPROD LEFT JOIN sankhya.TGFLOC LOCSEC WITH(NOLOCK) ON LOCSEC.CODLOCAL = LS.CODLOCAL WHERE ITE.codvol != 'KT' AND ITE.CODPROD = :CODPROD]]>
+					</expression>
+					<metadata>
+						<field name="NUNOTA" label="NÚMERO UNICO" type="I" visible="true" useFooter="false"/>
+						<field name="DTNEG" label="DATA" type="D" visible="true" useFooter="false"/>
+						<field name="CODTIPOPER" label="TOP" type="I" visible="true" useFooter="false"/>
+						<field name="TIPO_MOVIMENTO" label="TIPO DE MOVIMENTO" type="S" visible="true" useFooter="false"/>
+						<field name="STATUSNOTA" label="STATUS" type="S" visible="true" useFooter="false"/>
+						<field name="DESCROPER" label="TIPO DE OPERACAO" type="S" visible="true" useFooter="false"/>
+						<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="true"/>
+						<field name="CODVOL" label="UN" type="S" visible="true" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,19 @@
+<gadget>
+	<level id="lvl_n1mjkh" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_n1mjki">
+				<title>
+					<![CDATA[RELATÓRIO DE ITENS QUE NÃO TEM SALDO SUFICIENTE PARA TODAS AS LOJAS ATIVAS]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT EST.CODPROD,   ESTOQUE- RESERVADO AS SALDO,   COUNT(P.ATIVO) AS LOJAS FROM sankhya.TGFEST EST WITH (NOLOCK)   LEFT JOIN sankhya.AD_PRODUTOLOJA P WITH (NOLOCK) ON P.CODPROD = EST.CODPROD AND P.ATIVO = 'SIM' GROUP BY EST.CODPROD, ESTOQUE, RESERVADO HAVING COUNT(P.ATIVO) > (ESTOQUE-RESERVADO) AND ESTOQUE > 0 AND (ESTOQUE - RESERVADO) > 0]]>
+				</expression>
+				<metadata>
+					<field name="CODPROD" label="Código" type="I" visible="true" useFooter="false"/>
+					<field name="SALDO" label="Saldo" type="F" visible="true" useFooter="false"/>
+					<field name="LOJAS" label="Lojas Ativas" type="I" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,40 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA" description="Data" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_arvq1pl" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_arvq1pm" type="bar">
+				<title>
+					<![CDATA[RECEITAS BAIXADAS LOJA VIRTUAL]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT SUM(Financeiro.VLRBAIXA) AS VALOR,   ContaBancaria.DESCRICAO  FROM SANKHYA.TGFFIN Financeiro WITH (NOLOCK)   INNER JOIN SANKHYA.TGFTIT TipoTitulo WITH (NOLOCK) ON (TipoTitulo.CODTIPTIT = Financeiro.CODTIPTIT)   INNER JOIN SANKHYA.TSICUS CentroResultado WITH (NOLOCK) ON (CentroResultado.CODCENCUS = Financeiro.CODCENCUS)   INNER JOIN SANKHYA.TSICTA ContaBancaria WITH (NOLOCK) ON (ContaBancaria.CODCTABCOINT = Financeiro.CODCTABCOINT)  WHERE Financeiro.DHBAIXA = :DATA          AND CentroResultado.DESCRCENCUS LIKE '%Loja Virtual%'  GROUP BY ContaBancaria.DESCRICAO ]]>
+				</expression>
+				<metadata>
+					<field name="VALOR" label="VALOR" type="F" visible="true" useFooter="false"/>
+					<field name="DESCRICAO" label="DESCRICAO" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<horizontal-axis>
+					<linear>
+						<mask/>
+						<title>TÍTULO</title>
+					</linear>
+				</horizontal-axis>
+				<vertical-axis>
+					<category field="DESCRTIPTIT" rotation="0" dropLabel="false">
+						<title>VALOR</title>
+					</category>
+				</vertical-axis>
+				<series>
+					<serie type="bar">
+						<xField>$VALOR</xField>
+						<yField>$DESCRICAO</yField>
+						<display>TELEMARKETING</display>
+						<color>0x339933</color>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

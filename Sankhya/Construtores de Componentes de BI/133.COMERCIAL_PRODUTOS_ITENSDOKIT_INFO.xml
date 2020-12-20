@@ -1,0 +1,26 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="KIT" description="1. Código do Kit" metadata="integer" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_m3nzpo" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<simple-value id="svl_m3nzpt" tamTexto="12">
+				<title>
+					<![CDATA[INFORMAÇÕES GERAIS]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT  PRO.CODPROD, RTRIM(PRO.DESCRPROD)+' '+ isnull(RTRIM(PRO.COMPLDESC),'') as PRODUTO, sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD) as SALDO, ISNULL(PRO.AD_PESTNEG,'N') AS ESTOQUENEGATIVO   FROM sankhya.TGFPRO PRO with(nolock)  WHERE PRO.CODPROD = :KIT]]>
+				</expression>
+				<metadata>
+					<field name="CODPROD" label="CODPROD" type="I" visible="true" useFooter="false"/>
+					<field name="PRODUTO" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="SALDO" label="SALDO" type="I" visible="true" useFooter="false"/>
+					<field name="ESTOQUENEGATIVO" label="ESTOQUENEGATIVO" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<value-expression>
+					<![CDATA[CÓDIGO DO KIT: $CODPROD NOME DO KIT:$PRODUTO SALDO: $SALDO TEM ESTOQUE NEGATIVO? $ESTOQUENEGATIVO]]>
+				</value-expression>
+			</simple-value>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,76 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATA_FINAL" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+		<parameter id="CODCENCUS" description="3. Centro de Resultado" metadata="entity:CentroResultado@CODCENCUS" required="false" keep-last="true"/>
+		<parameter id="EMPRESA" description="4. Empresa" metadata="singleList:Text" required="true" keep-last="false" keep-date="false" default="false" listType="text">
+			<item value="0" label="&lt;todas>"/>       <item value="1" label="Editora Inovação"/>
+			<item value="2" label="Inovação Vídeos"/>
+		</parameter>
+		<parameter id="VIRTUAL" description="5. Contas Virtuais" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false"/>
+	</prompt-parameters>
+	<level id="lvl_a77zew4" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_a77zexf">
+				<title>
+					<![CDATA[DRE]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CASE WHEN FIN.RATEADO = 'S' THEN SUM(fin.VLRBAIXA*(RAT.PERCRATEIO/100))*RECDESP ELSE SUM(FIN.VLRBAIXA)*RECDESP END AS TOTAL,   NATP.DESCRNAT AS NATPAI,   NAT.DESCRNAT, NAT.CODNAT,   CASE WHEN FIN.RATEADO = 'S' THEN CUSR.DESCRCENCUS ELSE cus.DESCRCENCUS END AS DESCRCENCUS,   CASE WHEN FIN.RATEADO = 'S' THEN RAT.CODCENCUS ELSE CUS.CODCENCUS END AS CODCENCUS,   (SELECT DESCRCENCUS    FROM sankhya.TSICUS    WHERE CODCENCUS LIKE SUBSTRING(CAST((CASE WHEN FIN.RATEADO = 'S' THEN RAT.CODCENCUS ELSE CUS.CODCENCUS END) AS VARCHAR),1,1)+'0000') AS CENTRO_RESULTADO,     FIN.RATEADO,     CUS.CODCENCUS AS CUS_ANTES_RATEIO FROM sankhya.TGFFIN FIN WITH (NOLOCK)   INNER JOIN sankhya.TGFNAT NAT WITH (NOLOCK) on (NAT.CODNAT = FIN.CODNAT)   INNER JOIN sankhya.TSICUS CUS WITH (NOLOCK) on (CUS.CODCENCUS = FIN.CODCENCUS)   INNER JOIN sankhya.TGFNAT NATP WITH (NOLOCK) on (NAT.CODNATPAI = NATP.codnat)   LEFT JOIN sankhya.TGFRAT RAT WITH (NOLOCK) on (RAT.NUFIN = FIN.NUFIN)   LEFT JOIN sankhya.TSICUS CUSR WITH (NOLOCK) on (CUSR.CODCENCUS = RAT.CODCENCUS) WHERE FIN.DHBAIXA >= :DATA_INICIAL   AND FIN.DHBAIXA <= :DATA_FINAL   AND ((:CODCENCUS = 0 AND CUS.CODCENCUS > 0)    OR (CUS.CODCENCUS = :CODCENCUS      OR CUS.CODCENCUSPAI = :CODCENCUS))   AND FIN.PROVISAO = 'N'   AND ((:VIRTUAL = 'S' AND FIN.CODCTABCOINT IN (4,5,7,11,8,16,17,18,19,26,27))    OR (:VIRTUAL = 'N' AND FIN.CODCTABCOINT IN (4,5,7,11,8,16,27)))   AND ((:EMPRESA = 0)    OR (:EMPRESA > 0 AND FIN.CODEMP = :EMPRESA)) GROUP BY FIN.RATEADO, CUS.CODCENCUSPAI, CUS.CODCENCUS, RAT.CODCENCUS, CUS.DESCRCENCUS, CUSR.DESCRCENCUS, NATP.DESCRNAT, NAT.CODNAT, NAT.DESCRNAT, FIN.RECDESP ORDER BY NAT.CODNAT, CUS.CODCENCUS]]>
+				</expression>
+				<metadata>
+					<field name="TOTAL" label="Total" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="NATPAI" label="Grupo Natureza" type="S" visible="true" useFooter="false"/>
+					<field name="DESCRNAT" label="Natureza" type="S" visible="true" useFooter="false"/>
+					<field name="CODNAT" label="Código Natureza" type="I" visible="true" useFooter="false"/>
+					<field name="DESCRCENCUS" label="Centro de Resultado" type="S" visible="true" useFooter="false"/>
+					<field name="CODCENCUS" label="Código CR" type="I" visible="true" useFooter="false"/>
+					<field name="CENTRO_RESULTADO" label="Grupo Centro de Resultado" type="S" visible="true" useFooter="false"/>
+					<field name="RATEADO" label="Rateado" type="S" visible="true" useFooter="false"/>
+					<field name="CUS_ANTES_RATEIO" label="Centro de Custo (sem rateio)" type="I" visible="false" useFooter="false"/>
+				</metadata>
+				<on-click navigate-to="lvl_a79eg5d">
+					<param id="CODCENCUS">$CODCENCUS</param>
+					<param id="CODNAT">$CODNAT</param>
+					<param id="NUFIN"/>
+					<param id="CODCENCUS_RAT">$CUS_ANTES_RATEIO</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_a79eg5d" description="Detalhe">
+		<args>
+			<arg id="CODCENCUS" type="integer"/>
+			<arg id="CODNAT" type="integer"/>
+			<arg id="NUFIN" type="integer"/>
+			<arg id="CODCENCUS_RAT" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_a79eg5e">
+				<title>
+					<![CDATA[Detalhe da movimentação]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[select distinct fin.nufin,fin.dhbaixa, CASE WHEN FIN.RATEADO = 'S' THEN ((RAT.PERCRATEIO/100)*fin.VLRBAIXA)*FIN.RECDESP ELSE fin.VLRBAIXA*FIN.RECDESP END as TOTAL, nat.DESCRNAT, NAT.codnat,  CASE WHEN FIN.RATEADO = 'S' THEN cusr.DESCRCENCUS else cus.DESCRCENCUS end as centro_de_resultado_filho, CASE WHEN FIN.RATEADO = 'S' THEN rat.codcencus else cus.codcencus end as codcencus, par.nomeparc, fin.historico,  tit.descrtiptit, fin.rateado, (SELECT DESCRCENCUS FROM SANKHYA_PRODUCAO.sankhya.TSICUS WHERE CODCENCUS like SUBSTRING(CAST(cus.CODCENCUS AS VARCHAR),1,1)+'0000') AS CENCUSPAI   from SANKHYA_PRODUCAO.sankhya.TGFFIN fin WITH (NOLOCK) inner join SANKHYA_PRODUCAO.sankhya.TGFNAT nat WITH (NOLOCK) on (nat.CODNAT = fin.CODNAT) inner join SANKHYA_PRODUCAO.sankhya.TSICUS cus WITH (NOLOCK)on (cus.CODCENCUS = fin.CODCENCUS) inner join SANKHYA_PRODUCAO.sankhya.TGFPAR par WITH (NOLOCK)on (par.codparc = fin.codparc) inner join SANKHYA_PRODUCAO.sankhya.TGFTIT tit WITH (NOLOCK)on (tit.codtiptit = fin.codtiptit) left join SANKHYA_PRODUCAO.sankhya.TGFRAT rat WITH (NOLOCK)on (rat.NUFIN = fin.NUFIN) LEFT join SANKHYA_PRODUCAO.sankhya.TSICUS cusr WITH (NOLOCK)on (rat.CODCENCUS = cusr.CODCENCUS)  where fin.DHBAIXA >= :DATA_INICIAL AND FIN.DHBAIXA <= :DATA_FINAL AND  ((:CODCENCUS_RAT > 0 AND RAT.CODCENCUS = :CODCENCUS and CUS.CODCENCUS = :CODCENCUS_RAT) OR (CUS.CODCENCUS = :CODCENCUS)) AND ((:VIRTUAL = 'S' AND fin.CODCTABCOINT IN (4,5,7,11,8,16,17,18,19)) OR (:VIRTUAL = 'N' AND fin.CODCTABCOINT IN (4,5,7,11,8,16))) AND NAT.CODNAT = :CODNAT and FIN.PROVISAO = 'N' AND ((:EMPRESA = 0) OR (:EMPRESA > 0 AND fin.CODEMP = :EMPRESA))  ORDER BY nat.codnat, cus.codcencus ]]>
+				</expression>
+				<metadata>
+					<field name="nufin" label="Nro Financeiro" type="I" visible="true" useFooter="false"/>
+					<field name="dhbaixa" label="Data" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					<field name="TOTAL" label="Total" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="DESCRNAT" label="Natureza" type="S" visible="true" useFooter="false"/>
+					<field name="codnat" label="Cód Natureza" type="I" visible="true" useFooter="false"/>
+					<field name="centro_de_resultado_filho" label="Centro de Resultado" type="S" visible="true" useFooter="false"/>
+					<field name="codcencus" label="Cód Centro de Custo" type="I" visible="true" useFooter="false" mask="#.##0"/>
+					<field name="nomeparc" label="Parceiro" type="S" visible="true" useFooter="false"/>
+					<field name="historico" label="Histórico" type="S" visible="true" useFooter="false"/>
+					<field name="descrtiptit" label="Tipo de Título" type="S" visible="true" useFooter="false"/>
+					<field name="rateado" label="Rateado" type="S" visible="true" useFooter="false"/>
+					<field name="CENCUSPAI" label="Grupo Centro de Resultado" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click-launcher resource-id="br.com.sankhya.fin.cad.movimentacaoFinanceira">
+					<NUFIN>$nufin</NUFIN>
+				</on-click-launcher>
+			</grid>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,17 @@
+<gadget refresh-time="60000">
+	<level id="lvl_mneydw" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<simple-value id="svl_mneydx" tamTexto="30">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT COUNT(DISTINCT NUNOTA) AS NOTASENTRADA FROM sankhya.TGFCAB CAB WITH(NOLOCK) WHERE CAB.DTNEG = CAST(GETDATE() AS VARCHAR(12))   AND CODTIPOPER IN (100,101,102,103,104,105,106,107,108,109,110,111,112)]]>
+				</expression>
+				<metadata>
+					<field name="NOTASENTRADA" label="NOTASENTRADA" type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<value-expression>
+					<![CDATA[<br><span style='font-size: 48px;'><div style='text-align: center;'>Entrada de Notas: <b>$NOTASENTRADA</b></div></span>]]>
+				</value-expression>
+			</simple-value>
+		</container>
+	</level>
+</gadget>

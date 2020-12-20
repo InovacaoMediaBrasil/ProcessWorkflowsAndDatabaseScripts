@@ -1,0 +1,35 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="OPERACAO" description="Código da Operação" metadata="integer" required="true" keep-last="false" keep-date="false" order="0"/>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="false" keep-date="false" order="1"/>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="false" keep-date="false" order="2"/>
+		<parameter id="CODSUPERVISOR" description="Supervisor" metadata="singleList:Text" listType="sql" required="false" keep-last="false" keep-date="false" order="3">
+			<expression type="SQL">
+				<![CDATA[SELECT CODVEND AS VALUE, APELIDO AS LABEL FROM TGFVEN WHERE TIPVEND = 'S' OR CODVEND = 0]]>
+			</expression>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_aglcyum" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="50">
+				<simple-value id="svl_agoph9b">
+					<value-expression>
+						<![CDATA[<b>Calcula o valor total de desconto dos itens do pedido, do período em análise.</b> ]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="50">
+				<grid id="grd_aglcyun">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT VEN.APELIDO AS 'VENDEDOR',    SUM(VLRDESCTOTITEM) AS 'VALOR_DESCONTO_ITEM',   SUM(VLRFRETE) AS 'VALOR_FRETE' FROM  SANKHYA.TGFCAB CAB WITH (NOLOCK)   INNER JOIN SANKHYA.TGFVEN VEN WITH (NOLOCK) ON VEN.CODVEND = CAB.CODVEND WHERE CODTIPOPER = :OPERACAO   AND DTNEG >= :DATA_INICIAL   AND DTNEG <= :DATA_FINAL   AND ((:CODSUPERVISOR <> 0 AND Ven.AD_CODSUPERVISOR = :CODSUPERVISOR)   OR :CODSUPERVISOR = 0) GROUP BY  VEN.APELIDO]]>
+					</expression>
+					<metadata>
+						<field name="VENDEDOR" label="VENDEDOR" type="S" visible="true" useFooter="false"/>
+						<field name="VALOR_DESCONTO_ITEM" label="VALOR_DESCONTO_ITEM" type="I" visible="true" useFooter="false"/>
+						<field name="VALOR_FRETE" label="VALOR_FRETE" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					</metadata>
+				</grid>
+			</container>
+		</container>
+	</level>
+</gadget>

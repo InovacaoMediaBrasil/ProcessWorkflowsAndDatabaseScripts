@@ -1,0 +1,40 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_v0i5ov" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_v0i5pa" type="line" nroColuna="6">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[   SELECT CAST(DTALTER AS DATE) AS DATA, COUNT(DISTINCT CODPROD) AS QTD_PRODUTOS  FROM sankhya.AD_LOGALTERACOESVTEX WITH(NOLOCK)  WHERE DTALTER >= :DTINI AND DTALTER < DATEADD(DAY,1,:DTFIM)  GROUP BY CAST(DTALTER AS DATE)]]>
+				</expression>
+				<metadata>
+					<field name="DATA" label="Data" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					<field name="QTD_PRODUTOS" label="Qtd Produtos" type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<horizontal-axis>
+					<category field="DATA" rotation="-45" dropLabel="false">
+						<initView value="first"/>
+						<title>Data</title>
+					</category>
+				</horizontal-axis>
+				<vertical-axis>
+					<linear resultRotation="0">
+						<mask/>
+						<title>Qtd</title>
+					</linear>
+				</vertical-axis>
+				<series>
+					<serie type="line" circle-intersection="true">
+						<xField>$DATA</xField>
+						<yField>$QTD_PRODUTOS</yField>
+						<display>
+							<![CDATA[Produtos alterados por data]]>
+						</display>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

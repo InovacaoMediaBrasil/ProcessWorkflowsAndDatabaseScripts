@@ -1,0 +1,38 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA" description="Data" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_f1xa8u" description="Principal">
+		<chart id="cht_f1xa8v" type="column">
+			<title>
+				<![CDATA[Saldo Bancário]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[ SELECT          sal.data, sal.saldo, cta.descricao, 'Total' as total, (select sum(saldo) from ad_saldobancariomanual where data = :DATA) as soma FROM   AD_SALDOBANCARIOMANUAL sal inner join TSICTA cta on (sal.codctabcoint = cta.codctabcoint)   where sal.data = :DATA]]>
+			</expression>
+			<metadata>
+				<field name="data" label="data" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+				<field name="saldo" label="saldo" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+				<field name="descricao" label="descricao" type="S" visible="true" useFooter="false"/>
+				<field name="total" label="total" type="S" visible="false" useFooter="false"/>
+				<field name="soma" label="soma" type="I" visible="false" useFooter="false" mask="R$ #.##0,00"/>
+			</metadata>
+			<horizontal-axis>
+				<category field="data" rotation="0" dropLabel="false"/>
+			</horizontal-axis>
+			<series>
+				<serie type="column">
+					<xField>$descricao</xField>
+					<yField>$saldo</yField>
+					<display>Saldo Bancário</display>
+					<color>0x999999</color>
+				</serie>
+				<serie type="column">
+					<xField>$total</xField>
+					<yField>$soma</yField>
+					<display>Total</display>
+				</serie>
+			</series>
+		</chart>
+	</level>
+</gadget>

@@ -1,0 +1,39 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="OPERACAO" description="Código de Operação" metadata="multiList:Text" listType="text" required="true" keep-last="false" keep-date="false">
+			<item value="500 " label=" Ativo"/>
+			<item value="501 " label=" Receptivo"/>
+			<item value="502 " label=" Ecommerce"/>
+			<item value="503 " label=" Sankhya"/>
+			<item value="515 " label=" Outros"/>
+		</parameter>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="true" keep-date="false" order="1"/>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false" order="0"/>
+		<parameter id="STATUSPGTO" description="Status de Pagamento" metadata="singleList:Text" listType="text" required="true" keep-last="false" keep-date="false">
+			<item value="A " label=" Ambos"/>
+			<item value="P " label=" Pendente"/>
+			<item value="E " label=" Efetuado"/>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_su1yet" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<simple-value id="svl_su1yeu">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT SUM(CAB.VLRNOTA-VLRFRETE) AS FATURAMENTO_PROD,   SUM(CAB.VLRFRETE) AS FATURAMENTO_FRETE,   SUM(CAB.VLRNOTA) AS FATURAMENTO_TOTAL,   SUM(CAB.VLRNOTA-VLRFRETE)/COUNT(CAB.NUNOTA) AS TICKET_PROD,   SUM(CAB.VLRFRETE)/COUNT(CAB.NUNOTA) AS TICKET_FRETE,   SUM(CAB.VLRNOTA)/COUNT(CAB.NUNOTA) AS TICKET_TOTAL,   COUNT(CAB.NUNOTA) AS QUANTIDADE_DE_PEDIDOS FROM sankhya.TGFCAB CAB WITH (NOLOCK) WHERE CAB.DTNEG >= :DATA_INICIAL   AND CAB.DTNEG <= :DATA_FINAL   AND (CAB.CODTIPOPER IN :OPERACAO)   AND ((:STATUSPGTO = 'P' AND AD_STATUSPGTO = 'P')    OR (:STATUSPGTO = 'E' AND AD_STATUSPGTO = 'E')    OR :STATUSPGTO = 'A')]]>
+				</expression>
+				<metadata>
+					<field name="FATURAMENTO_PROD" label="FATURAMENTO_PROD" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="FATURAMENTO_FRETE" label="FATURAMENTO_FRETE" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="FATURAMENTO_TOTAL" label="FATURAMENTO_TOTAL" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="TICKET_PROD" label="TICKET_PROD" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="TICKET_FRETE" label="TICKET_FRETE" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="TICKET_TOTAL" label="TICKET_TOTAL" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="QUANTIDADE_DE_PEDIDOS" label="QUANTIDADE_DE_PEDIDOS" type="I" visible="true" useFooter="false" mask="#.##0"/>
+				</metadata>
+				<value-expression>
+					<![CDATA[<b>Faturamento (Produtos):</b> $FATURAMENTO_PROD <b>Faturamento (Frete): </b> $FATURAMENTO_FRETE <b>Faturamento (Total): </b> $FATURAMENTO_TOTAL <hr><b>Ticket médio (Produtos):</b> $TICKET_PROD</hr> <b>Ticket médio (Frete):</b> $TICKET_FRETE <b>Ticket médio (Total):</b> $TICKET_TOTAL <hr><b>Quantidade de pedidos (Total):</b> $QUANTIDADE_DE_PEDIDOS</hr>]]>
+				</value-expression>
+			</simple-value>
+		</container>
+	</level>
+</gadget>

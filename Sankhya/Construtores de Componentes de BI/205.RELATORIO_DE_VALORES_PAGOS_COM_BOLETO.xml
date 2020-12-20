@@ -1,0 +1,43 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODTIPOPER" description="1.Código da operação" metadata="integer" required="true" keep-last="false" keep-date="false"/>
+		<parameter id="DT1" description="2. Data inicio" metadata="date" required="true" keep-last="false" keep-date="false"/>
+		<parameter id="DT2" description="3. Data final" metadata="date" required="true" keep-last="false" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_utri1" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_utri2" type="bar">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[/* SELECIONANDO A SOMATÓRIA DOS PEDIDOS PAGOS E DOS PEDIDOS NÃOPAGOS E CANCELADOS */ SELECT SUM(qtd_pago) as qtd_pago,   SUM(vlr_pago) as vlr_pago,   SUM(qtd_naopago) as qtd_naopago,   SUM(vlr_naopago) as vlr_naopago,   ROUND((SUM(vlr_pago) / SUM(vlr_pago+vlr_naopago))*100,2) AS 'Percentual' -- A PORCENTAGEM É A DIVISÃO DOS BOLETOS PAGOS, PELO TOTAL (PAGOS+NAOPAGOS+CANCELADOS) FROM (/* PARTE 1 PEDIDOS ATIVOS COM PAGAMENTO EFETUADO (PAGOS) */  SELECT COUNT(NUNOTA) AS qtd_pago,    SUM(VLRNOTA) AS vlr_pago,    0 AS qtd_naopago,    0 AS vlr_naopago FROM sankhya.TGFCAB WITH (NOLOCK)  WHERE DTNEG BETWEEN :DT1 AND :DT2   AND CODTIPVENDA IN (4,5,33,34)   AND CODTIPOPER = :CODTIPOPER   AND AD_STATUSPGTO LIKE 'E' -- MARCAÇÃO QUE O PEDIDO FOI PAGO UNION /* PARTE 2 PEDIDOS ATIVOS COM PAGAMENTO PENDENTE (NAO PAGO) */ SELECT 0 AS qtd_pago,   0 AS vlr_pago,   COUNT(NUNOTA) AS qtd_naopago,   SUM(VLRNOTA) AS vlr_naopago FROM sankhya.TGFCAB WITH (NOLOCK)  WHERE DTNEG BETWEEN :DT1 AND :DT2   AND CODTIPVENDA IN(4,5,33,34)AND CODTIPOPER = :CODTIPOPER   AND (AD_STATUSPGTO is null or AD_STATUSPGTO LIKE 'p') -- MARCAÇÃO QUE O PEDIDO NÃO FOI PAGO UNION /* PARTE 1 PEDIDOS CANCELADOS*/ SELECT 0 AS qtd_pago,   0 AS vlr_pago,   COUNT(NUNOTA) AS qtd_naopago,   SUM(VLRNOTA) AS vlr_naopago FROM sankhya.TGFCAB_EXC WITH (NOLOCK) -- TABELA DOS PEDIDOS CANCELADOS WHERE DTNEG BETWEEN :DT1 AND :DT2   AND CODTIPVENDA IN (4,5,33,34)   AND CODTIPOPER = :CODTIPOPER   ) a]]>
+				</expression>
+				<metadata>
+					<field name="qtd_pago" label="qtd_pago" type="I" visible="true" useFooter="false"/>
+					<field name="vlr_pago" label="Valor pago" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="qtd_naopago" label="qtd_naopago" type="I" visible="true" useFooter="false"/>
+					<field name="vlr_naopago" label="Valor não pago" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="Percentual" label="Percentual" type="F" visible="true" useFooter="false" mask="#.##0,00 %"/>
+				</metadata>
+				<horizontal-axis>
+					<linear resultRotation="-90">
+						<mask/>
+					</linear>
+				</horizontal-axis>
+				<vertical-axis>
+					<category field="Percentual" rotation="0" dropLabel="false"/>
+				</vertical-axis>
+				<series>
+					<serie type="bar">
+						<xField>$vlr_pago</xField>
+						<yField>$Percentual</yField>
+						<color>0x33ff</color>
+					</serie>
+					<serie type="bar">
+						<xField>$vlr_naopago</xField>
+						<yField>$Percentual</yField>
+						<color>0xcc0033</color>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

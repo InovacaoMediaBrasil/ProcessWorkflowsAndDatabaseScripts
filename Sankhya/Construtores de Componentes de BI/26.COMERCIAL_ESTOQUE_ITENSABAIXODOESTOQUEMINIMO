@@ -1,0 +1,34 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="FORNECEDORES" description="Considerar apenas Fornecedores do Usuário?" metadata="boolean" required="true" keep-last="true" keep-date="false" default="false"/>
+	</prompt-parameters>
+	<level id="lvl_pc0mnn" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_pc0mno">
+				<title>
+					<![CDATA[Produtos abaixo do estoque mínimo]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT PRO.CODPROD AS CODIGO,                 (RTRIM(PRO.DESCRPROD)+' '+ISNULL(PRO.COMPLDESC,'')) AS NOME,                 PRO.CODVOL AS UNIDADE,                 PRO.MARCA,                 PRO.ESTMIN AS ESTOQUE_MINIMO,                 EST.ESTOQUE AS ESTOQUE_FISICO,                 EST.RESERVADO,                 CASE                     WHEN HIST.DATACONT IS NULL THEN 'Não Contado'                     ELSE (CAST(DAY(HIST.DATACONT) AS VARCHAR)+'/'+CAST(MONTH(HIST.DATACONT) AS VARCHAR)+'/'+CAST(YEAR(HIST.DATACONT) AS VARCHAR))                 END AS DATA_CONTAGEM,                 CASE                     WHEN PRO.AD_PESTNEG IS NULL THEN 'N'                     ELSE PRO.AD_PESTNEG                 END AS ESTOQUE_NEGATIVO,                 (EST.estoque - EST.reservado) AS SALDO,     (SELECT MIN(DTPREVENT)     FROM sankhya.TGFITE ITE WITH(NOLOCK)       INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA     WHERE CODPROD = PRO.CODPROD       AND CODTIPOPER BETWEEN 1 AND 99       AND ITE.QTDENTREGUE < QTDNEG        AND CAB.PENDENTE = 'S'       AND DTNEG >= '2016-01-01') AS PREVISAO_PROXIMO_RECEBIMENTO,     (SELECT SUM(QTDNEG-QTDENTREGUE)     FROM sankhya.TGFITE ITE WITH(NOLOCK)       INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA     WHERE CODPROD = PRO.CODPROD       AND CODTIPOPER BETWEEN 1 AND 99       AND ITE.QTDENTREGUE < QTDNEG        AND CAB.PENDENTE = 'S'       AND DTNEG >= '2016-01-01') AS TOT_QTD_AINDA_PENDENTE,     (est.ESTOQUE - est.RESERVADO)+(SELECT SUM(QTDNEG-QTDENTREGUE)              FROM  sankhya.TGFITE ITE WITH(NOLOCK)               INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA              WHERE  CODPROD = PRO.CODPROD               AND CODTIPOPER BETWEEN 1 AND 99               AND ITE.QTDENTREGUE < QTDNEG                AND CAB.PENDENTE = 'S'               AND DTNEG >= '2016-01-01') AS SALDO_CONSIDERANDO_PEDIDO_COMPRA,     CASE WHEN (SELECT MIN(DTPREVENT)         FROM  sankhya.TGFITE ITE WITH(NOLOCK)          INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA         WHERE  CODPROD = PRO.CODPROD          AND CODTIPOPER BETWEEN 1 AND 99          AND ITE.QTDENTREGUE < QTDNEG           AND CAB.PENDENTE = 'S'          AND DTNEG >= '2016-01-01') IS NULL THEN '#FF0000' ELSE '#F2FFE6' END AS BKCOLOR,     CASE WHEN (SELECT MIN(DTPREVENT)         FROM  sankhya.TGFITE ITE WITH(NOLOCK)          INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA         WHERE  CODPROD = PRO.CODPROD          AND CODTIPOPER BETWEEN 1 AND 99          AND ITE.QTDENTREGUE < QTDNEG           AND CAB.PENDENTE = 'S'          AND DTNEG >= '2016-01-01') IS NULL THEN '#FFFFFF' ELSE '#000000' END AS FGCOLOR FROM sankhya.TGFPRO PRO WITH(NOLOCK)   INNER JOIN sankhya.TGFEST EST WITH(NOLOCK) ON (EST.CODPROD = PRO.CODPROD)   LEFT JOIN sankhya.AD_ESTHIST HIST WITH(NOLOCK) on HIST.CODPROD = PRO.CODPROD and HIST.DATACONT = (SELECT MAX(DATACONT) FROM sankhya.AD_ESTHIST WHERE CODPROD = PRO.CODPROD) WHERE PRO.CODVOL != 'KT'   AND EST.ESTOQUE - EST.RESERVADO <= PRO.ESTMIN   AND (EST.ESTMIN > 0   OR EST.ESTMIN IS NOT NULL)   AND PRO.ATIVO = 'S'   AND ((:FORNECEDORES = 'S' AND PRO.MARCA IN (SELECT MARCA              FROM sankhya.AD_MARCASFORNECEDORES WITH (NOLOCK)              WHERE CODPARC IN (SELECT P.CODPARC from sankhya.TGFPAR P                     INNER JOIN sankhya.TGFVEN V WITH (NOLOCK) ON (V.CODVEND = P.CODVEND OR V.CODVEND = P.CODASSESSOR)                     INNER JOIN sankhya.TSIUSU U WITH (NOLOCK) ON U.CODVEND = V.CODVEND                   WHERE V.TIPVEND = 'C' AND U.CODUSU = :CODUSU_LOG))) OR :FORNECEDORES = 'N')]]>
+				</expression>
+				<metadata>
+					<field name="CODIGO" label="CODIGO" type="I" visible="true" useFooter="false"/>
+					<field name="NOME" label="NOME" type="S" visible="true" useFooter="false"/>
+					<field name="UNIDADE" label="UNIDADE" type="S" visible="true" useFooter="false"/>
+					<field name="MARCA" label="MARCA" type="S" visible="true" useFooter="false"/>
+					<field name="ESTOQUE_MINIMO" label="ESTOQUE_MINIMO" type="I" visible="true" useFooter="false"/>
+					<field name="ESTOQUE_FISICO" label="ESTOQUE_FISICO" type="F" visible="true" useFooter="false"/>
+					<field name="RESERVADO" label="RESERVADO" type="F" visible="true" useFooter="false"/>
+					<field name="DATA_CONTAGEM" label="DATA_CONTAGEM" type="S" visible="true" useFooter="false"/>
+					<field name="ESTOQUE_NEGATIVO" label="ESTOQUE_NEGATIVO" type="S" visible="true" useFooter="false"/>
+					<field name="SALDO" label="SALDO" type="F" visible="true" useFooter="false"/>
+					<field name="PREVISAO_PROXIMO_RECEBIMENTO" label="PREVISAO_PROXIMO_RECEBIMENTO" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					<field name="TOT_QTD_AINDA_PENDENTE" label="TOT_QTD_AINDA_PENDENTE" type="I" visible="true" useFooter="false"/>
+					<field name="SALDO_CONSIDERANDO_PEDIDO_COMPRA" label="SALDO_CONSIDERANDO_PEDIDO_COMPRA" type="I" visible="true" useFooter="false"/>
+					<field name="BKCOLOR" label="BKCOLOR" type="S" visible="false" useFooter="false"/>
+					<field name="FGCOLOR" label="FGCOLOR" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

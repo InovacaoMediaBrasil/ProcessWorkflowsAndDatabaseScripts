@@ -1,0 +1,64 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODPROD" description="Código do Produto" metadata="entity:Produto@CODPROD" required="true" keep-last="false" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_0gfzdl" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="50">
+				<simple-value id="svl_0gfzdm">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT ISNULL(ESTOQUE,0)-ISNULL(RESERVADO,0) AS SALDO_REAL,   PRO.AD_PESTNEG AS ESTOQUE_NEGATIVO,   sankhya.FN_ESTOQUE_INOVACAO(EST.CODPROD) AS SALDO_CALCULADO,   AD_DTULTCONT,   PRO.ESTMIN FROM sankhya.TGFPRO PRO WITH(NOLOCK)   LEFT JOIN sankhya.TGFEST EST WITH(NOLOCK) ON PRO.CODPROD = EST.CODPROD WHERE EST.CODPROD = :codprod]]>
+					</expression>
+					<metadata>
+						<field name="SALDO_REAL" label="SALDO_REAL" type="I" visible="true" useFooter="false"/>
+						<field name="ESTOQUE_NEGATIVO" label="ESTOQUE_NEGATIVO" type="S" visible="true" useFooter="false"/>
+						<field name="SALDO_CALCULADO" label="SALDO_CALCULADO" type="I" visible="true" useFooter="false"/>
+						<field name="AD_DTULTCONT" label="AD_DTULTCONT" type="D" visible="true" useFooter="false"/>
+						<field name="ESTMIN" label="ESTMIN" type="I" visible="true" useFooter="false"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[ <table>   <tr>     <th style="width:100px" width="100"><div style='text-align: center;'><b>Saldo Real:</b><br>$SALDO_REAL</div></th>     <th style="width:100px" width="125"><div style='text-align: center;'><b>Estoque Mìnimo:</b><br>$ESTMIN</div></th>     <th style="width:100px" width="125"><div style='text-align: center;'><b>Última Contagem:</b><br>$AD_DTULTCONT</div></th>     <th style="width:100px" width="125"><div style='text-align: center;'><b>Permite Negativo:</b><br>$ESTOQUE_NEGATIVO</div></th>   </tr> </table>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="50">
+				<chart id="cht_0gfzeu" type="bar">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT 'ESTOQUE'   AS TXTEST,   ISNULL(ESTOQUE,0) AS VLRESTOQUE,   'RESERVADO'   AS TXTRES,   ISNULL(RESERVADO,0) AS VLRRESERVADO FROM sankhya.TGFEST WITH(NOLOCK) WHERE CODPROD = :CODPROD]]>
+					</expression>
+					<metadata>
+						<field name="TXTEST" label="TXTEST" type="S" visible="true" useFooter="false"/>
+						<field name="VLRESTOQUE" label="VLRESTOQUE" type="I" visible="true" useFooter="false"/>
+						<field name="TXTRES" label="TXTRES" type="S" visible="true" useFooter="false"/>
+						<field name="VLRRESERVADO" label="VLRRESERVADO" type="I" visible="true" useFooter="false"/>
+					</metadata>
+					<horizontal-axis>
+						<linear>
+							<mask/>
+							<title>Quantidade</title>
+						</linear>
+					</horizontal-axis>
+					<vertical-axis>
+						<category field="" rotation="0" dropLabel="false">
+							<title>Fisico x Reservado</title>
+						</category>
+					</vertical-axis>
+					<series>
+						<serie type="bar">
+							<xField>$VLRESTOQUE</xField>
+							<yField>$TXTEST</yField>
+							<display>Físico</display>
+							<color>0x3333ff</color>
+						</serie>
+						<serie type="bar">
+							<xField>$VLRRESERVADO</xField>
+							<yField>$TXTRES</yField>
+							<display>Reservado</display>
+							<color>0xcc0000</color>
+						</serie>
+					</series>
+				</chart>
+			</container>
+		</container>
+	</level>
+</gadget>

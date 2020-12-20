@@ -1,0 +1,37 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="OPERACAO" description="Operação" metadata="multiList:Text" listType="text" required="true" keep-last="false" keep-date="false">
+			<item value="500 " label=" Ativo"/>
+			<item value="501 " label=" Receptivo"/>
+			<item value="502 " label=" Ecommerce"/>
+			<item value="503 " label=" Sankhya"/>
+			<item value="515 " label=" Outros"/>
+		</parameter>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false" order="0"/>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="true" keep-date="false" order="1"/>
+		<parameter id="STATUSPGTO" description="Status de Pagamento" metadata="singleList:Text" listType="text" required="false" keep-last="false" keep-date="false" order="3">
+			<item value="A " label=" Ambos"/>
+			<item value="P " label=" Pendente"/>
+			<item value="E " label=" Efetuado"/>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_yz10yn" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_wtmmez">
+				<title>
+					<![CDATA[Resultado em Vendas por Mídia (Receptiva)]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[ SELECT  L.MIDIA, ISNULL(M.QTD,0) AS QTD_PEDIDOS, ISNULL(VLR_VENDIDO,0) AS VLR_VENDIDO, ISNULL(L.QTD,0) AS QTD_LIGACOES, CAST(CAST(ISNULL(M.QTD,0) AS MONEY) / CAST(ISNULL(L.QTD,M.QTD) AS MONEY) AS MONEY) * 100.00 AS CONVERSAO  FROM (select MIDIA, REC.NUMERO, SUM(QTD) AS QTD FROM SANKHYA_PRODUCAO.sankhya.AD_LIGACOESRECEPTIVAS REC WITH(NOLOCK) INNER JOIN SANKHYA_PRODUCAO.sankhya.AD_NUMEROSRECEPTIVOS NM WITH(NOLOCK) ON NM.NUMERO = REC.NUMERO WHERE DATA >= :DATA_INICIAL AND DATA <= :DATA_FINAL GROUP BY MIDIA, REC.NUMERO) L left join (select distinct ISNULL(R.MIDIA,'<SEM NUMERO ASSOCIADO>') AS MIDIA, R.NUMERO, COUNT(CAB.NUNOTA) AS QTD, SUM(CAB.VLRNOTA) AS VLR_VENDIDO from SANKHYA_PRODUCAO.sankhya.AD_PEDIDOVTEXSC SC WITH(NOLOCK) INNER JOIN SANKHYA_PRODUCAO.sankhya.AD_PEDIDOVTEXSCFLUXO FL WITH(NOLOCK) ON FL.ORDERID = SC.ORDERID AND FL.OCORRENCIA = 'P' AND SC.PEDORIGINAL = FL.PEDORIGINAL INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = FL.NUNOTA and cab.AD_PEDORIGINAL = sc.PEDORIGINAL INNER JOIN SANKHYA_PRODUCAO.sankhya.AD_NUMEROSRECEPTIVOS R WITH(NOLOCK) ON R.NUMERO = SC.ORIGEM WHERE origem is NOT NULL AND CAB.DTNEG >= :DATA_INICIAL AND CAB.DTNEG <= :DATA_FINAL AND (CAB.CODTIPOPER IN :OPERACAO)  and origem is NOT NULL   AND ((:STATUSPGTO = 'P' AND AD_STATUSPGTO = 'P')    OR (:STATUSPGTO = 'E' AND AD_STATUSPGTO = 'E')    OR :STATUSPGTO = 'A')    GROUP BY R.MIDIA,R.NUMERO    ) M ON L.NUMERO = M.NUMERO AND L.MIDIA = M.MIDIA]]>
+				</expression>
+				<metadata>
+					<field name="MIDIA" label="Mídia" type="S" visible="true" useFooter="false"/>
+					<field name="QTD_PEDIDOS" label="Qtd Pedidos" type="I" visible="true" useFooter="true" mask="#.##0"/>
+					<field name="VLR_VENDIDO" label="VLR_VENDIDO" type="C" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="QTD_LIGACOES" label="Qtd Ligações" type="I" visible="true" useFooter="true" mask="#.##0"/>
+					<field name="CONVERSAO" label="Conversão" type="F" visible="true" useFooter="false" mask="#.##0,00 %"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

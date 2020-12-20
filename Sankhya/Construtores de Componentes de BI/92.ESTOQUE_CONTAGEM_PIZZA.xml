@@ -1,0 +1,51 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_395lgg" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_395lgh" type="pizza">
+				<title>
+					<![CDATA[Quantidade de itens contados de :DTINI até :DTFIM]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CASE WHEN EST.DATACONT IS NOT NULL   THEN 'CONTADOS'   ELSE 'NÃO CONTADOS' END AS TIPO,   COUNT(PRO.CODPROD) AS QUANTIDADE FROM sankhya.TGFPRO PRO WITH (NOLOCK)   LEFT JOIN sankhya.AD_ESTHIST EST WITH (NOLOCK) ON PRO.CODPROD = EST.CODPROD AND EST.DATACONT =               (SELECT MAX (DATACONT)                FROM sankhya.AD_ESTHIST HIST                WHERE HIST.CODPROD = EST.CODPROD                 AND CAST(DATACONT AS DATE) BETWEEN :DTINI AND :DTFIM) WHERE PRO.ATIVO = 'S'   AND PRO.CODVOL != 'KT'   AND PRO.CODGRUPOPROD >= 100000   AND PRO.CODGRUPOPROD <= 199999   AND PRO.USOPROD <> 'S'   AND (CAST(EST.DATACONT AS DATE) BETWEEN :DTINI AND :DTFIM     OR EST.DATACONT IS NULL) GROUP BY (CASE WHEN EST.DATACONT IS NOT NULL THEN 'CONTADOS'     ELSE 'NÃO CONTADOS'     END)]]>
+				</expression>
+				<metadata>
+					<field name="TIPO" label="TIPO" type="S" visible="true" useFooter="false"/>
+					<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="false" mask="###0;-n"/>
+				</metadata>
+				<series>
+					<serie type="pizza">
+						<field>QUANTIDADE</field>
+						<nameField>TIPO</nameField>
+						<on-click navigate-to="lvl_395lgk">
+							<param id="DTULTCONT"/>
+						</on-click>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+	<level id="lvl_395lgk" description="2o nivel">
+		<args>
+			<arg id="DTULTCONT" type="date"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_395lgl">
+				<title>
+					<![CDATA[Visualizando produtos contados em: $datacontagem]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT EST.CODPROD AS CODIGO,        (RTRIM(PRO.DESCRPROD) + CASE WHEN pro.COMPLDESC IS NULL THEN ''          ELSE ' ' + RTRIM(COMPLDESC)          END) AS NOMEPRODUTO,   CAST(EST.DATACONT AS DATE) AS DATACONTAGEM FROM sankhya.AD_ESTHIST EST WITH (NOLOCK)   INNER JOIN sankhya.TGFPRO PRO WITH (NOLOCK) ON (PRO.CODPROD = EST.CODPROD) AND EST.DATACONT =               (SELECT MAX(DATACONT)                FROM sankhya.AD_ESTHIST HIST                WHERE HIST.CODPROD = EST.CODPROD                 AND CAST(DATACONT AS DATE) BETWEEN :DTINI and :DTFIM) WHERE PRO.ATIVO = 'S'   AND PRO.CODVOL != 'KT'   AND PRO.CODGRUPOPROD <= 199999   AND PRO.USOPROD <> 'S' ORDER BY CAST(EST.DATACONT AS DATE)]]>
+				</expression>
+				<metadata>
+					<field name="CODIGO" label="CODIGO" type="I" visible="true" useFooter="false"/>
+					<field name="NOMEPRODUTO" label="NOMEPRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="DATACONTAGEM" label="DATACONTAGEM" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY H.NN A"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,52 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_xpul16" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="33">
+				<grid id="grd_xpul17">
+					<title>
+						<![CDATA[Receitas por Centro de Resultado (Vitrine)]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[/* vendido call center */ select sum(VLRNOTA) as VALOR_VENDIDO, 'CALLCENTER' AS SETOR from sankhya.TGFCAB CAB WITH(NOLOCK) WHERE CAB.DTNEG >= :DTINI AND DTNEG <= :DTFIM AND CAB.CODTIPOPER IN (500,501) and AD_STATUSPGTO = 'E'  UNION  /* vendido e-commerce */ select sum(VLRNOTA) as VALOR_VENDIDO, 'ECOMMERCE' AS SETOR from sankhya.TGFCAB CAB WITH(NOLOCK) WHERE CAB.DTNEG >= :DTINI AND DTNEG <= :DTFIM AND CAB.CODTIPOPER IN (502) and AD_STATUSPGTO = 'E'  UNION  /* vendido snk */ select sum(VLRNOTA) AS VALOR_VENDIDO, 'ATACADO' AS SETOR From sankhya.TGFCAB CAB WITH(NOLOCK) INNER JOIN sankhya.tgfven ven with(nolock) on ven.CODVEND = cab.CODVEND WHERE CAB.DTNEG >= :DTINI AND DTNEG <= :DTFIM AND CAB.CODTIPOPER IN (503) and CODTIPVENDA != 49 and ((ven.AD_SETORVEND = 'COMERCIAL') OR (AD_STATUSPGTO = 'E'))]]>
+					</expression>
+					<metadata>
+						<field name="VALOR_VENDIDO" label="VALOR_VENDIDO" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+						<field name="SETOR" label="SETOR" type="S" visible="true" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+			<container orientacao="V" tamanhoRelativo="33">
+				<grid id="grd_xpul2b">
+					<title>
+						<![CDATA[Receitas - Canal do Artesanato]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[select sum(value) as TOTAL, count(RecurringPaymentId)as QTD_VENDIDA, 'RECORRENCIA' AS TIPO from [REMOTO.EDITORAINOVACAO.COM.BR].[CanalDoArtesanato_Production].dbo.TransactionsRecurringPayments where date between cast(:DTINI as date) and cast(DATEADD(HOUR,23,DATEADD(MINUTE,59,DATEADD(SECOND,59,cast(:DTFIM as datetime)))) as DATETIME) UNION select sum(value) as TOTAL, count(BankBillId)as QTD_VENDIDA, 'BOLETO' AS TIPO  from [REMOTO.EDITORAINOVACAO.COM.BR].[CanalDoArtesanato_Production].dbo.TransactionsBankBills where approveddate  between cast(:DTINI as date) and cast(DATEADD(HOUR,23,DATEADD(MINUTE,59,DATEADD(SECOND,59,cast(:DTFIM as datetime)))) AS datetime)]]>
+					</expression>
+					<metadata>
+						<field name="TOTAL" label="TOTAL" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+						<field name="QTD_VENDIDA" label="QTD_VENDIDA" type="I" visible="true" useFooter="true" mask="#.##0"/>
+						<field name="TIPO" label="TIPO" type="S" visible="true" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+			<container orientacao="V" tamanhoRelativo="33">
+				<grid id="grd_xpul2m">
+					<title>
+						<![CDATA[CMV]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[/* cmv */ SELECT round(SUM(CUSTO),2) AS CUSTO_VENDIDO FROM ( select ITE.CODPROD, ITE.CODVOL, SUM(ITE.QTDNEG) AS QTDTOTAL, CAST(ISNULL(sankhya.PRECODECUSTO(CODPROD,CODVOL)*SUM(ITE.QTDNEG),0) AS MONEY) AS CUSTO from sankhya.TGFCAB CAB WITH(NOLOCK) INNER JOIN sankhya.TGFITE ITE WITH(NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA  WHERE ITE.CODVOL != 'KT' AND CAB.DTNEG >= :DTINI AND DTNEG <= :DTFIM AND CAB.CODTIPOPER IN (500,501,502,503,504) GROUP BY ITE.CODPROD, ITE.CODVOL) VENDIDO]]>
+					</expression>
+					<metadata>
+						<field name="CUSTO_VENDIDO" label="CUSTO_VENDIDO" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					</metadata>
+				</grid>
+			</container>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,27 @@
+<gadget>
+	<level id="lvl_pc0mmx" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_pc0mm9">
+				<title>
+					<![CDATA[Relatório geral de valoração do estoque]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT EST.CODPROD AS COD,   PRO.DESCRPROD,   ISNULL(PRO.COMPLDESC,'') AS Complemento,   PRO.MARCA,   PRO.CODVOL,   sankhya.PRECODECUSTO(EST.CODPROD, PRO.CODVOL) AS CUSTO_UNIDADE_PADRAO,   EST.ESTOQUE AS ESTOQUE_FISICO,   ROUND((sankhya.PRECODECUSTO(EST.CODPROD, PRO.CODVOL) * EST.ESTOQUE),2) AS VALOR_TOTAL,   EST.AD_DTULTCONT AS DATA_ULTIMA_CONTAGEM ,   HIST.DT AS DATA_CONTAGEM,   CASE WHEN BISAVO.CODGRUPOPROD IS NULL     THEN (CASE WHEN AVO.CODGRUPOPROD IS NULL       THEN (CASE WHEN PAI.CODGRUPOPROD IS NULL         THEN GRU.DESCRGRUPOPROD          ELSE PAI.DESCRGRUPOPROD END)        ELSE AVO.DESCRGRUPOPROD END)   ELSE BISAVO.DESCRGRUPOPROD END AS grupo FROM sankhya.TGFEST EST WITH (NOLOCK)   INNER JOIN sankhya.TGFPRO PRO WITH (NOLOCK) ON PRO.CODPROD = EST.CODPROD   INNER JOIN sankhya.TGFGRU GRU WITH (NOLOCK) ON GRU.CODGRUPOPROD = PRO.CODGRUPOPROD   LEFT JOIN sankhya.TGFGRU PAI WITH (NOLOCK) ON PAI.CODGRUPOPROD = GRU.CODGRUPAI   LEFT JOIN sankhya.TGFGRU AVO WITH (NOLOCK) ON AVO.CODGRUPOPROD = PAI.CODGRUPAI   LEFT JOIN sankhya.TGFGRU BISAVO WITH (NOLOCK) ON BISAVO.CODGRUPOPROD = AVO.CODGRUPAI   LEFT JOIN (SELECT DISTINCT TOP 100 PERCENT        CODPROD,        MAX(DATACONT) AS DT      FROM sankhya.AD_ESTHIST WITH (NOLOCK)      GROUP BY CODPROD      ORDER BY MAX(DATACONT) DESC      ) HIST ON HIST.CODPROD = EST.CODPROD WHERE EST.ESTOQUE > 0   AND PRO.CODVOL != 'KT'   AND EST.CODPROD NOT IN (7238, 7110) ORDER BY VALOR_TOTAL DESC]]>
+				</expression>
+				<metadata>
+					<field name="COD" label="Código" type="I" visible="true" useFooter="false"/>
+					<field name="DESCRPROD" label="Descrição" type="S" visible="true" useFooter="false"/>
+					<field name="Complemento" label="Complemento" type="S" visible="true" useFooter="false"/>
+					<field name="MARCA" label="Marca" type="S" visible="true" useFooter="false"/>
+					<field name="CODVOL" label="UN" type="S" visible="true" useFooter="false"/>
+					<field name="CUSTO_UNIDADE_PADRAO" label="Custo Unitário" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="ESTOQUE_FISICO" label="Estoque Físico" type="I" visible="true" useFooter="true"/>
+					<field name="VALOR_TOTAL" label="Valor Total" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="DATA_ULTIMA_CONTAGEM" label="Data Última Contagem" type="D" visible="false" useFooter="false" mask="DD/MM/YYYY H.NN A"/>
+					<field name="DATA_CONTAGEM" label="Data da Contagem" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					<field name="grupo" label="Grupo" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

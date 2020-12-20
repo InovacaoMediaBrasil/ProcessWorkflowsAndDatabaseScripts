@@ -1,0 +1,70 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false" order="0"/>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="true" keep-date="false" order="1"/>
+		<parameter id="OPERACAO" description="Código da Operação" metadata="multiList:Text" listType="text" required="true" keep-last="false" keep-date="false">
+			<item value="500 " label=" Ativo"/>
+			<item value="501 " label=" Receptivo"/>
+			<item value="502 " label=" Ecommerce"/>
+			<item value="503 " label=" Sankhya"/>
+			<item value="515 " label=" Outros"/>
+		</parameter>
+		<parameter id="STATUSPGTO" description="Status de Pagamento" metadata="singleList:Text" listType="text" required="false" keep-last="false" keep-date="false" order="3">
+			<item value="A " label=" Ambos"/>
+			<item value="P " label=" Pendente"/>
+			<item value="E " label=" Efetuado"/>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_yz10wv" description="Status Pagamento">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_yz10ww" type="pizza">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT SUM(CAB.VLRNOTA) AS FATURAMENTO,   CAB.AD_STATUSPGTO AS PAGAMENTO FROM SANKHYA.TGFCAB CAB WITH (NOLOCK) WHERE CAB.DTNEG >= :DATA_INICIAL   AND CAB.DTNEG <= :DATA_FINAL   AND (CAB.CODTIPOPER IN :OPERACAO)   AND ((:STATUSPGTO = 'P' AND AD_STATUSPGTO = 'P')    OR (:STATUSPGTO = 'E' AND AD_STATUSPGTO = 'E')    OR :STATUSPGTO = 'A') GROUP BY CAB.AD_STATUSPGTO]]>
+				</expression>
+				<metadata>
+					<field name="FATURAMENTO" label="FATURAMENTO" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="PAGAMENTO" label="PAGAMENTO" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<series>
+					<serie type="pizza">
+						<field>FATURAMENTO</field>
+						<nameField>PAGAMENTO</nameField>
+						<on-click navigate-to="lvl_yz10w0">
+							<param id="STATUSPGTO">FORMA_DE_PAGAMENTO</param>
+						</on-click>
+					</serie>
+				</series>
+				<legend position="bottom" direction="h"/>
+			</chart>
+		</container>
+	</level>
+	<level id="lvl_yz10w0" description="Tipo de Título">
+		<args>
+			<arg id="STATUSPGTO" type="text"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_yz10w1" type="pizza">
+				<title>
+					<![CDATA[Tipo de Título]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT SUM(CabecalhoNota.VLRNOTA) AS FATURAMENTO,   TIT.DESCRTIPTIT    AS FORMA_DE_PAGAMENTO FROM SANKHYA.TGFCAB CabecalhoNota WITH (NOLOCK)   JOIN SANKHYA.TGFTPV TPV ON (CabecalhoNota.CODTIPVENDA = TPV.CODTIPVENDA)   JOIN SANKHYA.TGFPPG PPG ON (Tpv.CODTIPVENDA = PPG.CODTIPVENDA)   JOIN SANKHYA.TGFTIT TIT ON (PPG.CODTIPTITPAD = TIT.CODTIPTIT) WHERE CabecalhoNota.DTNEG >= :DATA_INICIAL   AND CabecalhoNota.DTNEG <= :DATA_INICIAL   AND (CabecalhoNota.CODTIPOPER IN :OPERACAO) GROUP BY TIT.DESCRTIPTIT]]>
+				</expression>
+				<metadata>
+					<field name="FATURAMENTO" label="FATURAMENTO" type="F" visible="true" useFooter="true"/>
+					<field name="FORMA_DE_PAGAMENTO" label="FORMA_DE_PAGAMENTO" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<series>
+					<serie type="pizza">
+						<field>FATURAMENTO</field>
+						<nameField>FORMA_DE_PAGAMENTO</nameField>
+						<on-click navigate-to="lvl_yz10w0">
+							<param id="STATUSPGTO">FORMA_DE_PAGAMENTO</param>
+						</on-click>
+					</serie>
+				</series>
+				<legend position="top" direction="h"/>
+			</chart>
+		</container>
+	</level>
+</gadget>

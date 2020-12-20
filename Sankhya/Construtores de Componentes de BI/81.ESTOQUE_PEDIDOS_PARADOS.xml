@@ -1,0 +1,38 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_gd5qdx" description="Principal">
+		<grid id="grd_iwyz2j" tamTexto="18">
+			<title>
+				<![CDATA[Pedidos Parados]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT DISTINCT pedpar.CODPROD as Codigo, PRO.DESCRPROD as Descricao,  COUNT (pedpar.QTD) as QUANTIDADE  FROM sankhya.AD_PEDPARADOS as PEDPAR WITH (NOLOCK)  inner join sankhya.TGFCAB as CAB on (CAB.NUNOTA = PEDPAR.NUNOTA)  inner join sankhya.tgfpro as pro on (pro.codprod = pedpar.codprod)  WHERE cab.DTNEG between :DTINI and :DTFIM  group by pedpar.CODPROD, pro.DESCRPROD, pedpar.QTD]]>
+			</expression>
+			<metadata>
+				<field name="Codigo" label="Codigo" type="I" visible="true" useFooter="false"/>
+				<field name="Descricao" label="Descricao" type="S" visible="true" useFooter="false"/>
+				<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<on-click navigate-to="lvl_hhpw10">
+				<param id="CODPROD">$Codigo</param>
+			</on-click>
+		</grid>
+	</level>
+	<level id="lvl_hhpw10" description="2 Nivel">
+		<args>
+			<arg id="CODPROD" type="integer"/>
+		</args>
+		<grid id="grd_hhpw11">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT PEDPAR.NUNOTA, CAB.DTNEG as DataExpedicao  from AD_PEDPARADOS as pedpar WITH (NOLOCK)  inner join sankhya_producao.sankhya.tgfcab as cab on (cab.nunota = pedpar.nunota)  where cab.dtneg between :DTINI and :DTFIM and codprod = :CODPROD]]>
+			</expression>
+			<metadata>
+				<field name="NUNOTA" label="NUNOTA" type="I" visible="true" useFooter="false"/>
+				<field name="DataExpedicao" label="DataExpedicao" type="D" visible="true" useFooter="false"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

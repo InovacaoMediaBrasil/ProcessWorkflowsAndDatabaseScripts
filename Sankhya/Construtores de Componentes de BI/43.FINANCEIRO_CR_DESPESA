@@ -1,0 +1,35 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA" description="Data" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_f1xa7e" description="Principal">
+		<chart id="cht_f1xa8m" type="bar">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[ SELECT          SUM(VLRBAIXA) AS VALOR,          cus.DESCRCENCUS AS CENTRO_RESULTADO  FROM          TGFFIN fin         INNER JOIN TSICUS cus ON (fin.CODCENCUS = cus.CODCENCUS)  WHERE DHBAIXA = :DATA          AND fin.RECDESP = -1          AND fin.CODCTABCOINT IN (4, 5, 6, 7, 11)  GROUP BY          cus.DESCRCENCUS]]>
+			</expression>
+			<metadata>
+				<field name="VALOR" label="VALOR" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+				<field name="CENTRO_RESULTADO" label="CENTRO_RESULTADO" type="S" visible="true" useFooter="false"/>
+			</metadata>
+			<horizontal-axis>
+				<linear>
+					<mask/>
+					<title>Valor</title>
+				</linear>
+			</horizontal-axis>
+			<vertical-axis>
+				<category field="" rotation="0" dropLabel="false">
+					<title>Centro de Resultado</title>
+				</category>
+			</vertical-axis>
+			<series>
+				<serie type="bar">
+					<xField>$VALOR</xField>
+					<yField>$CENTRO_RESULTADO</yField>
+					<display>Centro de Resultado (RECEITAS)</display>
+					<color>0xcc0000</color>
+				</serie>
+			</series>
+		</chart>
+	</level>
+</gadget>

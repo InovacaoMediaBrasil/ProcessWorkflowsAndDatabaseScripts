@@ -1,0 +1,21 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_azj4rrh" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_azj4rri">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT APELIDO,   Setor,   SUM(TOTAL) AS TOTAL, SUM(TotalCancelado) as TotalCancelado FROM (SELECT V.APELIDO,     V.AD_SETORVEND AS Setor,     SUM(C.VLRNOTA) AS Total,     0 AS TotalCancelado   FROM sankhya.TGFCAB C WITH (NOLOCK)     INNER JOIN sankhya.TGFVEN V WITH (NOLOCK) ON V.CODVEND = C.CODVEND WHERE DTNEG BETWEEN :DTINI AND :DTFIM   AND CODTIPOPER IN (500, 501 , 515) GROUP BY V.APELIDO, V.AD_SETORVEND UNION  SELECT V.APELIDO,     V.AD_SETORVEND AS Setor,     0 AS Total,     SUM(C.VLRNOTA) AS TotalCancelado FROM sankhya.TGFCAN C WITH (NOLOCK)   INNER JOIN sankhya_producao.sankhya.TGFCAB_EXC CEXC WITH (NOLOCK) ON CEXC.NUNOTA = C.NUNOTA   INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFVEN V WITH (NOLOCK) ON V.CODVEND = CEXC.CODVEND WHERE C.DTNEG BETWEEN :DTINI AND :DTFIM   AND CODTIPOPER IN (500, 501 , 515) GROUP BY V.APELIDO, v.ad_setorvend) as Vendas GROUP BY APELIDO, Setor]]>
+				</expression>
+				<metadata>
+					<field name="APELIDO" label="APELIDO" type="S" visible="true" useFooter="false"/>
+					<field name="Setor" label="Setor" type="S" visible="true" useFooter="false"/>
+					<field name="TOTAL" label="TOTAL" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="TotalCancelado" label="TotalCancelado" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

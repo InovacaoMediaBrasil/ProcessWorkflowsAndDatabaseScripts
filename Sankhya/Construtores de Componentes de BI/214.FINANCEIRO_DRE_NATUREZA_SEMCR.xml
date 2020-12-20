@@ -1,0 +1,23 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_xpul3m" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_xpul3n">
+				<title>
+					<![CDATA[Resumo de receitas e despesas por natureza]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[ select SUM(fin.VLRBAIXA)*RECDESP as Valor_Total, natp.DESCRNAT as Grupo_Natureza, nat.DESCRNAT as Detalhe_Natureza from SANKHYA_PRODUCAO.sankhya.TGFFIN fin WITH (NOLOCK) inner join SANKHYA_PRODUCAO.sankhya.TGFNAT nat WITH (NOLOCK) on (nat.CODNAT = fin.CODNAT) inner join SANKHYA_PRODUCAO.sankhya.TGFNAT natp WITH (NOLOCK) on (nat.CODNATPAI = natp.codnat)  where fin.DHBAIXA >= :DTINI AND FIN.DHBAIXA <= :DTFIM AND FIN.PROVISAO = 'N' AND fin.CODCTABCOINT IN (4,5,7,11,8,16,17,18,19,26,27)   group by natp.descrnat, nat.codnat, nat.DESCRNAT, fin.recdesp ORDER BY nat.codnat ]]>
+				</expression>
+				<metadata>
+					<field name="Valor_Total" label="Valor_Total" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="Grupo_Natureza" label="Grupo_Natureza" type="S" visible="true" useFooter="false"/>
+					<field name="Detalhe_Natureza" label="Detalhe_Natureza" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

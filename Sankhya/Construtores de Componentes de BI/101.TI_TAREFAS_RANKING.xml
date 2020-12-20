@@ -1,0 +1,39 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_ubwzmc" description="Principal">
+		<chart id="cht_ubwzmd" type="bar">
+			<title>
+				<![CDATA[RANKING DE TAREFAS]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT RESPONSAVEL, COUNT(IDTAREFASTI) as QTD FROM sankhya.AD_TAREFASTI WHERE ENTREGUEEM BETWEEN :DTINI AND :DTFIM GROUP BY RESPONSAVEL ORDER BY COUNT(IDTAREFASTI) DESC]]>
+			</expression>
+			<metadata>
+				<field name="RESPONSAVEL" label="RESPONSAVEL" type="S" visible="true" useFooter="false"/>
+				<field name="QTD" label="QTD" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<horizontal-axis>
+				<linear>
+					<mask/>
+					<title>Quantidade</title>
+				</linear>
+			</horizontal-axis>
+			<vertical-axis>
+				<category field="" rotation="0" dropLabel="false">
+					<title>Responsável</title>
+				</category>
+			</vertical-axis>
+			<series>
+				<serie type="bar">
+					<xField>$QTD</xField>
+					<yField>$RESPONSAVEL</yField>
+					<display>Ranking de tarefas</display>
+					<color>0x990000</color>
+				</serie>
+			</series>
+		</chart>
+	</level>
+</gadget>

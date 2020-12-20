@@ -1,0 +1,71 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATAFINAL" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_anghmhk" description="Principal">
+		<args>
+			<arg id="CODPARC" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_anghmie" tamTexto="18">
+				<title>
+					<![CDATA[Período selecionado: :DATA_INICIAL até :DATAFINAL]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT CAB.CODPARC AS codigoparceiro,   PAR.NOMEPARC,   ISNULL(sankhya.FN_CREDITO_PERMUTA(CAB.CODPARC,:DATA_INICIAL,:DATAFINAL),0) AS CREDITO,   ISNULL(sankhya.FN_DEBITO_PERMUTA_NOTA(CAB.CODPARC,:DATA_INICIAL,:DATAFINAL),0) AS DEBITO,   ISNULL(sankhya.FN_DEBITO_PERMUTA_NOTA_ABERTO(CAB.CODPARC,:DATA_INICIAL,:DATAFINAL),0) AS DEBITO_EM_ABERTO,   ISNULL(sankhya.FN_CREDITO_PERMUTA(CAB.CODPARC,:DATA_INICIAL,:DATAFINAL),0) - ISNULL(sankhya.FN_DEBITO_PERMUTA_NOTA(CAB.CODPARC,:DATA_INICIAL,:DATAFINAL),0) - ISNULL(sankhya.FN_DEBITO_PERMUTA_NOTA_ABERTO(CAB.CODPARC,:DATA_INICIAL,:DATAFINAL),0) AS saldo FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON (PAR.CODPARC = CAB.CODPARC)   LEFT JOIN sankhya.TGFFIN FIN WITH (NOLOCK) ON (CAB.NUNOTA = FIN.NUNOTA) WHERE ((CAB.CODTIPOPER IN (111,113)  AND CAB.DTFATUR BETWEEN :DATA_INICIAL AND :DATAFINAL)    OR (CAB.CODTIPOPER = 507 AND FIN.DTVENC BETWEEN :DATA_INICIAL AND :DATAFINAL))    AND (STATUSNOTA = 'L') ORDER BY NOMEPARC]]>
+				</expression>
+				<metadata>
+					<field name="codigoparceiro" label="Cód Parceiro" type="I" visible="true" useFooter="false"/>
+					<field name="NOMEPARC" label="Parceiro" type="S" visible="true" useFooter="false"/>
+					<field name="CREDITO" label="Crédito" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="DEBITO" label="Débito" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="DEBITO_EM_ABERTO" label="Débito em Aberto" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="saldo" label="Saldo" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click navigate-to="lvl_nvhdk">
+					<param id="CODPARC">$codigoparceiro</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_nvhdk" description="Detalhe">
+		<args>
+			<arg id="CODPARC" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="100">
+				<simple-value id="null" tamTexto="25">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT Parceiro.NOMEPARC FROM SANKHYA.TGFPAR Parceiro WITH (NOLOCK) WHERE Parceiro.CODPARC = :CODPARC]]>
+					</expression>
+					<metadata>
+						<field name="NOMEPARC" label="NOMEPARC" type="S" visible="true" useFooter="false"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<p align="center">Acompanhamento de permutas com o parceiro <b>$NOMEPARC</b></p>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="1062">
+				<grid id="movimentos" tamTexto="18">
+					<title>
+						<![CDATA[Período selecionado: :DATA_INICIAL até :DATAFINAL]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT DISTINCT CAB.NUNOTA AS NroUnico,   CAB.NUMNOTA AS Nota,   DATA = CASE(CAB.CODTIPOPER)      WHEN '111' THEN CAB.DTFATUR      WHEN '113' THEN CAB.DTFATUR      WHEN '507' THEN FIN.DTVENC     ELSE ''     END,   VALOR = CASE (CAB.CODTIPOPER)      WHEN '111' THEN CAB.VLRNOTA * -1      WHEN '113' THEN CAB.VLRNOTA * -1      WHEN '507' THEN FIN.VLRDESDOB     ELSE ''     END FROM sankhya.TGFCAB CAB WITH (NOLOCK)   LEFT JOIN sankhya.TGFFIN AS FIN WITH (NOLOCK) ON CAB.NUNOTA = FIN.NUNOTA WHERE CAB.CODPARC = :CODPARC   AND ((CAB.CODTIPOPER IN (111,113) AND CAB.DTfatur BETWEEN :DATA_INICIAL AND :DATAFINAL)    OR (CAB.CODTIPOPER = 507 AND FIN.DTVENC BETWEEN :DATA_INICIAL AND :DATAFINAL )) ORDER BY VALOR DESC]]>
+					</expression>
+					<metadata>
+						<field name="NroUnico" label="NroUnico" type="I" visible="true" useFooter="false"/>
+						<field name="Nota" label="Nota" type="I" visible="true" useFooter="false"/>
+						<field name="DATA" label="Data" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+						<field name="VALOR" label="Valor" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					</metadata>
+					<on-click-launcher resource-id="br.com.sankhya.com.mov.CentralNotas">
+						<NUNOTA>$NroUnico</NUNOTA>
+					</on-click-launcher>
+				</grid>
+			</container>
+		</container>
+	</level>
+</gadget>

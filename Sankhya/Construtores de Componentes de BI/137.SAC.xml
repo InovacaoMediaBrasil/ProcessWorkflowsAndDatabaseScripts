@@ -1,0 +1,12 @@
+<gadget>
+	<level id="lvl_ncvx1o" description="Principal">
+		<grid id="grd_ncvx1q">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[DECLARE @I AS INTEGER  SET @I = 1  SELECT @I]]>
+			</expression>
+			<metadata>
+				<field name="" label="" type="I" visible="true" useFooter="false"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

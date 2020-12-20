@@ -1,0 +1,36 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_173do" description="Principal">
+		<simple-value id="svl_2zkt7" tamTexto="18">
+			<title>
+				<![CDATA[<b>Período selecionado:</b> :DTINI até :DTFIM]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT SUM(VLRFRETE) AS TOTAL ,COUNT(CASE WHEN VLRFRETE > 0 THEN VLRFRETE ELSE NULL END) AS QUANTIDADE, COUNT(VLRFRETE) AS TOTAL_PEDIDOS, SUM(VLRFRETE)/COUNT(VLRFRETE) AS MEDIA  FROM SANKHYA_PRODUCAO.sankhya.TGFCAB CAB where CODTIPOPER in (500,501,502,503,515) and DTNEG BETWEEN :DTINI AND :DTFIM and cab.AD_STATUSPGTO = 'E']]>
+			</expression>
+			<metadata>
+				<field name="TOTAL" label="TOTAL" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+				<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="false" mask="#.##0;-n"/>
+				<field name="TOTAL_PEDIDOS" label="TOTAL_PEDIDOS" type="I" visible="true" useFooter="false" mask="#.##0;-n"/>
+				<field name="MEDIA" label="MEDIA" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+			</metadata>
+			<value-expression>
+				<![CDATA[<p style="color: #666;"> <b>Valor total de frete nos pedidos:</b> $TOTAL <b>Quantidade de pedidos com frete:</b> $QUANTIDADE <b>Quantidade de pedidos:</b> $TOTAL_PEDIDOS <b>Média de frete por pedido:</b> $MEDIA</p> ]]>
+			</value-expression>
+		</simple-value>
+		<simple-value id="svl_2zkt8" tamTexto="18">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[select SUM(vlrbaixa) AS VLRTOT from sankhya.TGFFIN WHERE DHBAIXA BETWEEN :DTINI AND :DTFIM AND PROVISAO = 'N' AND CODNAT = 220301]]>
+			</expression>
+			<metadata>
+				<field name="VLRTOT" label="VLRTOT" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+			</metadata>
+			<value-expression>
+				<![CDATA[<p style="color: #666;"><b>Valor total pago em fretes:</b> $VLRTOT</p>]]>
+			</value-expression>
+		</simple-value>
+	</level>
+</gadget>

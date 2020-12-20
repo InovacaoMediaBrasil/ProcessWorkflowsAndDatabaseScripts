@@ -1,0 +1,73 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATAINI" description="1. Data Inicial: " metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATAFIM" description="2. Data Final: " metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_aqf98y8" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_aqf98y9" tamTexto="30">
+				<title>
+					<![CDATA[Período: :DATAINI - :DATAFIM]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT AD_SETORVEND AS Setor,   SUM((qtdneg - qtdentregue) * custo) AS Custo FROM SANKHYA.TGFITE WITH (NOLOCK)   INNER JOIN SANKHYA.TGFCAB WITH (NOLOCK) ON TGFCAB.NUNOTA = TGFITE.NUNOTA  -- INNER JOIN SANKHYA.TGFTOP WITH (NOLOCK) ON TGFTOP.CODTIPOPER = TGFCAB.CODTIPOPER AND TGFTOP.DHALTER = TGFCAB.DHTIPOPER   INNER JOIN SANKHYA.TGFVEN WITH (NOLOCK) ON TGFVEN.CODVEND = TGFCAB.CODVEND  WHERE   TGFCAB.DTNEG BETWEEN :DATAINI AND :DATAFIM    AND TGFITE.QTDENTREGUE < TGFITE.QTDNEG   AND CODTIPOPER = 250   AND TGFCAB.STATUSNOTA = 'L'   AND TGFITE.USOPROD = 'R'   AND ((TGFITE.CODPROD = :CODPROD AND :CODPROD IS NOT NULL) OR (TGFITE.CODPROD = TGFITE.CODPROD AND :CODPROD IS NULL))  GROUP BY AD_SETORVEND]]>
+				</expression>
+				<metadata>
+					<field name="Setor" label="Setor" type="S" visible="true" useFooter="false"/>
+					<field name="Custo" label="Custo" type="C" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click navigate-to="lvl_aqf98zf">
+					<param id="SETOR">$Setor</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_aqf98zf" description="Custo por Solicitante/Setor">
+		<args>
+			<arg id="SETOR" type="text"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_aqf98zg">
+				<title>
+					<![CDATA[Setor: :SETOR]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT APELIDO AS Solicitante,   SUM((qtdneg - qtdentregue) * custo) AS Custo FROM SANKHYA.TGFITE WITH (NOLOCK)   INNER JOIN SANKHYA.TGFCAB WITH (NOLOCK) ON TGFCAB.NUNOTA = TGFITE.NUNOTA   INNER JOIN SANKHYA.TGFVEN WITH (NOLOCK) ON TGFVEN.CODVEND = TGFCAB.CODVEND  WHERE   TGFCAB.DTNEG BETWEEN :DATAINI AND :DATAFIM    AND TGFITE.QTDENTREGUE < TGFITE.QTDNEG   AND CODTIPOPER = 250   AND AD_SETORVEND = :SETOR   AND TGFCAB.STATUSNOTA = 'L'   AND TGFITE.USOPROD = 'R'   AND ((TGFITE.CODPROD = :CODPROD AND :CODPROD IS NOT NULL) OR (TGFITE.CODPROD = TGFITE.CODPROD AND :CODPROD IS NULL))  GROUP BY APELIDO]]>
+				</expression>
+				<metadata>
+					<field name="Solicitante" label="Solicitante" type="S" visible="true" useFooter="false"/>
+					<field name="Custo" label="Custo" type="C" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click navigate-to="lvl_aqi6pbk">
+					<param id="APELIDO">$Solicitante</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_aqi6pbk" description="Produtos por Solicitante">
+		<args>
+			<arg id="APELIDO" type="text"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_aqi6pbl">
+				<title>
+					<![CDATA[Solicitante: :APELIDO ]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT TGFCAB.NUNOTA,   TGFCAB.DTNEG,   TGFITE.CODPROD,   DESCRPROD + ISNULL(' - ' + COMPLDESC, '')  AS DESCRPROD,   CAST(sum(qtdneg - qtdentregue) AS VARCHAR) + ' ' + CAST(TGFPRO.CODVOL AS VARCHAR) AS qtdpendente,   SUM((qtdneg - qtdentregue) * custo) AS Custo FROM SANKHYA.TGFITE WITH (NOLOCK)   INNER JOIN SANKHYA.TGFCAB WITH (NOLOCK) ON TGFCAB.NUNOTA = TGFITE.NUNOTA   INNER JOIN SANKHYA.TGFVEN WITH (NOLOCK) ON TGFVEN.CODVEND = TGFCAB.CODVEND    INNER JOIN SANKHYA.TGFPRO WITH (NOLOCK) ON TGFPRO.CODPROD = TGFITE.CODPROD  WHERE   TGFCAB.DTNEG BETWEEN :DATAINI AND :DATAFIM    AND TGFITE.QTDENTREGUE < TGFITE.QTDNEG   AND CODTIPOPER = 250   AND APELIDO = :APELIDO   AND TGFCAB.STATUSNOTA = 'L'   AND TGFITE.USOPROD = 'R'   AND ((TGFITE.CODPROD = :CODPROD AND :CODPROD IS NOT NULL) OR (TGFITE.CODPROD = TGFITE.CODPROD AND :CODPROD IS NULL))  GROUP BY TGFCAB.NUNOTA, TGFCAB.DTNEG, TGFPRO.CODVOL, TGFITE.CODPROD, TGFPRO.DESCRPROD, TGFPRO.COMPLDESC]]>
+				</expression>
+				<metadata>
+					<field name="NUNOTA" label="Nro. único" type="I" visible="true" useFooter="false"/>
+					<field name="DTNEG" label="Data de Negociação" type="D" visible="true" useFooter="false"/>
+					<field name="CODPROD" label="Código" type="I" visible="true" useFooter="false"/>
+					<field name="DESCRPROD" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="qtdpendente" label="Qtd Pendente" type="S" visible="true" useFooter="false"/>
+					<field name="Custo" label="Custo Total" type="C" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click-launcher resource-id="br.com.sankhya.com.mov.CentralNotas">
+					<NUNOTA>$NUNOTA</NUNOTA>
+				</on-click-launcher>
+			</grid>
+		</container>
+	</level>
+</gadget>

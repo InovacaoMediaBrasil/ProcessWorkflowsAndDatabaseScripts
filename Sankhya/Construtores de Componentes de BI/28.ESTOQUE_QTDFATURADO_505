@@ -1,0 +1,40 @@
+<gadget refresh-time="300000">
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_5g1sof" description="Principal">
+		<chart id="cht_5g1sog" type="column">
+			<title>
+				<![CDATA[FATURAMENTO DE PEDIDOS (EXPEDICAO)]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[/* Gerada pelo SankhyaW QueryBuilder */ SELECT          COUNT(CabecalhoNota.NUNOTA) AS NOTAS,          CabecalhoNota.DTNEG  FROM          TGFCAB CabecalhoNota  WHERE CabecalhoNota.CODTIPOPER = 505          AND CabecalhoNota.DTNEG >= :DATA_INICIAL          AND CabecalhoNota.DTNEG <= :DATA_FINAL  GROUP BY          CabecalhoNota.DTNEG]]>
+			</expression>
+			<metadata>
+				<field name="NOTAS" label="NOTAS" type="I" visible="true" useFooter="false" mask="#.##0"/>
+				<field name="DTNEG" label="DTNEG" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+			</metadata>
+			<horizontal-axis>
+				<category field="DTNEG" rotation="0" dropLabel="false">
+					<title>DATA</title>
+				</category>
+			</horizontal-axis>
+			<vertical-axis>
+				<linear>
+					<mask>#.##0</mask>
+					<title>QUANTIDADE</title>
+				</linear>
+			</vertical-axis>
+			<series>
+				<serie type="column">
+					<xField>$DTNEG</xField>
+					<yField>$NOTAS</yField>
+					<display>Expedição</display>
+					<color>0x66ff</color>
+				</serie>
+			</series>
+			<legend position="top" direction="v"/>
+		</chart>
+	</level>
+</gadget>

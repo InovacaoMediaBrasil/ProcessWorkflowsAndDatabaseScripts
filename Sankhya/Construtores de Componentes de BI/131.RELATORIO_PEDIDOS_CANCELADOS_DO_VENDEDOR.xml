@@ -1,0 +1,28 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATAINI" description="1.Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATAFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_ahaw6km" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_ahaw6kn">
+				<title>
+					<![CDATA[Período: :DATAINI - :DATAFIM ]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CAB.NUNOTA    AS NroUnico,   CAB.DTNEG    AS Dtneg,   PAR.CODPARC    AS CodigoParceiro,   PAR.NOMEPARC   AS Parceiro,   TIPNEG.DESCRTIPVENDA AS Negociacao,   'Cancelado'    AS StatusPagamento,   CAB.VLRNOTA    AS Valor,   (CAB.VLRDESCTOT + CAB.VLRDESCTOTITEM) AS TotalDesconto FROM sankhya.TGFCAN CAN WITH (NOLOCK)      INNER JOIN sankhya.TGFCAB_EXC CAB WITH (NOLOCK) ON CAB.NUNOTA = CAN.NUNOTA   INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON PAR.CODPARC = CAB.CODPARC   INNER JOIN sankhya.TGFTPV TIPNEG WITH (NOLOCK) ON (TIPNEG.CODTIPVENDA = CAB.CODTIPVENDA and TIPNEG.DHALTER = CAB.DHTIPVENDA) WHERE CAB.CODVEND = :CODVEN_LOG   AND CAB.CODTIPOPER IN (500,501,502,503,515)   AND CAB.DTNEG BETWEEN :DATAINI AND :DATAFIM ORDER BY DTNEG]]>
+				</expression>
+				<metadata>
+					<field name="NroUnico" label="Numero Único" type="I" visible="true" useFooter="false"/>
+					<field name="Dtneg" label="Data" type="D" visible="true" useFooter="false"/>
+					<field name="CodigoParceiro" label="Codigo do Parceiro" type="I" visible="true" useFooter="false"/>
+					<field name="Parceiro" label="Parceiro" type="S" visible="true" useFooter="false"/>
+					<field name="Negociacao" label="Forma de Pagamento" type="S" visible="true" useFooter="false"/>
+					<field name="StatusPagamento" label="Status do Pagamento" type="S" visible="true" useFooter="false"/>
+					<field name="Valor" label="Valor" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="TotalDesconto" label="Valor de Desconto" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

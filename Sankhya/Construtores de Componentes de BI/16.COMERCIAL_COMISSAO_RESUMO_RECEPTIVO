@@ -1,0 +1,25 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_FINAL" description="2. Data Final" metadata="date" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="DATA_INICIAL" description="1. Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="TIPO" description="Tipo de Relatório" metadata="singleList:Text" listType="text" required="true" keep-last="true" keep-date="false">
+			<item value="F" label="FINANCEIRO"/>
+			<item value="P" label="PEDIDOS"/>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_52zaf0" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_52zaf1">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[ SELECT VEN.APELIDO AS VENDEDOR,   CASE WHEN :TIPO = 'F' THEN SUM(FIN.VLRDESDOB) ELSE ROUND(SUM(CAB.VLRNOTA-CAB.VLRFRETE),2) END AS VLRFATURADO,   CASE WHEN :TIPO = 'F' THEN   ROUND(SUM(ROUND((FIN.VLRDESDOB - (CAB.VLRFRETE/(CAB.VLRNOTA/FIN.VLRDESDOB)))/100,2)),2)   ELSE   ROUND(SUM(CAB.VLRNOTA-CAB.VLRFRETE)/100,2) END AS VLRCOMISSAO,   COUNT(CAB.NUNOTA) AS QTDPEDIDOS FROM SANKHYA.TGFCAB CAB WITH (NOLOCK)   LEFT JOIN SANKHYA.TGFFIN FIN WITH (NOLOCK) ON (FIN.NUNOTA = CAB.NUNOTA AND :TIPO = 'F')   JOIN SANKHYA.TGFVEN VEN WITH (NOLOCK) ON (CAB.CODVEND = VEN.CODVEND) WHERE   CAB.CODTIPOPER IN (501)  AND   ((:TIPO = 'F' AND FIN.DHBAIXA >= :DATA_INICIAL AND FIN.DHBAIXA <= :DATA_FINAL AND CAB.DTNEG < '01/04/2017') OR  (:TIPO = 'P' AND CAB.DTNEG >= :DATA_INICIAL AND CAB.DTNEG <= :DATA_FINAL AND CAB.AD_STATUSPGTO ='E' ))   AND CAB.CODVEND != 0     GROUP BY VEN.APELIDO ORDER BY VEN.APELIDO ]]>
+				</expression>
+				<metadata>
+					<field name="VENDEDOR" label="VENDEDOR" type="S" visible="true" useFooter="false"/>
+					<field name="VLRFATURADO" label="VLRFATURADO" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="VLRCOMISSAO" label="VLRCOMISSAO" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="QTDPEDIDOS" label="QTDPEDIDOS" type="I" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

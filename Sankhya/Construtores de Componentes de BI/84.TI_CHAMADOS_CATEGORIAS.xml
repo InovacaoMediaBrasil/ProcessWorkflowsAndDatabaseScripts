@@ -1,0 +1,46 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_s40l5u" description="Principal">
+		<chart id="cht_s40l6e" type="pizza">
+			<title>
+				<![CDATA[CATEGORIAS]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT CATEGORIA, COUNT(CODCHAMADO) AS QTD FROM sankhya.AD_CHAMADOS WHERE cast(DATA as date) >= :DTINI AND cast(data as date) <= :DTFIM GROUP BY CATEGORIA ]]>
+			</expression>
+			<metadata>
+				<field name="CATEGORIA" label="CATEGORIA" type="S" visible="true" useFooter="false"/>
+				<field name="QTD" label="QTD" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<series>
+				<serie type="pizza">
+					<field>QTD</field>
+					<nameField>CATEGORIA</nameField>
+				</serie>
+			</series>
+			<legend position="bottom" direction="v"/>
+		</chart>
+		<chart id="cht_s40l6f" type="pizza">
+			<title>
+				<![CDATA[SETORES]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT SETOR, COUNT(CODCHAMADO) AS QTD FROM sankhya.AD_CHAMADOS WHERE cast(DATA as date) >= :DTINI AND cast(data as date) <= :DTFIM GROUP BY SETOR ]]>
+			</expression>
+			<metadata>
+				<field name="SETOR" label="SETOR" type="S" visible="true" useFooter="false"/>
+				<field name="QTD" label="QTD" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<series>
+				<serie type="pizza">
+					<field>QTD</field>
+					<nameField>SETOR</nameField>
+				</serie>
+			</series>
+			<legend position="bottom" direction="v"/>
+		</chart>
+	</level>
+</gadget>

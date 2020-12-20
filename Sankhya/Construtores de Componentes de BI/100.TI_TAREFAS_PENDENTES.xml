@@ -1,0 +1,42 @@
+<gadget>
+	<level id="lvl_ubwzmc" description="Principal">
+		<grid id="grd_aylwd2a">
+			<title>
+				<![CDATA[TAREFAS PENDENTES]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT RESPONSAVEL, COUNT(IDTAREFASTI) QUANTIDADE from sankhya.AD_TAREFASTI  WHERE ENTREGUEEM IS NULL AND (STATUS != 'ENTREGUE' AND STATUS IS NOT NULL)  GROUP BY RESPONSAVEL ]]>
+			</expression>
+			<metadata>
+				<field name="RESPONSAVEL" label="RESPONSAVEL" type="S" visible="true" useFooter="false"/>
+				<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<on-click navigate-to="lvl_avdgcyf">
+				<param id="RESPONSAVEL">$RESPONSAVEL</param>
+			</on-click>
+		</grid>
+	</level>
+	<level id="lvl_avdgcyf" description="2o Nivel">
+		<args>
+			<arg id="RESPONSAVEL" type="text"/>
+		</args>
+		<grid id="grd_avdgcyh">
+			<title>
+				<![CDATA[TAREFAS PENDENTES DE $RESPONSAVEL]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT RESPONSAVEL, CLIENTE, PROJETO, TAREFA from sankhya.AD_TAREFASTI  WHERE ENTREGUEEM IS NULL AND RESPONSAVEL = :RESPONSAVEL AND STATUS IS NOT NULL]]>
+			</expression>
+			<metadata>
+				<field name="RESPONSAVEL" label="RESPONSAVEL" type="S" visible="true" useFooter="false"/>
+				<field name="CLIENTE" label="CLIENTE" type="S" visible="true" useFooter="false"/>
+				<field name="PROJETO" label="PROJETO" type="S" visible="true" useFooter="false"/>
+				<field name="TAREFA" label="TAREFA" type="S" visible="true" useFooter="false"/>
+			</metadata>
+			<on-click navigate-to="lvl_avdgcyw">
+				<param id="DATA">:DATA</param>
+				<param id="RESPONSAVEL">$RESPONSAVEL</param>
+			</on-click>
+		</grid>
+	</level>
+</gadget>

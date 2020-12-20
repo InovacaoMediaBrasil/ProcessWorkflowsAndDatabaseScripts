@@ -1,0 +1,35 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATA_FINAL" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DESPESA" description="Despesa" metadata="boolean" required="false" keep-last="true"/>
+		<parameter id="RECEITA" description="Receitas" metadata="boolean" required="false" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_awy6e2r" description="Principal">
+		<args>
+			<arg id="NUFIN" type="integer"/>
+		</args>
+		<grid id="grd_awy6e2s">
+			<title>
+				<![CDATA[FLUXO FINANCEIRO DETALHADO]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT    FIN.NUFIN,         DHBAIXA AS DATA,          VLRCHEQUE*RECDESP AS VALOR,          CTA.DESCRICAO AS CONTA,          tit.DESCRTIPTIT AS TIPO_TITULO,         cus_pai.DESCRCENCUS AS CENTRO_RESULTADO_PAI,                 cus.DESCRCENCUS AS CENTRO_RESULTADO_FILHO,          par.NOMEPARC as parceiro,         ISNULL(fin.HISTORICO, '') AS HISTORICO FROM          sankhya.TGFFIN fin         INNER JOIN sankhya.tgftit tit ON (fin.CODTIPTIT = tit.CODTIPTIT)         INNER JOIN sankhya.TSICTA cta ON (fin.CODCTABCOINT = cta.CODCTABCOINT)         INNER JOIN sankhya.TSICUS cus ON (fin.CODCENCUS = cus.CODCENCUS)         INNER JOIN sankhya.TSICUS cus_pai ON (CASE WHEN cus.CODCENCUSPAI <0 THEN cus.codcencus else cus.codcencuspai end = cus_pai.CODCENCUS)         INNER JOIN sankhya.TGFNAT nat ON (nat.CODNAT = fin.CODNAT)         INNER JOIN sankhya.TGFPAR par ON (par.CODPARC = fin.CODPARC)    WHERE DHBAIXA >= :DATA_INICIAL      AND DHBAIXA <= :DATA_FINAL         AND cta.CODCTABCOINT IN (4,5,7,8,11,16)       AND FIN.codtiptit not in (7,8,9,12)      AND FIN.CODEMPBAIXA = 1   AND FIN.CODTIPOPER != 600   AND ((:RECEITA = 'S' AND :DESPESA = 'S' AND RECDESP IN (-1,1)) OR (:RECEITA = 'S' AND RECDESP = 1) OR (:DESPESA = 'S' AND RECDESP = -1))]]>
+			</expression>
+			<metadata>
+				<field name="NUFIN" label="NUFIN" type="I" visible="false" useFooter="false"/>
+				<field name="DATA" label="DATA" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+				<field name="VALOR" label="VALOR" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				<field name="CONTA" label="CONTA" type="S" visible="true" useFooter="false"/>
+				<field name="TIPO_TITULO" label="TIPO_TITULO" type="S" visible="true" useFooter="false"/>
+				<field name="CENTRO_RESULTADO_PAI" label="CENTRO_RESULTADO_PAI" type="S" visible="true" useFooter="false"/>
+				<field name="CENTRO_RESULTADO_FILHO" label="CENTRO_RESULTADO_FILHO" type="S" visible="true" useFooter="false"/>
+				<field name="parceiro" label="parceiro" type="S" visible="true" useFooter="false"/>
+				<field name="HISTORICO" label="HISTORICO" type="S" visible="true" useFooter="false"/>
+			</metadata>
+			<on-click-launcher resource-id="br.com.sankhya.fin.cad.movimentacaoFinanceira">
+				<NUFIN>$NUFIN</NUFIN>
+			</on-click-launcher>
+		</grid>
+	</level>
+</gadget>

@@ -1,0 +1,37 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODPROD" description="Código do produto" metadata="integer" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_anf4v31" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="50">
+				<grid id="grd_anf4v32">
+					<title>
+						<![CDATA[Saida de estoque - últimos 3 meses.]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT sankhya.TGFPRO.DESCRPROD AS Produto,    CASE DATEPART(MONTH,sankhya.TGFCAB.DTNEG)    WHEN 01 THEN 'Janeiro'    WHEN 02 THEN 'Fevereiro'    WHEN 03 THEN 'Março'    WHEN 04 THEN 'Abril'    WHEN 05 THEN 'Maio'    WHEN 06 THEN 'Junho'    WHEN 07 THEN 'Julho'    WHEN 08 THEN 'Agosto'    WHEN 09 THEN 'Setembro'    WHEN 10 THEN 'Outubro'    WHEN 11 THEN 'Novembro'    WHEN 12 THEN 'Dezembro'   END AS MES,   SUM(sankhya.TGFITE.QTDNEG) AS Quantidade FROM sankhya.TGFCAB WITH (NOLOCK)   INNER JOIN sankhya.TGFITE ON sankhya.TGFCAB.NUNOTA = sankhya.TGFITE.NUNOTA   INNER JOIN sankhya.TGFPRO ON sankhya.TGFITE.CODPROD = sankhya.TGFPRO.CODPROD WHERE (sankhya.TGFCAB.CODTIPOPER IN (550,556))   AND (DATEDIFF(MONTH,sankhya.TGFCAB.DTNEG,GETDATE()) IN (0,1,2)   AND DATEDIFF(YEAR, sankhya.TGFCAB.dtneg, GETDATE()) = 0 )    AND (sankhya.TGFPRO.CODPROD = :CODPROD) GROUP BY sankhya.TGFPRO.DESCRPROD, YEAR(sankhya.TGFCAB.DTNEG), MONTH(sankhya.TGFCAB.DTNEG)  ORDER BY YEAR(sankhya.TGFCAB.DTNEG), MONTH(sankhya.TGFCAB.DTNEG) ]]>
+					</expression>
+					<metadata>
+						<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+						<field name="MES" label="MES" type="S" visible="true" useFooter="false"/>
+						<field name="Quantidade" label="Quantidade" type="I" visible="true" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+			<container orientacao="V" tamanhoRelativo="50">
+				<simple-value id="svl_anf4v39">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT SUM(SANKHYA_PRODUCAO.sankhya.TGFITE.QTDNEG)/3 AS MEDIA FROM SANKHYA_PRODUCAO.sankhya.TGFITE WITH (NOLOCK)   INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFCAB WITH (NOLOCK) ON SANKHYA_PRODUCAO.sankhya.TGFCAB.NUNOTA = SANKHYA_PRODUCAO.sankhya.TGFITE.NUNOTA WHERE SANKHYA_PRODUCAO.sankhya.TGFCAB.CODTIPOPER = 550   AND ( DATEPART(MONTH,SANKHYA_PRODUCAO.sankhya.TGFCAB.DTNEG) = MONTH(GETDATE())    OR DATEDIFF(MONTH,SANKHYA_PRODUCAO.sankhya.TGFCAB.DTNEG,GETDATE()) = 1    OR DATEDIFF(MONTH, SANKHYA_PRODUCAO.sankhya.TGFCAB.DTNEG,GETDATE()) = 2 )   AND SANKHYA_PRODUCAO.sankhya.TGFITE.CODPROD = :CODPROD]]>
+					</expression>
+					<metadata>
+						<field name="MEDIA" label="MEDIA" type="I" visible="true" useFooter="false"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<b>Média dos últimos três meses: </b>$MEDIA iten(s) por mês. ]]>
+					</value-expression>
+				</simple-value>
+			</container>
+		</container>
+	</level>
+</gadget>

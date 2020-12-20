@@ -1,0 +1,36 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false" order="0"/>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="true" keep-date="false" order="1"/>
+		<parameter id="OPERACAO" description="Código da Operação" metadata="multiList:Text" listType="text" required="true" keep-last="false" keep-date="false">
+			<item value="500 " label=" Ativo"/>
+			<item value="501 " label=" Receptivo"/>
+			<item value="502 " label=" Ecommerce"/>
+			<item value="503 " label=" Sankhya"/>
+			<item value="515 " label=" Outros"/>
+		</parameter>
+		<parameter id="STATUSPGTO" description="Status de Pagamento" metadata="singleList:Text" listType="text" required="false" keep-last="false" keep-date="false" order="3">
+			<item value="A " label=" Ambos"/>
+			<item value="P " label=" Pendente"/>
+			<item value="E " label=" Efetuado"/>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_yz10v6" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="null">
+				<title>
+					<![CDATA[PRODUTOS VENDIDOS]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PRO.CODPROD AS CODIGO_PRODUTO,   sankhya.FN_CONCATENANOMEPRODUTO(PRO.CODPROD) AS NOME_PRODUTO,   COUNT(CAB.NUNOTA) AS QUANTIDADE_VENDIDA,   SUM(ITE.VLRTOT-ITE.VLRDESC) AS FATURAMENTO_EM_REAIS FROM sankhya.TGFCAB CAB WITH (NOLOCK)   JOIN sankhya.TGFITE ITE WITH (NOLOCK) ON (ITE.NUNOTA = CAB.NUNOTA)   JOIN sankhya.TGFPRO PRO WITH (NOLOCK) ON (PRO.CODPROD = ITE.CODPROD) WHERE ITE.USOPROD != 'D'   AND CAB.DTNEG >= :DATA_INICIAL    AND CAB.DTNEG <= :DATA_FINAL   AND (CAB.CODTIPOPER IN :OPERACAO)   AND ((:STATUSPGTO = 'P' AND AD_STATUSPGTO = 'P')    OR (:STATUSPGTO = 'E' AND AD_STATUSPGTO = 'E')    OR :STATUSPGTO = 'A') GROUP BY PRO.CODPROD, sankhya.FN_CONCATENANOMEPRODUTO(PRO.CODPROD) ORDER BY QUANTIDADE_VENDIDA DESC]]>
+				</expression>
+				<metadata>
+					<field name="CODIGO_PRODUTO" label="CODIGO_PRODUTO" type="I" visible="true" useFooter="false"/>
+					<field name="NOME_PRODUTO" label="NOME_PRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="QUANTIDADE_VENDIDA" label="QUANTIDADE_VENDIDA" type="I" visible="true" useFooter="false"/>
+					<field name="FATURAMENTO_EM_REAIS" label="FATURAMENTO_EM_REAIS" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

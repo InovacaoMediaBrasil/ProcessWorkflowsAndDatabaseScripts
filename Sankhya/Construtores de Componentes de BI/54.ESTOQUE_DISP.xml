@@ -1,0 +1,21 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODPROD" description="Código do produto: " metadata="integer" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_ap4pgr1" description="Principal">
+		<simple-value id="svl_ap4pgr2">
+			<title>
+				<![CDATA[Saldo disponivel no Estoque]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT SALDO =        CASE WHEN CODVOL = 'KT'                                    THEN SANKHYA_PRODUCAO.sankhya.FN_ESTOQUE_INOVACAO(:CODPROD)           ELSE  SANKHYA_PRODUCAO.sankhya.FN_ESTOQUE_INOVACAO_NOVO(:CODPROD)                    END  FROM TGFPRO WHERE CODPROD = :CODPROD]]>
+			</expression>
+			<metadata>
+				<field name="SALDO" label="SALDO" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<value-expression>
+				<![CDATA[O produto informado possui <strong>$SALDO</strong> unidades disponíveis para venda. <hr>]]>
+			</value-expression>
+		</simple-value>
+	</level>
+</gadget>

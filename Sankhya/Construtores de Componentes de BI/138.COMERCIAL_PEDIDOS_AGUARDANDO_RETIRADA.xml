@@ -1,0 +1,30 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_ols71u" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_ols71v">
+				<title>
+					<![CDATA[PEDIDOS AGUARDANDO RETIRADA NOS CORREIOS]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DATA,   SC.PEDORIGINAL,   SRO,   VEN.APELIDO AS VENDEDOR,   VEN.AD_SETORVEND,   PAR.NOMEPARC AS PARCEIRO,   PAR.TELEFONE,   PAR.FAX AS TELEFONE2,   CID.NOMECID,   UNIDADE,   MENSAGEM FROM sankhya.AD_PEDIDOVTEXSC SC WITH (NOLOCK)   INNER JOIN sankhya.AD_PEDIDOVTEXSCMOVIMENTACAO M WITH (NOLOCK) ON M.ORDERID = SC.ORDERID   INNER JOIN sankhya.TGFCAB CAB WITH (NOLOCK) ON CAB.AD_PEDORIGINAL = SC.PEDORIGINAL AND CAB.CODTIPOPER IN (500,501,502,503,515)   INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON PAR.CODPARC = CAB.CODPARC   INNER JOIN sankhya.TGFVEN VEN WITH (NOLOCK) ON VEN.codvend = CAB.codvend   INNER JOIN sankhya.TSICID CID WITH (NOLOCK) ON CID.CODCID = PAR.CODCID WHERE DATA BETWEEN :DTINI   AND DATEADD(DAY,1,:DTINI)   AND STATUS = 'W'   AND NOT exists (SELECT 1       FROM sankhya.AD_PEDIDOVTEXSCMOVIMENTACAO       WHERE ORDERID = SC.ORDERID         AND STATUS IN ('B','K','L','R'))]]>
+				</expression>
+				<metadata>
+					<field name="DATA" label="DATA" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					<field name="PEDORIGINAL" label="PEDORIGINAL" type="I" visible="true" useFooter="false"/>
+					<field name="SRO" label="SRO" type="S" visible="true" useFooter="false"/>
+					<field name="VENDEDOR" label="VENDEDOR" type="S" visible="true" useFooter="false"/>
+					<field name="AD_SETORVEND" label="AD_SETORVEND" type="S" visible="true" useFooter="false"/>
+					<field name="PARCEIRO" label="PARCEIRO" type="S" visible="true" useFooter="false"/>
+					<field name="TELEFONE" label="TELEFONE" type="S" visible="true" useFooter="false"/>
+					<field name="TELEFONE2" label="TELEFONE2" type="S" visible="true" useFooter="false"/>
+					<field name="NOMECID" label="NOMECID" type="S" visible="true" useFooter="false"/>
+					<field name="UNIDADE" label="UNIDADE" type="S" visible="true" useFooter="false"/>
+					<field name="MENSAGEM" label="MENSAGEM" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

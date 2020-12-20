@@ -1,0 +1,30 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODLOJA" description="1. Canal de Vendas" metadata="entity:LOJA@CODLOJA" required="true" keep-last="false"/>
+		<parameter id="SALDO" description="2. Saldo maior que:" metadata="decimal" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_ay4exga" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_ay4exgb">
+				<title>
+					<![CDATA[Oportunidades de Venda por SKU]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT PRO.CODPROD AS Codigo,   RTRIM(PRO.MARCA) AS Marca,   RTRIM(pro.DESCRPROD) + ' ' + RTRIM(ISNULL(pro.COMPLDESC,'')) AS Produto,   PRO.CODVOL AS Unidade,   GP.DESCRGRUPOPROD AS GrupoPai,   G.DESCRGRUPOPROD AS Grupo,   ISNULL(PRO.ESTMIN,0) AS EstoqueMinimo,   sankhya.FN_ESTOQUE_INOVACAO(pro.codprod) AS Saldo,   EST.ESTOQUE AS EstoqueFisico,   EST.RESERVADO AS Reservado FROM sankhya.TGFPRO PRO WITH (NOLOCK)   INNER JOIN sankhya.AD_PRODUTOLOJA P WITH (NOLOCK) ON P.CODPROD = PRO.CODPROD   INNER JOIN sankhya.tgfgru G WITH (NOLOCK) ON G.CODGRUPOPROD = PRO.CODGRUPOPROD   INNER JOIN sankhya.tgfgru GP WITH (NOLOCK) ON GP.CODGRUPOPROD = G.CODGRUPAI   INNER JOIN sankhya.TGFEST EST WITH (NOLOCK) ON EST.CODPROD = PRO.CODPROD WHERE PRO.ATIVO = 'S'   AND P.ATIVO = 'NÃO'   AND CODLOJA = :CODLOJA   AND CODVOL != 'KT'   AND (sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD) > :SALDO)   AND DESCRPROD NOT LIKE 'D.%']]>
+				</expression>
+				<metadata>
+					<field name="Codigo" label="Codigo" type="I" visible="true" useFooter="false"/>
+					<field name="Marca" label="Marca" type="S" visible="true" useFooter="false"/>
+					<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="Unidade" label="Unidade" type="S" visible="true" useFooter="false"/>
+					<field name="GrupoPai" label="GrupoPai" type="S" visible="true" useFooter="false"/>
+					<field name="Grupo" label="Grupo" type="S" visible="true" useFooter="false"/>
+					<field name="EstoqueMinimo" label="EstoqueMinimo" type="I" visible="true" useFooter="false"/>
+					<field name="Saldo" label="Saldo" type="I" visible="true" useFooter="false"/>
+					<field name="EstoqueFisico" label="EstoqueFisico" type="I" visible="true" useFooter="false"/>
+					<field name="Reservado" label="Reservado" type="I" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

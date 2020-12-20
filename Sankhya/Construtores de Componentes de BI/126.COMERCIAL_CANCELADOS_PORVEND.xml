@@ -1,0 +1,25 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+		<parameter id="OPERACAO" description="3. Código da Operação" metadata="integer" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_mm724z" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_mm7240">
+				<title>
+					<![CDATA[PEDIDOS CANCELADOS POR VENDEDOR]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT APELIDO,   COUNT(CAB.NUNOTA) AS QTD,   SUM(CAB.VLRNOTA) AS TOTAL,   dbo.FN_PCT_CAN_VEND(CAB.CODVEND, :DTINI, :DTFIM, :OPERACAO) AS PORCENTAGEM_CANCELAMENTO FROM  sankhya.TGFCAN CAN WITH (NOLOCK)   INNER JOIN sankhya.TGFCAB_EXC CAB WITH (NOLOCK) ON CAB.NUNOTA = CAN.NUNOTA   INNER JOIN sankhya.TGFVEN VEN WITH (NOLOCK) ON CAB.CODVEND = VEN.CODVEND WHERE CAB.CODTIPOPER = :OPERACAO   AND CAN.MOTCANCEL LIKE '%Pedido%sem%pagamento%'   AND CAB.DTNEG >= :DTINI   AND CAB.DTNEG <= :DTFIM GROUP BY APELIDO, CAB.CODVEND ORDER BY APELIDO]]>
+				</expression>
+				<metadata>
+					<field name="APELIDO" label="VENDEDOR" type="S" visible="true" useFooter="false"/>
+					<field name="QTD" label="PEDIDOS" type="I" visible="true" useFooter="true"/>
+					<field name="TOTAL" label="TOTAL" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="PORCENTAGEM_CANCELAMENTO" label="PORCENTAGEM_CANCELAMENTO" type="F" visible="true" useFooter="false" mask="#.##0,00 %"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

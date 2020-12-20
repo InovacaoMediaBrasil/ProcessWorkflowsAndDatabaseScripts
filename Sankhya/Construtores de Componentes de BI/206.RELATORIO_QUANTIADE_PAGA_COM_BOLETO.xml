@@ -1,0 +1,38 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODTIPOPER" description="1. Código da operação" metadata="integer" required="true" keep-last="false" keep-date="false"/>
+		<parameter id="DT1" description="2. Data inicio" metadata="date" required="true" keep-last="false" keep-date="false"/>
+		<parameter id="DT2" description="3. Data final" metadata="date" required="true" keep-last="false" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_ayasb9" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_ayasca" type="column">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT COUNT (NUNOTA) AS QTD_GERADA,   CODTIPOPER = :CODTIPOPER  ,   (SELECT DISTINCT COUNT (NUNOTA) AS QTD_PAGA   FROM sankhya.TGFCAB WITH (NOLOCK)   WHERE DTNEG BETWEEN :DT1 AND :DT2     AND CODTIPVENDA IN (4,5,33,34)     AND CODTIPOPER = :CODTIPOPER     AND AD_STATUSPGTO LIKE 'E') AS QTD_PAGA FROM sankhya.tgfcab WITH (NOLOCK) WHERE DTNEG BETWEEN :DT1 AND :DT2   AND CODTIPVENDA IN (4,5,33,34)   AND CODTIPOPER = :CODTIPOPER]]>
+				</expression>
+				<metadata>
+					<field name="QTD_GERADA" label="Boletos gerado" type="I" visible="true" useFooter="false"/>
+					<field name="CODTIPOPER" label="Código da operação" type="S" visible="true" useFooter="false"/>
+					<field name="QTD_PAGA" label="Boletos pagos" type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<horizontal-axis>
+					<category field="CODTIPOPER" rotation="0" dropLabel="false">
+						<title>Código da operação</title>
+					</category>
+				</horizontal-axis>
+				<series>
+					<serie type="column">
+						<xField>$CODTIPOPER</xField>
+						<yField>$QTD_GERADA</yField>
+						<color>0xcc0033</color>
+					</serie>
+					<serie type="column">
+						<xField>$CODTIPOPER</xField>
+						<yField>$QTD_PAGA</yField>
+						<color>0x33ff</color>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

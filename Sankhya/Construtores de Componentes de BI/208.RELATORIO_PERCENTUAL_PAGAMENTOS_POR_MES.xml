@@ -1,0 +1,39 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODTIPOPER" description="1. Código da operação" metadata="integer" required="true" keep-last="false" keep-date="false" order="0"/>
+		<parameter id="DT1" description="2. Data inicio" metadata="date" required="true" keep-last="false" keep-date="false" order="1"/>
+		<parameter id="DT2" description="3. Data final" metadata="date" required="true" keep-last="false" keep-date="false" order="2"/>
+	</prompt-parameters>
+	<level id="lvl_ayasck" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_ayascl" type="line">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[/* SELECIONANDO A DATA, SOMATÓRIA DOS PEDIDOS PAGOS E DOS PEDIDOS NÃOPAGOS E CANCELADOS */ SELECT DATA, -- JÁ ESTÁ CONVERTIDA NAS SUBQUERIES   ROUND((SUM(vlr_pago) / SUM(vlr_pago+vlr_naopago))*100,2) AS percentual -- PAGOS DIVIDIDO PELO TOTAL FROM (/* PARTE 1 PEDIDOS ATIVOS COM PAGAMENTO EFETUADO (PAGOS) */   SELECT CONVERT(VARCHAR(7),DTNEG,120) AS DATA, -- DATA CONSIDERANDO SOMENTE OS ANO E MÊS (FORMATO YYYY-MM)     COUNT(NUNOTA) as qtd_pago, SUM(VLRNOTA) AS vlr_pago,     0 AS qtd_naopago,     0 as vlr_naopago   FROM sankhya.TGFCAB WITH (NOLOCK)   WHERE DTNEG BETWEEN :DT1 AND :DT2     AND CODTIPVENDA IN (4,5,33,34)     AND CODTIPOPER = :CODTIPOPER     AND AD_STATUSPGTO LIKE 'E'   GROUP BY CONVERT(VARCHAR(7),DTNEG,120) UNION SELECT CONVERT(VARCHAR(7),DTNEG,120) AS DATA, -- DATA CONSIDERANDO SOMENTE OS ANO E MÊS (FORMATO YYYY-MM)   0 AS qtd_pago,   0 AS vlr_pago,   COUNT(NUNOTA) AS qtd_naopago,   SUM(VLRNOTA) AS vlr_naopago FROM sankhya.TGFCAB WITH (NOLOCK) WHERE DTNEG BETWEEN :DT1 AND :DT2   AND CODTIPVENDA IN (4,5,33,34)   AND CODTIPOPER = :CODTIPOPER   AND (AD_STATUSPGTO IS NULL OR AD_STATUSPGTO LIKE 'P') GROUP BY CONVERT(VARCHAR(7),DTNEG,120) UNION SELECT CONVERT(VARCHAR(7),DTNEG,120) AS DATA, -- DATA CONSIDERANDO SOMENTE OS ANO E MÊS (FORMATO YYYY-MM)   0 AS qtd_pago,   0 AS vlr_pago,   COUNT(NUNOTA) AS qtd_naopago,   SUM(VLRNOTA) AS vlr_naopago FROM sankhya.TGFCAB_EXC WITH (NOLOCK)  WHERE DTNEG BETWEEN :DT1 AND :DT2   AND CODTIPVENDA IN (4,5,33,34)   AND CODTIPOPER = :CODTIPOPER GROUP BY CONVERT(VARCHAR(7),DTNEG,120)) a GROUP BY DATA ORDER BY DATA]]>
+				</expression>
+				<metadata>
+					<field name="DATA" label="DATA" type="S" visible="true" useFooter="false"/>
+					<field name="percentual" label="percentual" type="F" visible="true" useFooter="false" mask="#.##0,00 %"/>
+				</metadata>
+				<horizontal-axis>
+					<category field="DATA" rotation="0" dropLabel="false">
+						<title>MÊS</title>
+					</category>
+				</horizontal-axis>
+				<vertical-axis>
+					<linear resultRotation="0">
+						<mask/>
+						<title>% PAGAMENTO</title>
+					</linear>
+				</vertical-axis>
+				<series>
+					<serie type="line" circle-intersection="true">
+						<xField>$DATA</xField>
+						<yField>$percentual</yField>
+						<display>% PAGAMENTO</display>
+						<color>0x33cc99</color>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

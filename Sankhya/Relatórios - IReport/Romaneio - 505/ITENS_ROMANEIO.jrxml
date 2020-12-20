@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ITENS_ROMANEIO" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="2.593742460100054"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<import value="java.lang.Math"/>
+	<parameter name="NUNOTA" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT	CASE WHEN PROR.CODPROD IS NULL THEN PROKT.CODPROD ELSE PROR.CODPROD END AS CODPROD,
+		CASE WHEN PROR.CODPROD IS NULL THEN RTRIM(PROKT.DESCRPROD) ELSE RTRIM(PROR.DESCRPROD) END AS DESCRPROD,
+		CASE WHEN PROR.CODPROD IS NULL THEN RTRIM(ISNULL(PROKT.COMPLDESC,'')) ELSE RTRIM(ISNULL(PROR.COMPLDESC,'')) END AS COMPLDESC,
+		CASE WHEN PROR.CODPROD IS NULL THEN
+		RTRIM(CAST(CASE WHEN (CAST(KT.QTDNEG AS INTEGER) = KT.QTDNEG) THEN CAST(KT.QTDNEG AS INTEGER) ELSE CAST(KT.QTDNEG AS FLOAT) END AS VARCHAR(15)))
+		ELSE
+		RTRIM(CAST(CASE WHEN (CAST(R.QTDNEG AS INTEGER) = R.QTDNEG) THEN CAST(R.QTDNEG AS INTEGER) ELSE CAST(R.QTDNEG AS FLOAT) END AS VARCHAR(15)))
+		END AS QTDNEG,
+		CASE WHEN PROR.CODPROD IS NULL THEN RTRIM(KT.CODVOL) ELSE RTRIM(R.CODVOL) END AS CODVOL,
+		D.CODPROD AS CODMATPRIMA,
+		RTRIM(D.CODVOL) AS ICPCODVOL,
+		CASE WHEN PROR.CODPROD IS NULL THEN
+		RTRIM(CAST(CASE WHEN (CAST(D.QTDNEG AS INTEGER) = D.QTDNEG) THEN CAST(D.QTDNEG AS INTEGER) ELSE CAST(D.QTDNEG AS FLOAT) END AS VARCHAR(15)))
+		END AS QTDMISTURA,
+		RTRIM(ICP.AD_OBSERVACAO) AS AD_OBSERVACAO,
+		CASE WHEN PROR.CODPROD IS NULL THEN RTRIM(PROKT.MARCA) ELSE RTRIM(PROR.MARCA) END AS MARCA_PRODUTO,
+		CASE WHEN PROR.CODPROD IS NULL THEN RTRIM(PROD.MARCA) END AS MARCA_COMPONENTE,
+		CASE WHEN PROR.CODPROD IS NULL THEN ISNULL(RTRIM(LOCKT.DESCRLOCAL), '') ELSE ISNULL(RTRIM(LOCR.DESCRLOCAL), '') END AS LOCAL_PRODUTO,
+		CASE WHEN PROR.CODPROD IS NULL THEN ISNULL(RTRIM(LOCD.DESCRLOCAL), '') END AS LOCAL_COMPONENTE,
+		CASE WHEN PROR.CODPROD IS NULL THEN RTRIM(PROD.DESCRPROD) END AS COMDESCRPROD,
+		CASE WHEN PROR.CODPROD IS NULL THEN RTRIM(ISNULL(PROD.COMPLDESC,'')) END AS COMCOMPLDESC,
+		CASE WHEN (ROW_NUMBER() OVER(ORDER BY PROR.MARCA, PROR.DESCRPROD, PROR.COMPLDESC, PROD.MARCA, PROD.DESCRPROD, PROD.COMPLDESC) % 2) = 0 THEN 0 ELSE 1 END AS LINHA,
+		ISNULL(RTRIM(PROR.REFFORN),'') AS REFFORNPRO,
+		ISNULL(RTRIM(PROD.REFFORN),'') AS REFFORNCOM
+FROM	sankhya.TGFVAR V WITH(NOLOCK)
+		LEFT JOIN sankhya.TGFITE D WITH(NOLOCK) ON V.NUNOTA = D.NUNOTA AND V.SEQUENCIA = D.SEQUENCIA AND D.USOPROD = 'D'
+		LEFT JOIN (SELECT NUNOTA, SEQUENCIA, SEQUENCIAORIG FROM sankhya.TGFVAR WITH(NOLOCK) WHERE NUNOTA = $P{NUNOTA} AND QTDATENDIDA = 0) AS DKT ON V.NUNOTA = DKT.NUNOTA AND V.SEQUENCIA = DKT.SEQUENCIA
+		LEFT JOIN sankhya.TGFITE KT WITH(NOLOCK) ON V.NUNOTA = KT.NUNOTA AND DKT.SEQUENCIAORIG = KT.SEQUENCIA
+		LEFT JOIN sankhya.TGFITE R WITH(NOLOCK) ON V.NUNOTA = R.NUNOTA AND V.SEQUENCIA = R.SEQUENCIA AND R.USOPROD in ('R','B')
+		LEFT JOIN sankhya.TGFPRO PROR WITH(NOLOCK) ON PROR.CODPROD = R.CODPROD
+		LEFT JOIN sankhya.TGFPRO PROD WITH(NOLOCK) ON PROD.CODPROD = D.CODPROD
+		LEFT JOIN sankhya.TGFPRO PROKT WITH(NOLOCK) ON PROKT.CODPROD = KT.CODPROD
+		LEFT JOIN sankhya.TGFICP ICP WITH(NOLOCK) ON ICP.CODPROD = KT.CODPROD AND ICP.CODMATPRIMA = D.CODPROD
+		LEFT JOIN sankhya.TGFLOC LOCR WITH(NOLOCK) ON PROR.CODLOCALPADRAO = LOCR.CODLOCAL
+		LEFT JOIN sankhya.TGFLOC LOCD WITH(NOLOCK) ON PROD.CODLOCALPADRAO = LOCD.CODLOCAL
+		LEFT JOIN sankhya.TGFLOC LOCKT WITH(NOLOCK) ON PROKT.CODLOCALPADRAO = LOCKT.CODLOCAL
+WHERE	V.NUNOTA =  $P{NUNOTA}
+		AND V.NUNOTA != V.NUNOTAORIG
+ORDER BY	MARCA_PRODUTO,
+			DESCRPROD,
+			COMPLDESC,
+			MARCA_COMPONENTE,
+			COMDESCRPROD,
+			COMCOMPLDESC]]>
+	</queryString>
+	<field name="CODPROD" class="java.lang.Integer"/>
+	<field name="DESCRPROD" class="java.lang.String"/>
+	<field name="COMPLDESC" class="java.lang.String"/>
+	<field name="QTDNEG" class="java.lang.String"/>
+	<field name="CODVOL" class="java.lang.String"/>
+	<field name="CODMATPRIMA" class="java.lang.Integer"/>
+	<field name="ICPCODVOL" class="java.lang.String"/>
+	<field name="QTDMISTURA" class="java.lang.String"/>
+	<field name="AD_OBSERVACAO" class="java.lang.String"/>
+	<field name="MARCA_PRODUTO" class="java.lang.String"/>
+	<field name="MARCA_COMPONENTE" class="java.lang.String"/>
+	<field name="LOCAL_PRODUTO" class="java.lang.String"/>
+	<field name="LOCAL_COMPONENTE" class="java.lang.String"/>
+	<field name="COMDESCRPROD" class="java.lang.String"/>
+	<field name="COMCOMPLDESC" class="java.lang.String"/>
+	<field name="LINHA" class="java.lang.Integer"/>
+	<field name="REFFORNPRO" class="java.lang.String"/>
+	<field name="REFFORNCOM" class="java.lang.String"/>
+	<variable name="TOTAL_SERVICO" class="java.math.BigDecimal"/>
+	<variable name="TOTAL_PRODUTO" class="java.math.BigDecimal" calculation="Sum"/>
+	<variable name="DESCONTO_TOTAL" class="java.math.BigDecimal" calculation="Sum"/>
+	<variable name="VALOR_LIQUIDO" class="java.math.BigDecimal" calculation="Sum"/>
+	<group name="CODPROD">
+		<groupExpression><![CDATA[$F{CODPROD}]]></groupExpression>
+		<groupHeader>
+			<band height="16" splitType="Stretch">
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+					<reportElement key="textField" positionType="Float" stretchType="RelativeToTallestObject" x="2" y="1" width="34" height="13" isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Integer"><![CDATA[$F{CODPROD}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+					<reportElement key="textField" positionType="Float" stretchType="RelativeToTallestObject" x="37" y="1" width="397" height="13" isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{DESCRPROD}
+    + " "
+    + ($F{COMPLDESC} == null ? " " : $F{COMPLDESC})
+    + (String.valueOf($F{CODVOL}) == "KT" ? "" : ($F{MARCA_PRODUTO} == null ? "" : (" - " + $F{MARCA_PRODUTO})))
+    + (String.valueOf($F{CODVOL}) == "KT" ? "" : ($F{REFFORNPRO} == null ? "" : (" - [" + $F{REFFORNPRO} + "]"))).replace(" - []"," ")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement key="textField" positionType="Float" stretchType="RelativeToTallestObject" x="508" y="0" width="21" height="15" isPrintWhenDetailOverflows="true"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{CODVOL}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##" isBlankWhenNull="true">
+					<reportElement key="textField" stretchType="RelativeToBandHeight" x="530" y="1" width="30" height="14"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{QTDNEG}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement key="line-2" x="36" y="1" width="1" height="15"/>
+				</line>
+				<line>
+					<reportElement key="line-3" x="507" y="1" width="1" height="15"/>
+				</line>
+				<line>
+					<reportElement key="line-4" x="529" y="1" width="1" height="15"/>
+				</line>
+				<line>
+					<reportElement key="line-9" x="560" y="-13" width="1" height="28"/>
+				</line>
+				<line>
+					<reportElement key="line-11" positionType="Float" stretchType="RelativeToTallestObject" x="1" y="15" width="560" height="1" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true"/>
+				</line>
+				<line>
+					<reportElement key="line-23" x="2" y="0" width="558" height="1"/>
+				</line>
+				<line>
+					<reportElement key="line-3" x="434" y="1" width="1" height="15"/>
+				</line>
+				<textField isStretchWithOverflow="true">
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="435" y="1" width="72" height="14" isPrintWhenDetailOverflows="true"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{LOCAL_PRODUTO}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band splitType="Stretch">
+				<line>
+					<reportElement key="line-27" positionType="Float" stretchType="RelativeToTallestObject" x="1" y="-1" width="560" height="1" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true"/>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="32" splitType="Stretch">
+			<rectangle radius="0">
+				<reportElement key="element-1" mode="Opaque" x="2" y="0" width="559" height="17" forecolor="#000000" backcolor="#DFDFDF"/>
+			</rectangle>
+			<staticText>
+				<reportElement key="element-2" x="2" y="1" width="558" height="16" forecolor="#000000"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[PRODUTOS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-1" x="2" y="18" width="34" height="14" forecolor="#000000"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left">
+					<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[CÓD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-2" x="37" y="18" width="397" height="14" forecolor="#000000"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="9" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[DESCRIÇÃO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-3" x="508" y="18" width="21" height="14" forecolor="#000000"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[UN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-4" x="530" y="18" width="31" height="13" forecolor="#000000"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[QTD]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-13" stretchType="RelativeToBandHeight" x="507" y="17" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement key="line-14" stretchType="RelativeToBandHeight" x="529" y="17" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement key="line-19" x="560" y="17" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement key="line-3" x="434" y="17" width="1" height="15"/>
+			</line>
+			<staticText>
+				<reportElement key="staticText-3" x="435" y="18" width="72" height="14" forecolor="#000000"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[LOCAL]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-2" x="36" y="17" width="1" height="15"/>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="12" splitType="Stretch">
+			<rectangle>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="2" y="1" width="559" height="10" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" forecolor="#EFEFEF" backcolor="#EFEFEF">
+					<printWhenExpression><![CDATA[$F{LINHA} == 0]]></printWhenExpression>
+				</reportElement>
+			</rectangle>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-2" positionType="Float" stretchType="RelativeToTallestObject" x="2" y="0" width="34" height="11" isPrintWhenDetailOverflows="true"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{CODMATPRIMA}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-3" positionType="Float" stretchType="RelativeToTallestObject" x="37" y="0" width="397" height="11" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[($F{COMDESCRPROD} == null ? "" : $F{COMDESCRPROD})
+    + ($F{COMCOMPLDESC} == null ? "" : " " + $F{COMCOMPLDESC})
+    + ($F{AD_OBSERVACAO} == null ? "" : " " + $F{AD_OBSERVACAO})
+    + ($F{MARCA_COMPONENTE} == null ? "" : (" - " + $F{MARCA_COMPONENTE})
+    + ($F{REFFORNCOM} == null ? " " : (" - [" + $F{REFFORNCOM} + "]"))).replace(" - []"," ")]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="###0.00" isBlankWhenNull="true">
+				<reportElement key="textField" positionType="Float" stretchType="RelativeToTallestObject" x="530" y="0" width="30" height="11" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true"/>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{QTDMISTURA}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-26" x="560" y="-29" width="1" height="40"/>
+			</line>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-5" positionType="Float" stretchType="RelativeToTallestObject" x="508" y="0" width="21" height="11" isPrintWhenDetailOverflows="true"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{ICPCODVOL}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-26" x="1" y="-31" width="1" height="42"/>
+			</line>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-5" positionType="Float" stretchType="RelativeToTallestObject" x="435" y="0" width="72" height="11" isPrintWhenDetailOverflows="true"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{LOCAL_COMPONENTE}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-29" positionType="FixRelativeToBottom" x="1" y="10" width="559" height="1" isPrintWhenDetailOverflows="true"/>
+				<graphicElement fill="Solid">
+					<pen lineWidth="0.1" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement key="line-3" x="434" y="-17" width="1" height="28"/>
+				<graphicElement>
+					<pen lineWidth="0.1" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement key="line-3" x="507" y="-15" width="1" height="26"/>
+				<graphicElement>
+					<pen lineWidth="0.1" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement key="line-3" x="529" y="-15" width="1" height="26"/>
+				<graphicElement>
+					<pen lineWidth="0.1" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement key="line-3" x="36" y="-15" width="1" height="26"/>
+				<graphicElement>
+					<pen lineWidth="0.1" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

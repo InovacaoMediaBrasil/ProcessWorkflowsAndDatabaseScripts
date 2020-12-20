@@ -1,0 +1,68 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="NOSSONUM" description="Nosso número" metadata="text" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_acmpihq" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_acmpihr">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CASE WHEN CAB.AD_STATUSPGTO = 'P' THEN 'PAGAMENTO PENDENTE'    ELSE 'PAGAMENTO EFETUADO'   END AS SITUACAO_PEDIDO,   CASE WHEN CAB.CODTIPOPER = 500 THEN 'ATIVO'     WHEN CAB.CODTIPOPER = 501 THEN 'RECEPTIVO'     WHEN CAB.CODTIPOPER = 515 THEN 'LEADS'     WHEN CAB.CODTIPOPER = 502 THEN 'LOJA VIRTUAL'     WHEN CAB.CODTIPOPER = 503 THEN 'PED SANKHYA'   END AS SETOR_PEDIDO,   CAB.NUNOTA  AS NUMERO_UNICO,   CAB.VLRNOTA  AS VALOR_PEDIDO,   VEN.APELIDO  AS VENDEDOR,    CAB.CODPARC  AS CODIGO_PARCEIRO,   PAR.NOMEPARC AS CLIENTE,   CAB.DTNEG  AS DATA_PEDIDO,   FIN.NOSSONUM AS NOSSO_NUMERO FROM sankhya.TGFCAB CAB WITH(NOLOCK)   INNER JOIN sankhya.TGFVEN VEN WITH(NOLOCK) ON VEN.CODVEND = CAB.CODVEND   INNER JOIN sankhya.TGFPAR PAR WITH(NOLOCK) ON PAR.CODPARC = CAB.CODPARC   LEFT JOIN sankhya.TGFFIN FIN WITH(NOLOCK) ON FIN.NUNOTA = CAB.NUNOTA WHERE CAB.NUNOTA IN (SELECT NUNOTA       FROM sankhya.TGFFIN WITH(NOLOCK)       WHERE NOSSONUM LIKE '%'+:NOSSONUM+'%'        UNION       SELECT NUNOTA       FROM sankhya.TGFFIN_EXC WITH(NOLOCK)       WHERE NOSSONUM LIKE '%'+:NOSSONUM+'%') UNION  SELECT 'CANCELADO' AS SITUACAO_PEDIDO,   CASE WHEN CAB.CODTIPOPER = 500 THEN 'ATIVO'     WHEN CAB.CODTIPOPER = 501 THEN 'RECEPTIVO'     WHEN CAB.CODTIPOPER = 515 THEN 'RECEPTIVO'     WHEN CAB.CODTIPOPER = 502 THEN 'LOJA VIRTUAL'     WHEN CAB.CODTIPOPER = 503 THEN 'PED SANKHYA'   END AS SETOR_PEDIDO,   CAB.NUNOTA  AS NUMERO_UNICO,   CAB.VLRNOTA  AS VALOR_PEDIDO,   VEN.APELIDO  AS VENDEDOR,    CAB.CODPARC  AS CODIGO_PARCEIRO,   PAR.NOMEPARC AS CLIENTE,   CAB.DTNEG  AS DATA_PEDIDO,   FIN.NOSSONUM AS NOSSO_NUMERO FROM sankhya.TGFCAB_EXC CAB WITH(NOLOCK)   INNER JOIN sankhya.TGFVEN VEN WITH(NOLOCK) ON VEN.CODVEND = CAB.CODVEND   INNER JOIN sankhya.TGFPAR PAR WITH(NOLOCK) ON PAR.CODPARC = CAB.CODPARC   LEFT JOIN sankhya.TGFFIN_EXC FIN WITH(NOLOCK) ON FIN.NUNOTA = CAB.NUNOTA WHERE CAB.NUNOTA IN (SELECT NUNOTA       FROM sankhya.TGFFIN WITH(NOLOCK)       WHERE NOSSONUM LIKE '%'+:NOSSONUM+'%'        UNION       SELECT NUNOTA       FROM sankhya.TGFFIN_EXC WITH(NOLOCK)       WHERE NOSSONUM LIKE '%'+:NOSSONUM+'%')]]>
+				</expression>
+				<metadata>
+					<field name="SITUACAO_PEDIDO" label="SITUACAO_PEDIDO" type="S" visible="true" useFooter="false"/>
+					<field name="SETOR_PEDIDO" label="SETOR_PEDIDO" type="S" visible="true" useFooter="false"/>
+					<field name="NUMERO_UNICO" label="NUMERO_UNICO" type="I" visible="true" useFooter="false"/>
+					<field name="VALOR_PEDIDO" label="VALOR_PEDIDO" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="VENDEDOR" label="VENDEDOR" type="S" visible="true" useFooter="false"/>
+					<field name="CODIGO_PARCEIRO" label="CODIGO_PARCEIRO" type="I" visible="true" useFooter="false"/>
+					<field name="CLIENTE" label="CLIENTE" type="S" visible="true" useFooter="false"/>
+					<field name="DATA_PEDIDO" label="DATA_PEDIDO" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					<field name="NOSSO_NUMERO" label="NOSSO_NUMERO" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click navigate-to="lvl_acmpihx">
+					<param id="NUNOTA">$NUMERO_UNICO</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_acmpihx" description="Pedido">
+		<args>
+			<arg id="NUNOTA" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="50">
+				<simple-value id="svl_acmpih0">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT CASE WHEN CAB.AD_STATUSPGTO = 'P'    THEN 'PAGAMENTO PENDENTE' ELSE 'PAGAMENTO EFETUADO'   END AS SITUACAO_PEDIDO,   CASE WHEN CAB.CODTIPOPER = 500 THEN 'ATIVO'     WHEN CAB.CODTIPOPER = 501 THEN 'RECEPTIVO'     WHEN CAB.CODTIPOPER = 515 THEN 'RECEPTIVO'     WHEN CAB.CODTIPOPER = 502 THEN 'LOJA VIRTUAL'     WHEN CAB.CODTIPOPER = 503 THEN 'PED SANKHYA' END AS SETOR_PEDIDO,   CAB.NUNOTA  AS NUMERO_UNICO,   CAB.VLRNOTA  AS VALOR_PEDIDO,   CAB.VLRFRETE AS VALOR_FRETE,   VEN.APELIDO  AS VENDEDOR,    CAB.CODPARC  AS CODIGO_PARCEIRO,   PAR.NOMEPARC AS CLIENTE,   CAB.DTNEG  AS DATA_PEDIDO FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFVEN VEN WITH (NOLOCK) ON VEN.CODVEND = CAB.CODVEND   INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON PAR.CODPARC = CAB.CODPARC WHERE CAB.NUNOTA = :NUNOTA UNION SELECT 'CANCELADO' AS SITUACAO_PEDIDO,   CASE WHEN CAB.CODTIPOPER = 500 THEN 'ATIVO'     WHEN CAB.CODTIPOPER = 501 THEN 'RECEPTIVO'     WHEN CAB.CODTIPOPER = 515 THEN 'RECEPTIVO'     WHEN CAB.CODTIPOPER = 502 THEN 'LOJA VIRTUAL'     WHEN CAB.CODTIPOPER = 503 THEN 'PED SANKHYA' END AS SETOR_PEDIDO,   CAB.NUNOTA  AS NUMERO_UNICO,   CAB.VLRNOTA  AS VALOR_PEDIDO,   CAB.VLRFRETE AS VALOR_FRETE,   VEN.APELIDO  AS VENDEDOR,    CAB.CODPARC  AS CODIGO_PARCEIRO,   PAR.NOMEPARC AS CLIENTE,   CAB.DTNEG  AS DATA_PEDIDO FROM sankhya.TGFCAB_EXC CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFVEN VEN WITH (NOLOCK) ON VEN.CODVEND = CAB.CODVEND   INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON PAR.CODPARC = CAB.CODPARC WHERE CAB.NUNOTA = :NUNOTA]]>
+					</expression>
+					<metadata>
+						<field name="SITUACAO_PEDIDO" label="SITUACAO_PEDIDO" type="S" visible="true" useFooter="false"/>
+						<field name="SETOR_PEDIDO" label="SETOR_PEDIDO" type="S" visible="true" useFooter="false"/>
+						<field name="NUMERO_UNICO" label="NUMERO_UNICO" type="I" visible="true" useFooter="false"/>
+						<field name="VALOR_PEDIDO" label="VALOR_PEDIDO" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+						<field name="VALOR_FRETE" label="VALOR_FRETE" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+						<field name="VENDEDOR" label="VENDEDOR" type="S" visible="true" useFooter="false"/>
+						<field name="CODIGO_PARCEIRO" label="CODIGO_PARCEIRO" type="I" visible="true" useFooter="false"/>
+						<field name="CLIENTE" label="CLIENTE" type="S" visible="true" useFooter="false"/>
+						<field name="DATA_PEDIDO" label="DATA_PEDIDO" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<u>Número Único:</u> $NUMERO_UNICO <u>Vendedor:</u> $VENDEDOR  <u>Situação do pedido:</u> <b>$SITUACAO_PEDIDO</b>  <u>Cliente:</u> $CODIGO_PARCEIRO - $CLIENTE <u>Data do Pedido:</u> $DATA_PEDIDO <u>Valor do Pedido:</u> $VALOR_PEDIDO <u>Valor do Frete:</u> $VALOR_FRETE]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="50">
+				<grid id="grd_acmpihz">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT ITE.CODPROD,   (RTRIM(RTRIM(PRO.DESCRPROD)+' '+RTRIM(ISNULL(PRO.COMPLDESC,'')))) AS PRODUTO,   ITE.VLRTOT-ITE.VLRDESC AS VALOR_VENDIDO FROM sankhya.TGFITE ITE WITH (NOLOCK)   INNER JOIN sankhya.TGFPRO PRO WITH (NOLOCK) ON PRO.CODPROD = ITE.CODPROD WHERE ITE.NUNOTA IN (:NUNOTA)   AND ITE.USOPROD = 'R' UNION SELECT ITE.CODPROD,   (RTRIM(RTRIM(PRO.DESCRPROD)+' '+RTRIM(ISNULL(PRO.COMPLDESC,'')))) AS PRODUTO,   ITE.VLRTOT-ITE.VLRDESC AS VALOR_VENDIDO FROM sankhya.TGFITE_EXC ITE WITH (NOLOCK)   INNER JOIN sankhya.TGFPRO PRO WITH (NOLOCK) ON PRO.CODPROD = ITE.CODPROD WHERE ITE.NUNOTA IN (:NUNOTA)   AND ITE.USOPROD = 'R']]>
+					</expression>
+					<metadata>
+						<field name="CODPROD" label="CODPROD" type="I" visible="true" useFooter="false"/>
+						<field name="PRODUTO" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+						<field name="VALOR_VENDIDO" label="VALOR_VENDIDO" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					</metadata>
+				</grid>
+			</container>
+		</container>
+	</level>
+</gadget>

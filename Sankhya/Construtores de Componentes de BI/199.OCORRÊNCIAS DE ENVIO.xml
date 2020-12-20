@@ -1,0 +1,24 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DT1" description="Data de Inicio" metadata="date" required="true" keep-last="false" keep-date="false" order="0"/>
+		<parameter id="DT2" description="Data Final" metadata="date" required="true" keep-last="false" keep-date="false" order="1"/>
+	</prompt-parameters>
+	<level id="lvl_av1381d" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_av1381e">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT FLUX.NUNOTA,   PAR.NOMEPARC,   PAR.TELEFONE,   PAR.FAX,   CID.NOMECID,   MOV.UNIDADE,   MOV.MENSAGEM FROM  sankhya.AD_PEDIDOVTEXSCMOVIMENTACAO AS MOV  WITH (NOLOCK)   JOIN sankhya.AD_PEDIDOVTEXSCFLUXO AS FLUX WITH (NOLOCK) ON MOV.PEDORIGINAL = FLUX.PEDORIGINAL   JOIN sankhya.TGFCAB AS CAB WITH (NOLOCK) ON CAB.NUNOTA = FLUX.NUNOTA   JOIN sankhya.TGFPAR as PAR WITH (NOLOCK) ON PAR.CODPARC = CAB.CODPARC   JOIN sankhya.TSICID AS CID WITH (NOLOCK) ON CID.CODCID = MOV.CODCID    WHERE MOV.STATUS IN ('G', 'D', 'W')   AND FLUX.DATA >= :DT1   AND FLUX.DATA < DATEADD (DAY, 1,:DT2)]]>
+				</expression>
+				<metadata>
+					<field name="NUNOTA" label="Nro. Unico" type="I" visible="true" useFooter="false"/>
+					<field name="NOMEPARC" label="Parceiro" type="S" visible="true" useFooter="false"/>
+					<field name="TELEFONE" label="Telefone" type="S" visible="true" useFooter="false"/>
+					<field name="FAX" label="Celular" type="S" visible="true" useFooter="false"/>
+					<field name="NOMECID" label="Cidade" type="S" visible="true" useFooter="false"/>
+					<field name="UNIDADE" label="Unidade" type="S" visible="true" useFooter="false"/>
+					<field name="MENSAGEM" label="Ocorrência" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,24 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_at122m9" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_at122na">
+				<title>
+					<![CDATA[300 Produtos mais vendidos por data]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT TOP 300 PRO.CODPROD,   (RTRIM(PRO.DESCRPROD) + ' ' +ISNULL(RTRIM(PRO.COMPLDESC),'')) AS PRODUTO,   ITE.CODVOL,   SUM(ITE.QTDNEG) AS VENDIDOS FROM  sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFITE ITE WITH (NOLOCK) ON (CAB.NUNOTA = ITE.NUNOTA)   INNER JOIN sankhya.TGFPRO PRO WITH (NOLOCK) ON (PRO.CODPROD = ITE.CODPROD) WHERE CAB.DTNEG >= :DATA_INICIAL   AND CAB.DTNEG <= :DATA_FINAL   AND ITE.USOPROD = 'D' GROUP BY PRO.CODPROD, PRO.DESCRPROD, PRO.COMPLDESC, ITE.CODVOL ORDER BY VENDIDOS DESC]]>
+				</expression>
+				<metadata>
+					<field name="CODPROD" label="CODPROD" type="I" visible="true" useFooter="false"/>
+					<field name="PRODUTO" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="CODVOL" label="CODVOL" type="S" visible="true" useFooter="false"/>
+					<field name="VENDIDOS" label="VENDIDOS" type="I" visible="true" useFooter="false" mask="#.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

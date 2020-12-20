@@ -1,0 +1,26 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_pc0mne" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_pc0mnf">
+				<title>
+					<![CDATA[Itens contados de :DTINI até :DTFIM]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT PRO.CODPROD AS CODIGO,   (RTRIM(PRO.DESCRPROD)+' '+ISNULL(PRO.COMPLDESC,'')) AS NOME,   PRO.CODVOL AS UNIDADE,   PRO.MARCA,   (CAST(DAY(EST.AD_DTULTCONT) AS VARCHAR)+'/'+CAST(MONTH(EST.AD_DTULTCONT) AS VARCHAR)+'/'+CAST(YEAR(EST.AD_DTULTCONT) AS VARCHAR)) AS DATA_CONTAGEM,   sankhya.FN_ESTOQUE_INOVACAO_NOVO(PRO.CODPROD) AS SALDO FROM sankhya.TGFPRO PRO WITH (NOLOCK)   INNER JOIN sankhya.TGFEST EST WITH (NOLOCK) ON (EST.CODPROD = PRO.CODPROD) WHERE  EST.AD_DTULTCONT BETWEEN :DTINI AND :DTFIM]]>
+				</expression>
+				<metadata>
+					<field name="CODIGO" label="CODIGO" type="I" visible="true" useFooter="false"/>
+					<field name="NOME" label="NOME" type="S" visible="true" useFooter="false"/>
+					<field name="UNIDADE" label="UNIDADE" type="S" visible="true" useFooter="false"/>
+					<field name="MARCA" label="MARCA" type="S" visible="true" useFooter="false"/>
+					<field name="DATA_CONTAGEM" label="DATA_CONTAGEM" type="S" visible="true" useFooter="false"/>
+					<field name="SALDO" label="SALDO" type="I" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

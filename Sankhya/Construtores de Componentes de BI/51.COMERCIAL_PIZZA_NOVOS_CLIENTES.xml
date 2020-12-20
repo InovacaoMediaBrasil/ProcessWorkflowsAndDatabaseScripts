@@ -1,0 +1,97 @@
+	<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_FIM" description="Data Final" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DATA_INICIO" description="Data Inicial" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_7tifk" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="25">
+				<chart id="cht_7tifl" type="pizza">
+					<title>
+						<![CDATA[ATIVO]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT Q.TIPO_CLIENTE AS TIPO_CLIENTE,   Q.CODTIPOPER,   COUNT(Q.TIPO_CLIENTE) AS QUANTIDADE FROM (SELECT CAB.DTNEG,     CAB.CODTIPOPER,     CASE WHEN PAR.DTCAD >= CAB.DTNEG       THEN 'NOVO CLIENTE'     ELSE 'CLIENTE JÁ EXISTENTE'     END AS TIPO_CLIENTE   FROM  sankhya.TGFCAB CAB WITH (NOLOCK)     INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON (CAB.CODPARC = PAR.CODPARC)   WHERE CAB.DTNEG >= :DATA_INICIO     AND CAB.DTNEG <= :DATA_FIM     AND CAB.CODTIPOPER = 500) AS Q GROUP BY Q.TIPO_CLIENTE, Q.CODTIPOPER]]>
+					</expression>
+					<metadata>
+						<field name="TIPO_CLIENTE" label="TIPO_CLIENTE" type="S" visible="true" useFooter="false"/>
+						<field name="CODTIPOPER" label="CODTIPOPER" type="I" visible="true" useFooter="false"/>
+						<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="false"/>
+					</metadata>
+					<series>
+						<serie type="pizza">
+							<field>QUANTIDADE</field>
+							<nameField>TIPO_CLIENTE</nameField>
+						</serie>
+					</series>
+					<legend position="top" direction="v"/>
+				</chart>
+			</container>
+			<container orientacao="V" tamanhoRelativo="25">
+				<chart id="cht_7tifv" type="pizza">
+					<title>
+						<![CDATA[RECEPTIVO]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT Q.TIPO_CLIENTE AS TIPO_CLIENTE,   Q.CODTIPOPER,   COUNT(Q.TIPO_CLIENTE) AS QUANTIDADE FROM (SELECT CAB.DTNEG,     CAB.CODTIPOPER,     CASE WHEN PAR.DTCAD >= CAB.DTNEG      THEN 'NOVO CLIENTE'     ELSE 'CLIENTE JÁ EXISTENTE'     END AS TIPO_CLIENTE   FROM sankhya.TGFCAB CAB WITH (NOLOCK)     INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON (CAB.CODPARC = PAR.CODPARC)   WHERE CAB.DTNEG >= :DATA_INICIO     AND CAB.DTNEG <= :DATA_FIM     AND CAB.CODTIPOPER = 501) AS Q GROUP BY Q.TIPO_CLIENTE, Q.CODTIPOPER]]>
+					</expression>
+					<metadata>
+						<field name="TIPO_CLIENTE" label="TIPO_CLIENTE" type="S" visible="true" useFooter="false"/>
+						<field name="CODTIPOPER" label="CODTIPOPER" type="I" visible="true" useFooter="false"/>
+						<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="false"/>
+					</metadata>
+					<series>
+						<serie type="pizza">
+							<field>QUANTIDADE</field>
+							<nameField>TIPO_CLIENTE</nameField>
+						</serie>
+					</series>
+					<legend position="top" direction="v"/>
+				</chart>
+			</container>
+			<container orientacao="V" tamanhoRelativo="25">
+				<chart id="cht_7tify" type="pizza">
+					<title>
+						<![CDATA[INTERNET]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT Q.TIPO_CLIENTE AS TIPO_CLIENTE,   Q.CODTIPOPER,   COUNT(Q.TIPO_CLIENTE) AS QUANTIDADE FROM (SELECT CAB.DTNEG,     CAB.CODTIPOPER,     CASE WHEN PAR.DTCAD >= CAB.DTNEG      THEN 'NOVO CLIENTE'     ELSE 'CLIENTE JÁ EXISTENTE'     END AS TIPO_CLIENTE   FROM sankhya.TGFCAB CAB WITH (NOLOCK)     INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFPAR PAR WITH (NOLOCK) ON (CAB.CODPARC = PAR.CODPARC)   WHERE CAB.DTNEG >= :DATA_INICIO     AND CAB.DTNEG <= :DATA_FIM     AND CAB.CODTIPOPER = 502) AS Q GROUP BY Q.TIPO_CLIENTE, Q.CODTIPOPER ]]>
+					</expression>
+					<metadata>
+						<field name="TIPO_CLIENTE" label="TIPO_CLIENTE" type="S" visible="true" useFooter="false"/>
+						<field name="CODTIPOPER" label="CODTIPOPER" type="I" visible="true" useFooter="false"/>
+						<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="false"/>
+					</metadata>
+					<series>
+						<serie type="pizza">
+							<field>QUANTIDADE</field>
+							<nameField>TIPO_CLIENTE</nameField>
+						</serie>
+					</series>
+					<legend position="top" direction="v"/>
+				</chart>
+			</container>
+			<container orientacao="V" tamanhoRelativo="25">
+				<chart id="cht_awry0h4" type="pizza">
+					<title>
+						<![CDATA[LEADS]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT Q.TIPO_CLIENTE AS TIPO_CLIENTE,   Q.CODTIPOPER,   COUNT(Q.TIPO_CLIENTE) AS QUANTIDADE FROM (SELECT CAB.DTNEG,     CAB.CODTIPOPER,     CASE WHEN PAR.DTCAD >= CAB.DTNEG      THEN 'NOVO CLIENTE'     ELSE 'CLIENTE JÁ EXISTENTE'     END AS TIPO_CLIENTE   FROM sankhya.TGFCAB CAB WITH (NOLOCK)     INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFPAR PAR WITH (NOLOCK) ON (CAB.CODPARC = PAR.CODPARC)   WHERE CAB.DTNEG >= :DATA_INICIO     AND CAB.DTNEG <= :DATA_FIM     AND CAB.CODTIPOPER = 515) AS Q GROUP BY Q.TIPO_CLIENTE, Q.CODTIPOPER]]>
+					</expression>
+					<metadata>
+						<field name="TIPO_CLIENTE" label="TIPO_CLIENTE" type="S" visible="true" useFooter="false"/>
+						<field name="CODTIPOPER" label="CODTIPOPER" type="I" visible="true" useFooter="false"/>
+						<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="false"/>
+					</metadata>
+					<series>
+						<serie type="pizza">
+							<field>QUANTIDADE</field>
+							<nameField>TIPO_CLIENTE</nameField>
+						</serie>
+					</series>
+				</chart>
+			</container>
+		</container>
+	</level>
+</gadget>

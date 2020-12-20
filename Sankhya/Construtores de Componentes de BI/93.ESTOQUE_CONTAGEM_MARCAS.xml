@@ -1,0 +1,47 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_395lgg" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_96cmpr">
+				<title>
+					<![CDATA[Marcas contadas]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CASE WHEN MARCA IS NULL THEN 'SEM MARCA'    ELSE MARCA    END  AS MARCA,        COUNT(CONTADOS.CODPROD) AS CONTADOS,        COUNT(PRO.CODPROD)  AS TOTAL,        CASE WHEN CAST(COUNT(CONTADOS.CODPROD)*100.00/COUNT(PRO.CODPROD) AS DECIMAL(5,2)) < 10.00    THEN CAST(COUNT(CONTADOS.CODPROD)*100.00/COUNT(PRO.CODPROD) AS DECIMAL(5,2))    ELSE CAST(COUNT(CONTADOS.CODPROD)*100.00/COUNT(PRO.CODPROD) AS DECIMAL(5,2))    END AS PORCENTAGEM FROM sankhya.TGFPRO PRO WITH (NOLOCK)   LEFT JOIN sankhya.AD_ESTHIST CONTADOS WITH (NOLOCK) ON (CONTADOS.CODPROD = PRO.CODPROD)            AND CONTADOS.DATACONT = (SELECT MAX(DATACONT)                   FROM  sankhya.ad_esthist HIST WITH (NOLOCK)                   WHERE  HIST.CODPROD = PRO.CODPROD                    AND CAST(DATACONT AS DATE) BETWEEN :dtini AND :dtfim) WHERE PRO.ATIVO = 'S'   AND PRO.CODVOL != 'KT'   AND PRO.CODGRUPOPROD >= 100000   AND PRO.CODGRUPOPROD <= 199999   AND PRO.USOPROD <> 'S' GROUP BY MARCA ORDER BY CONTADOS DESC]]>
+				</expression>
+				<metadata>
+					<field name="MARCA" label="MARCA" type="S" visible="true" useFooter="false"/>
+					<field name="CONTADOS" label="CONTADOS" type="I" visible="true" useFooter="false"/>
+					<field name="TOTAL" label="TOTAL" type="I" visible="true" useFooter="false"/>
+					<field name="PORCENTAGEM" label="PORCENTAGEM" type="F" visible="true" useFooter="false" mask="#.##0,00 %"/>
+				</metadata>
+				<on-click navigate-to="lvl_afr95ib">
+					<param id="MARCA">$MARCA</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_afr95ib" description="2o Nivel">
+		<args>
+			<arg id="MARCA" type="text"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_afr95ic">
+				<title>
+					<![CDATA[Visualizando itens da marca :MARCA]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PRO.CODPROD AS CODIGO,        (RTRIM(PRO.DESCRPROD) + CASE WHEN PRO.COMPLDESC IS NULL THEN ''          ELSE ' ' + RTRIM(COMPLDESC)          END) AS NOMEPRODUTO,        CASE WHEN EST.DATACONT IS NOT NULL    THEN CAST(CAST(EST.DATACONT AS DATE) AS VARCHAR)    ELSE 'Não Contado'    END AS DATACONTAGEM FROM sankhya.AD_ESTHIST EST WITH (nolock)   RIGHT JOIN sankhya.TGFPRO PRO ON (PRO.CODPROD = EST.CODPROD)            AND EST.DATACONT = (SELECT MAX(DATACONT)                FROM sankhya.ad_esthist HIST WITH (NOLOCK)                WHERE HIST.CODPROD = PRO.CODPROD                  AND CAST(DATACONT AS DATE) BETWEEN :dtini AND :dtfim) WHERE ((PRO.MARCA = :MARCA AND :MARCA <> 'SEM MARCA') OR (PRO.MARCA IS NULL AND :MARCA = 'SEM MARCA'))   AND PRO.ATIVO = 'S'   AND PRO.CODVOL != 'KT'   AND PRO.CODGRUPOPROD >= 100000   AND PRO.CODGRUPOPROD <= 199999   AND PRO.USOPROD <> 'S' ORDER BY CAST(EST.DATACONT AS DATE)]]>
+				</expression>
+				<metadata>
+					<field name="CODIGO" label="CODIGO" type="I" visible="true" useFooter="false"/>
+					<field name="NOMEPRODUTO" label="NOMEPRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="DATACONTAGEM" label="DATACONTAGEM" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

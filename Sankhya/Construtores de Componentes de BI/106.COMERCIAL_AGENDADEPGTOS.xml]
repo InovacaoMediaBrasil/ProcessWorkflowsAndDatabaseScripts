@@ -1,0 +1,145 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATAMAX" description="1. Vencimento Até: " metadata="date" required="true" keep-last="true"/>
+		<parameter id="DESPREAL" description="Notas (real)" metadata="boolean" required="false" keep-last="true" keep-date="false" default="false"/>
+		<parameter id="DESPPROV" description="Pedidos (provisão)" metadata="boolean" required="false" keep-last="true" keep-date="false" default="false"/>
+	</prompt-parameters>
+	<local-vars>
+		<var id="Data_Atual">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT GETDATE()   ]]>
+			</expression>
+		</var>
+	</local-vars>
+	<level id="lvl_a6wb7pa" description="Principal">
+		<container orientacao="H" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="255">
+				<chart id="cht_a6wb7pb" type="column" tamTexto="18">
+					<title>
+						<![CDATA[Vencimentos semanais de $Data_Atual até :DATAMAX]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT * FROM (SELECT DATA AS SEMANA,     CASE WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Segunda%' THEN MAX(DTVENC)       WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Terça%' THEN DATEADD(DAY,-1,MAX(DTVENC))       WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Quarta%' THEN DATEADD(DAY,-2,MAX(DTVENC))       WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Quinta%' THEN DATEADD(DAY,-3,MAX(DTVENC))       WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Sexta%' THEN DATEADD(DAY,-4,MAX(DTVENC))       WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Sábado%' THEN DATEADD(DAY,2,MAX(DTVENC))       WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Domingo%' THEN DATEADD(DAY,1,MAX(DTVENC))     ELSE GETDATE()     END AS DATA,     SUM(VALOR) AS TOTAL   FROM (SELECT CASE WHEN DATENAME(DW,DTVENC) LIKE 'Sábado'         THEN DATEPART(WW,DTVENC) + 1         ELSE DATEPART(WW,DTVENC)          END AS DATA,       DTVENC AS DTVENC,       VLRDESDOB AS VALOR     FROM  TGFFIN AS FIN WITH (NOLOCK)       INNER JOIN TGFCAB AS CAB WITH (NOLOCK) ON CAB.NUNOTA = FIN.NUNOTA     WHERE  CAB.CODTIPOPER IN (100,101,102,103,104,107,108,109,50,51, 52, 53, 54, 55, 57)       AND CONVERT(DATE,DTVENC) >= CONVERT(DATE, GETDATE())        AND DTVENC <= :DATAMAX       AND FIN.CODCTABCOINT IN (4,5)       AND ((FIN.PROVISAO = 'N' AND 'S' = :DESPREAL) OR (FIN.PROVISAO = 'S' AND 'S' = :DESPPROV))       AND FIN.DHBAIXA IS NULL       AND CAB.STATUSNOTA = 'L'       ) AS TABLE1  GROUP BY DATA ) AS TABLE2 ORDER BY DATA]]>
+					</expression>
+					<metadata>
+						<field name="SEMANA" label="SEMANA" type="I" visible="true" useFooter="false"/>
+						<field name="DATA" label="DATA" type="D" visible="true" useFooter="false"/>
+						<field name="TOTAL" label="TOTAL" type="F" visible="true" useFooter="false"/>
+					</metadata>
+					<horizontal-axis>
+						<category field="DATA" rotation="-45" dropLabel="false">
+							<title>Data</title>
+						</category>
+					</horizontal-axis>
+					<vertical-axis>
+						<linear>
+							<mask>R$ #.##0,00</mask>
+							<title>Pagamentos</title>
+						</linear>
+					</vertical-axis>
+					<series>
+						<serie type="column">
+							<xField>$DATA</xField>
+							<yField>$TOTAL</yField>
+							<display>Semanas</display>
+							<on-click navigate-to="lvl_a3shkk9">
+								<param id="SEMANA">$SEMANA</param>
+							</on-click>
+						</serie>
+					</series>
+				</chart>
+			</container>
+			<container orientacao="V" tamanhoRelativo="100">
+				<grid id="grd_akoax36">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT * FROM (SELECT DATA AS SEMANA,     CASE WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Segunda%' THEN MAX(DTVENC)       WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Terça%' THEN DATEADD(DAY,-1,MAX(DTVENC))       WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Quarta%' THEN DATEADD(DAY,-2,MAX(DTVENC))       WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Quinta%' THEN DATEADD(DAY,-3,MAX(DTVENC))       WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Sexta%' THEN DATEADD(DAY,-4,MAX(DTVENC))       WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Sábado%' THEN DATEADD(DAY,2,MAX(DTVENC))       WHEN DATENAME(DW,MAX(DTVENC)) LIKE '%Domingo%' THEN DATEADD(DAY,1,MAX(DTVENC))     ELSE GETDATE()     END AS DATA,     SUM(VALOR) AS TOTAL   FROM (SELECT CASE WHEN DATENAME(DW,DTVENC) LIKE 'Sábado'         THEN DATEPART(WW,DTVENC) + 1         ELSE DATEPART(WW,DTVENC)          END AS DATA,       DTVENC AS DTVENC,       VLRDESDOB AS VALOR     FROM  TGFFIN AS FIN WITH (NOLOCK)       INNER JOIN TGFCAB AS CAB WITH (NOLOCK) ON CAB.NUNOTA = FIN.NUNOTA     WHERE  CAB.CODTIPOPER IN (100,101,102,103,104,107,108,109,50,51, 52, 53, 54, 55, 57)       AND CONVERT(DATE,DTVENC) >= CONVERT(DATE, GETDATE())        AND DTVENC <= :DATAMAX       AND FIN.CODCTABCOINT IN (4,5)       AND ((FIN.PROVISAO = 'N' AND 'S' = :DESPREAL) OR (FIN.PROVISAO = 'S' AND 'S' = :DESPPROV))       AND FIN.DHBAIXA IS NULL       AND CAB.STATUSNOTA = 'L'       ) AS TABLE1  GROUP BY DATA ) AS TABLE2 ORDER BY DATA]]>
+					</expression>
+					<metadata>
+						<field name="SEMANA" label="SEMANA" type="I" visible="true" useFooter="false"/>
+						<field name="DATA" label="DATA" type="D" visible="true" useFooter="false"/>
+						<field name="TOTAL" label="TOTAL" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					</metadata>
+				</grid>
+			</container>
+		</container>
+	</level>
+	<level id="lvl_a3shkk9" description="2 - Semanal">
+		<args>
+			<arg id="SEMANA" type="integer"/>
+		</args>
+		<container orientacao="H" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="296">
+				<chart id="cht_a3shklh" type="column">
+					<title>
+						<![CDATA[Semana ]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT DATENAME(DW,MAX(DTVENC)) AS DIA,   DTVENC AS VENCIMENTO,   SUM(VALOR) AS TOTAL FROM (SELECT CASE WHEN DATENAME(DW, DTVENC) LIKE 'Sábado'     THEN DATEPART(WW, DTVENC) + 1                  ELSE DATEPART(WW,DTVENC)     END AS DATA,   DTVENC,   VLRDESDOB AS VALOR FROM TGFFIN AS FIN WITH (NOLOCK)   INNER JOIN TGFCAB AS CAB WITH (NOLOCK) ON CAB.NUNOTA = FIN.NUNOTA WHERE CAB.CODTIPOPER IN (100,101,102,103,104,107,108,50,51,52,53,54,55,57)   AND CONVERT(DATE, DTVENC) >= CONVERT(DATE, GETDATE())   AND DTVENC <= :DATAMAX   AND FIN.CODCTABCOINT IN (4,5)   AND ((FIN.PROVISAO =  'N' AND 'S' = :DESPREAL) OR (FIN.PROVISAO = 'S' AND 'S' = :DESPPROV))   AND FIN.DHBAIXA IS NULL   AND CAB.STATUSNOTA = 'L'   ) AS TABELA WHERE DATA = :SEMANA GROUP BY DTVENC]]>
+					</expression>
+					<metadata>
+						<field name="DIA" label="DIA" type="S" visible="true" useFooter="false"/>
+						<field name="VENCIMENTO" label="VENCIMENTO" type="D" visible="true" useFooter="false"/>
+						<field name="TOTAL" label="TOTAL" type="F" visible="true" useFooter="false"/>
+					</metadata>
+					<horizontal-axis>
+						<category field="$DIA" rotation="0" dropLabel="false">
+							<title>Dias</title>
+						</category>
+					</horizontal-axis>
+					<vertical-axis>
+						<linear>
+							<mask>R$ #.##0,00</mask>
+							<title>Pagamentos</title>
+						</linear>
+					</vertical-axis>
+					<series>
+						<serie type="column">
+							<xField>$DIA</xField>
+							<yField>$TOTAL</yField>
+							<display>$VENCIMENTO</display>
+							<on-click navigate-to="lvl_a6certz">
+								<param id="DIA">$VENCIMENTO</param>
+							</on-click>
+						</serie>
+					</series>
+				</chart>
+			</container>
+			<container orientacao="V" tamanhoRelativo="100">
+				<grid id="grd_akoax4j">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT DATENAME(DW,MAX(DTVENC)) AS DIA,   DTVENC AS VENCIMENTO,   SUM(VALOR) AS TOTAL FROM (SELECT CASE WHEN DATENAME(DW, DTVENC) LIKE 'Sábado'     THEN DATEPART(WW, DTVENC) + 1                  ELSE DATEPART(WW,DTVENC)     END AS DATA,   DTVENC,   VLRDESDOB AS VALOR FROM TGFFIN AS FIN WITH (NOLOCK)   INNER JOIN TGFCAB AS CAB WITH (NOLOCK) ON CAB.NUNOTA = FIN.NUNOTA WHERE CAB.CODTIPOPER IN (100,101,102,103,104,107,108,50,51,52,53,54,55,57)   AND CONVERT(DATE, DTVENC) >= CONVERT(DATE, GETDATE())   AND DTVENC <= :DATAMAX   AND FIN.CODCTABCOINT IN (4,5)   AND ((FIN.PROVISAO =  'N' AND 'S' = :DESPREAL) OR (FIN.PROVISAO = 'S' AND 'S' = :DESPPROV))   AND FIN.DHBAIXA IS NULL   AND CAB.STATUSNOTA = 'L'   ) AS TABELA WHERE DATA = :SEMANA GROUP BY DTVENC]]>
+					</expression>
+					<metadata>
+						<field name="DIA" label="DIA" type="S" visible="true" useFooter="false"/>
+						<field name="VENCIMENTO" label="VENCIMENTO" type="D" visible="true" useFooter="false"/>
+						<field name="TOTAL" label="TOTAL" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					</metadata>
+				</grid>
+			</container>
+		</container>
+	</level>
+	<level id="lvl_a6certz" description="3 - Diario">
+		<args>
+			<arg id="DIA" type="date"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_a6cert0" tamTexto="18">
+				<title>
+					<![CDATA[Despesas do dia :DIA]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CAB.NUNOTA AS NROUNICO,   PAR.NOMEPARC AS FORNECEDOR,   CASE FIN.PROVISAO    WHEN 'S' THEN 'Pedido de Compra (Provisão)'    WHEN 'N' THEN 'Nota de Compra'    ELSE ''    END AS TIPO,   SUM(FIN.VLRDESDOB) AS VALOR FROM TGFFIN AS FIN WITH (NOLOCK)   INNER JOIN TGFCAB AS CAB WITH (NOLOCK) ON CAB.NUNOTA = FIN.NUNOTA   INNER JOIN TGFPAR AS PAR WITH (NOLOCK) ON PAR.CODPARC = CAB.CODPARC WHERE CAB.CODTIPOPER IN (100,101,102,103,104,107,108,109,50,52,53,54,55,57)   AND CONVERT(DATE, DTVENC) >= CONVERT(DATE, GETDATE())   AND DTVENC <= :DATAMAX   AND FIN.CODCTABCOINT IN (4,5)   AND ((FIN.PROVISAO = 'N' AND 'S' = :DESPREAL) OR (FIN.PROVISAO = 'S' AND 'S' = :DESPPROV))   AND FIN.DHBAIXA IS NULL   AND CAB.STATUSNOTA = 'L'   AND FIN.DTVENC = :DIA GROUP BY CAB.NUNOTA, PAR.NOMEPARC, FIN.PROVISAO, FIN.DTVENC]]>
+				</expression>
+				<metadata>
+					<field name="NROUNICO" label="NROUNICO" type="I" visible="true" useFooter="false"/>
+					<field name="FORNECEDOR" label="FORNECEDOR" type="S" visible="true" useFooter="false"/>
+					<field name="TIPO" label="TIPO" type="S" visible="true" useFooter="false"/>
+					<field name="VALOR" label="VALOR" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click-launcher resource-id="br.com.sankhya.com.mov.CentralNotas">
+					<NUNOTA>$NROUNICO</NUNOTA>
+				</on-click-launcher>
+			</grid>
+		</container>
+	</level>
+</gadget>

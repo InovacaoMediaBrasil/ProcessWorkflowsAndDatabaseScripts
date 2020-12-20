@@ -1,0 +1,53 @@
+<gadget>
+	<level id="lvl_z6cn4o" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_z6cn4p">
+				<title>
+					<![CDATA[PRINCIPAL]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CODMOTDEV AS 'Cod_Devolucao',   MOTIVOS AS 'Motivo' FROM sankhya.AD_MOTIVODEVOLUCAO WITH (NOLOCK) WHERE CODMOTDEV IN (SELECT DISTINCT AD_CODMOTDEV      FROM  sankhya.TGFCAB WITH (NOLOCK)      WHERE CODTIPOPER = 600) ORDER BY CODMOTDEV ]]>
+				</expression>
+				<metadata>
+					<field name="Cod_Devolucao" label="Cod_Devolucao" type="I" visible="true" useFooter="false"/>
+					<field name="Motivo" label="Motivo" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click navigate-to="lvl_z6cn4s">
+					<param id="Cod_Devolucao">$Cod_Devolucao</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_z6cn4s" description="MOTIVO">
+		<args>
+			<arg id="Cod_Devolucao" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="50">
+				<simple-value id="svl_5t53xu">
+					<value-expression>
+						<![CDATA[<table width="100%">     <tr>         <td width="40%"><b>Código: $CODPROD</b></td>         <td width="60%" colspan="3"><b>Descrição:</b> $DESCRPROD</td>       </tr>     <tr>        <td><b>Aumento:</b> $PORCENTAGEM%</td>        <td colspan="3"><b>Complemento: </b>$COMPLDESC</td>     </tr>     <tr>        <td colspan="3"><b>Custo de Reposição do item</b></td>     </tr> </table>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="50">
+				<grid id="grd_z6cn4t">
+					<title>
+						<![CDATA[Motivo]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT PRO.CODPROD  AS 'Codigo_Produto',     PRO.DESCRPROD AS 'Produto',   VLRNOTA  AS 'Valor_Nota',   PED.VLRFRETE AS 'Valor_Frete',   VEN.CODVEND  AS 'Codigo_vendedor',   VEN.APELIDO  AS 'Vendedor' FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.AD_MOTIVODEVOLUCAO DEV WITH (NOLOCK) ON DEV.CODMOTDEV = CAB.AD_CODMOTDEV   INNER JOIN sankhya.AD_PEDIDOVTEXSC  PED WITH (NOLOCK) ON PED.PEDORIGINAL = CAB.AD_PEDORIGINAL   INNER JOIN sankhya.TGFITE   ITE WITH (NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA   INNER JOIN sankhya.TGFPRO   PRO WITH (NOLOCK) ON PRO.CODPROD = ITE.CODPROD   INNER JOIN sankhya.TGFVEN   VEN WITH (NOLOCK) ON VEN.CODVEND = CAB.CODVEND WHERE CODTIPOPER = 600   AND DEV.CODMOTDEV = :Cod_Devolucao ORDER BY 1]]>
+					</expression>
+					<metadata>
+						<field name="Codigo_Produto" label="Codigo_Produto" type="I" visible="true" useFooter="false"/>
+						<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+						<field name="Valor_Nota" label="Valor_Nota" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+						<field name="Valor_Frete" label="Valor_Frete" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+						<field name="Codigo_vendedor" label="Codigo_vendedor" type="I" visible="true" useFooter="false"/>
+						<field name="Vendedor" label="Vendedor" type="S" visible="true" useFooter="false"/>
+					</metadata>
+				</grid>
+			</container>
+		</container>
+	</level>
+</gadget>

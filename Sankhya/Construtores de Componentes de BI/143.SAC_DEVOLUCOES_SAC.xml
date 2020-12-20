@@ -1,0 +1,26 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_oxookg" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_oxookh">
+				<title>
+					<![CDATA[Relatório de Devoluções de Reenvios]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT ISNULL(upper(CAST(D.OBSERVACAO AS NVARCHAR(200))),'') AS OBSERVACAO,   RFL.DATA AS DATA,   RTRIM(V.APELIDO) AS VENDEDOR,   V.AD_SETORVEND AS SETORVENDEDOR,   RFL.NUNOTA,   R.VLRFRETE AS CUSTOFRETE FROM sankhya.AD_PEDIDOVTEXSCREENVIO R WITH (NOLOCK)   INNER JOIN sankhya.AD_PEDIDOVTEXSCREENVIOFLUXO RFL WITH (NOLOCK) ON RFL.ORDERID = R.ORDERID AND RFL.CODREENVIO = R.CODREENVIO   INNER JOIN sankhya.TGFVEN V WITH (NOLOCK) ON V.CODVEND = R.CODVEND   INNER JOIN sankhya.TGFCAB D WITH (NOLOCK) ON D.NUNOTA = RFL.NUNOTA AND D.CODTIPOPER = 600 WHERE RFL.OCORRENCIA = 'D'   AND RFL.DATA >= :DTINI   AND RFL.DATA <= DATEADD(DAY,1,:DTFIM)]]>
+				</expression>
+				<metadata>
+					<field name="OBSERVACAO" label="OBSERVACAO" type="S" visible="true" useFooter="false"/>
+					<field name="DATA" label="DATA" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					<field name="VENDEDOR" label="VENDEDOR" type="S" visible="true" useFooter="false"/>
+					<field name="SETORVENDEDOR" label="SETORVENDEDOR" type="S" visible="true" useFooter="false"/>
+					<field name="NUNOTA" label="PEDIDO" type="I" visible="true" useFooter="false"/>
+					<field name="CUSTOFRETE" label="CUSTOFRETE" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

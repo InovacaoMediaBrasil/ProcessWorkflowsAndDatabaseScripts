@@ -1,0 +1,36 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="PAGO" description="Pagamento Efetuado" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false"/>
+		<parameter id="NPAGO" description="Pagamento Pendente" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false"/>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="false" order="0"/>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="false" order="1"/>
+		<parameter id="OPERACAO" description="Operação" metadata="singleList:Text" required="false" keep-last="false" order="2" listType="text" keep-date="false">
+			<item value="500" label="ATIVO"/>
+			<item value="501" label="RECEPTIVO"/>
+			<item value="502" label="ECOMMERCE"/>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_yz10wv" description="Status Pagamento">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_yz10ww" type="pizza">
+				<title>
+					<![CDATA[Clientes dos Pedidos]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT             COUNT(CabecalhoNota.CODPARC) AS QTD_CLIENTES,   CASE WHEN PAR.DTCAD < CabecalhoNota.DTNEG THEN 'JÁ CADASTRADO' ELSE 'NOVO CLIENTE' END AS TIPO_CLIENTE     FROM          sankhya.TGFCAB CabecalhoNota WITH(NOLOCK)   INNER JOIN sankhya.TGFPAR PAR WITH(NOLOCK) ON PAR.CODPARC = CabecalhoNota.CODPARC   WHERE CabecalhoNota.DTNEG >= :DATA_INICIAL     AND CabecalhoNota.DTNEG <= :DATA_FINAL         AND CabecalhoNota.CODTIPOPER = :OPERACAO AND (((:PAGO = 'S' AND :NPAGO = 'N' AND AD_STATUSPGTO = 'E') OR (:PAGO = 'N' AND :NPAGO = 'S' AND AD_STATUSPGTO = 'P')) OR ((:PAGO = 'S' AND :NPAGO = 'S' AND AD_STATUSPGTO IN ('E','P')) OR (:PAGO = 'N' AND :NPAGO = 'N' AND AD_STATUSPGTO IS NULL)))      GROUP BY CASE WHEN PAR.DTCAD < CabecalhoNota.DTNEG THEN 'JÁ CADASTRADO' ELSE 'NOVO CLIENTE' END ]]>
+				</expression>
+				<metadata>
+					<field name="QTD_CLIENTES" label="QTD_CLIENTES" type="I" visible="true" useFooter="false"/>
+					<field name="TIPO_CLIENTE" label="TIPO_CLIENTE" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<series>
+					<serie type="pizza">
+						<field>QTD_CLIENTES</field>
+						<nameField>TIPO_CLIENTE</nameField>
+					</serie>
+				</series>
+				<legend position="top" direction="h"/>
+			</chart>
+		</container>
+	</level>
+</gadget>

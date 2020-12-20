@@ -1,0 +1,21 @@
+<gadget refresh-time="60000">
+	<level id="lvl_mneydw" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_mneyen">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DTPREVENT,   PAR.NOMEPARC,   COUNT(CODPROD) AS QTDSKUS,   CODVOL,   SUM(QTDNEG) AS QTD FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFITE ITE WITH (NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA   INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON PAR.CODPARC = CAB.CODPARC WHERE CODTIPOPER BETWEEN 50 AND 59   AND DTPREVENT = CAST(GETDATE() AS VARCHAR(12)) GROUP BY DTPREVENT, PAR.NOMEPARC, CODVOL]]>
+				</expression>
+				<metadata>
+					<field name="DTPREVENT" label="Previsão de Entrega" type="D" visible="true" useFooter="false"/>
+					<field name="NOMEPARC" label="Parceiro" type="S" visible="true" useFooter="false"/>
+					<field name="QTDSKUS" label="Quant. SKUs" type="I" visible="true" useFooter="false"/>
+					<field name="CODVOL" label="Unidade" type="S" visible="true" useFooter="false"/>
+					<field name="QTD" label="Quant." type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click-launcher resource-id="br.com.sankhya.com.mov.CentralNotas">
+					<NUNOTA>$NUNOTA</NUNOTA>
+				</on-click-launcher>
+			</grid>
+		</container>
+	</level>
+</gadget>

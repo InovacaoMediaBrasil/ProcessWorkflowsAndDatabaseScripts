@@ -1,0 +1,21 @@
+<gadget>
+	<level id="lvl_rjzj06" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_rjzj07">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PRO.CODPROD AS Codigo,   RTRIM(PRO.DESCRPROD) +' '+ ISNULL(RTRIM(COMPLDESC),'') as Produto,   Marca,   PAR.NOMEPARC AS NomeParceiro,   EXC.VLRVENDA AS ValorDeVenda,   CASE ad_tipcalc    WHEN '02 - $' THEN 'Valor(R$)'    WHEN '01 - %' THEN 'Porcentagem(%)'   ELSE ''   END AS TipoDeRoyaltie,   AD_VCOMAUT AS ValorComissao,   CASE     WHEN ad_tipcalc = '01 - %' THEN ROUND(EXC.vlrvenda * (ad_vcomaut / 100),2)    WHEN ad_tipcalc like '02%' THEN ad_vcomaut    ELSE ''   END AS ValorDoRoyaltie FROM sankhya.TGFPRO PRO WITH (NOLOCK)   INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON PAR.CODPARC = PRO.AD_CODPARC   LEFT JOIN sankhya.TGFEXC EXC WITH (NOLOCK) ON EXC.CODPROD = PRO.CODPROD   INNER JOIN (SELECT CODPROD,      MAX(NUTAB) T      FROM sankhya.TGFEXC WITH (NOLOCK)      GROUP BY CODPROD) V ON EXC.CODPROD = V.CODPROD AND EXC.NUTAB = V.T GROUP BY PRO.CODPROD, PRO.DESCRPROD, PRO.COMPLDESC, PRO.MARCA, PAR.NOMEPARC, EXC.VLRVENDA, AD_TIPCALC, AD_VCOMAUT order by PAR.NOMEPARC, Produto]]>
+				</expression>
+				<metadata>
+					<field name="Codigo" label="Codigo" type="I" visible="true" useFooter="false"/>
+					<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="Marca" label="Marca" type="S" visible="true" useFooter="false"/>
+					<field name="NomeParceiro" label="NomeParceiro" type="S" visible="true" useFooter="false"/>
+					<field name="ValorDeVenda" label="ValorDeVenda" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="TipoDeRoyaltie" label="TipoDeRoyaltie" type="S" visible="true" useFooter="false"/>
+					<field name="ValorComissao" label="ValorComissao" type="F" visible="true" useFooter="false" mask="###0,00"/>
+					<field name="ValorDoRoyaltie" label="ValorDoRoyaltie" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

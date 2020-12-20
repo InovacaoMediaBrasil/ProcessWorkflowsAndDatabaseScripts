@@ -1,0 +1,26 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DT1" description="Data de Inicio" metadata="date" required="true" keep-last="false" keep-date="false" order="0"/>
+		<parameter id="DT2" description="Data Final" metadata="date" required="true" keep-last="false" keep-date="false" order="1"/>
+		<parameter id="MARKET_ID" description="CNova" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false" order="2"/>
+		<parameter id="MARKET_ID1" description="B2W" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false" order="3"/>
+		<parameter id="MARKET_ID2" description="ShopFacil" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false" order="4"/>
+		<parameter id="MARKET_ID3" description="Walmart" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false" order="5"/>
+		<parameter id="MARKET_ID4" description="Mercado Livre" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false" order="6"/>
+	</prompt-parameters>
+	<level id="lvl_a5zm4nj" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_a5zm4nk">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT ITE.CODPROD,   sankhya.FN_CONCATENANOMEPRODUTO(ITE.CODPROD) AS Produto,   SUM(ITE.QTDNEG) AS QTDVENDIDA,   SUM(VLRTOT-VLRDESC) AS VALORTOTAL FROM sankhya.TGFITE ITE WITH(NOLOCK)   JOIN sankhya.TGFCAB  AS CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   JOIN sankhya.TGFVEN  AS VEN WITH(NOLOCK) ON CAB.CODVEND = VEN.CODVEND WHERE VEN.AD_CODAFILIADO IS NOT NULL   AND CAB.CODTIPOPER = 502   AND CAB.DTNEG BETWEEN :DT1 AND :DT2   AND CAB.CODVEND IN (CASE WHEN :MARKET_ID = 'S' THEN 224 ELSE '' END,           CASE WHEN :MARKET_ID1 = 'S' THEN 271 ELSE '' END,          CASE WHEN :MARKET_ID2 = 'S' THEN 250 ELSE '' END,          CASE WHEN :MARKET_ID3 = 'S' THEN 275 ELSE '' END,         CASE WHEN :MARKET_ID4 = 'S' THEN 263 ELSE '' END) GROUP BY ITE.CODPROD, sankhya.FN_CONCATENANOMEPRODUTO(ITE.CODPROD)]]>
+				</expression>
+				<metadata>
+					<field name="CODPROD" label="CODPROD" type="I" visible="true" useFooter="false"/>
+					<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="QTDVENDIDA" label="QTDVENDIDA" type="I" visible="true" useFooter="true"/>
+					<field name="VALORTOTAL" label="VALORTOTAL" type="C" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

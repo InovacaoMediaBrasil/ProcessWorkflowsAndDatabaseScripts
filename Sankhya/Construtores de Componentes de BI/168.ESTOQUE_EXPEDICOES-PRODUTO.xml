@@ -1,0 +1,37 @@
+<gadget>
+	<level id="lvl_b7kwiq" description="Principal">
+		<grid id="grd_b7kwis" multiplaSelecao="N">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT NUNOTA, AD_PEDORIGINAL,DTNEG FROM sankhya.AD_PEDIDOVTEXSC SC WITH(NOLOCK) inner join sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.AD_PEDORIGINAL = SC.PEDORIGINAL WHERE ORDERID IN (SELECT ORDERID FROM sankhya.AD_PEDIDOVTEXSCFLUXO f where f.OCORRENCIA in('E','I')) and orderid not in (SELECT ORDERID FROM sankhya.AD_PEDIDOVTEXSCFLUXO f where f.OCORRENCIA in ('V','T','N')) AND CODTIPOPER = 505 and dtneg >= '16/03/2016']]>
+			</expression>
+			<metadata>
+				<field name="NUNOTA" label="NUNOTA" type="I" visible="true" useFooter="false"/>
+				<field name="AD_PEDORIGINAL" label="AD_PEDORIGINAL" type="I" visible="true" useFooter="false"/>
+				<field name="DTNEG" label="DTNEG" type="D" visible="true" useFooter="false"/>
+			</metadata>
+			<on-click navigate-to="lvl_b7kwiu">
+				<param id="nunota">$NUNOTA</param>
+			</on-click>
+		</grid>
+	</level>
+	<level id="lvl_b7kwiu" description="itens">
+		<args>
+			<arg id="nunota" type="integer"/>
+		</args>
+		<grid id="grd_b7kwiv">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT ITE.CODPROD, RTRIM(RTRIM(PRO.DESCRPROD) + ' ' + ISNULL(PRO.COMPLDESC,'')) AS PRODUTO, PRO.CODVOL, RTRIM(PRO.MARCA) AS MARCA, RTRIM(ISNULL(LOC.DESCRLOCAL,'<SEM LOCAL>')) AS LOCAL, COUNT(QTDNEG) AS QTDPRODUTOS, ISNULL(EST.ESTOQUE,0) AS ESTOQUEFISICO, COUNT(QTDNEG)-ISNULL(EST.ESTOQUE,0) AS DIFERENCA FROM sankhya.TGFITE ITE WITH(NOLOCK) INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON PRO.CODPROD = ITE.CODPROD LEFT JOIN sankhya.TGFLOC LOC WITH(NOLOCK) ON PRO.CODLOCALPADRAO = LOC.CODLOCAL left join sankhya.TGFEST EST WITH(NOLOCK) ON EST.CODPROD = PRO.CODPROD   WHERE ITE.NUNOTA IN (:nunota)    AND ITE.CODVOL != 'KT'   GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.COMPLDESC, PRO.CODVOL, PRO.MARCA, LOC.DESCRLOCAL, EST.ESTOQUE    ORDER BY QTDPRODUTOS DESC]]>
+			</expression>
+			<metadata>
+				<field name="CODPROD" label="CODPROD" type="I" visible="true" useFooter="false"/>
+				<field name="PRODUTO" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+				<field name="CODVOL" label="CODVOL" type="S" visible="true" useFooter="false"/>
+				<field name="MARCA" label="MARCA" type="S" visible="true" useFooter="false"/>
+				<field name="LOCAL" label="LOCAL" type="S" visible="true" useFooter="false"/>
+				<field name="QTDPRODUTOS" label="QTDPRODUTOS" type="I" visible="true" useFooter="false"/>
+				<field name="ESTOQUEFISICO" label="ESTOQUEFISICO" type="I" visible="true" useFooter="false"/>
+				<field name="DIFERENCA" label="DIFERENCA" type="I" visible="true" useFooter="false"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

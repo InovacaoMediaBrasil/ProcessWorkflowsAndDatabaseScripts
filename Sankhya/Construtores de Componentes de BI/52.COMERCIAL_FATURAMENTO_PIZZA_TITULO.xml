@@ -1,0 +1,44 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_b3npne" description="Principal">
+		<chart id="cht_b3npnp" type="pizza">
+			<title>
+				<![CDATA[FATURAMENTO TOTAL (PAGO) - GERAL]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[select titulo.[TIPO_DE_TITULO], SUM(titulo.VLRNOTA) as FATURAMENTO from   (select DISTINCT GTT.DESCRGRUPOTIPTIT as 'TIPO_DE_TITULO', CAB.NUNOTA, CAB.VLRNOTA from SANKHYA_PRODUCAO.sankhya.TGFCAB cab inner join SANKHYA_PRODUCAO.sankhya.TGFFIN fin on (fin.nunota = cab.nunota) inner join SANKHYA_PRODUCAO.sankhya.TGFTPV tpv on (cab.CODTIPVENDA = tpv.CODTIPVENDA) inner join SANKHYA_PRODUCAO.sankhya.TGFTIT tit on (tit.CODTIPTIT = fin.CODTIPTIT) INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFGTT GTT ON (TIT.CODGRUPOTIPTIT = GTT.CODGRUPOTIPTIT) where cab.CODTIPOPER in (500,501,502,503,515) AND CAB.DTNEG >= :DATA_INICIAL AND CAB.DTNEG <= :DATA_FINAL AND CAB.AD_STATUSPGTO = 'E') as titulo group by titulo.[TIPO_DE_TITULO]]]>
+			</expression>
+			<metadata>
+				<field name="TIPO_DE_TITULO" label="TIPO_DE_TITULO" type="S" visible="true" useFooter="false"/>
+				<field name="FATURAMENTO" label="FATURAMENTO" type="F" visible="true" useFooter="false"/>
+			</metadata>
+			<series>
+				<serie type="pizza">
+					<field>FATURAMENTO</field>
+					<nameField>TIPO_DE_TITULO</nameField>
+				</serie>
+			</series>
+		</chart>
+		<chart id="cht_b3npnk" type="pizza">
+			<title>
+				<![CDATA[FATURAMENTO TOTAL (PAGO) - SEM FRETE]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[select titulo.[TIPO_DE_TITULO], sum(titulo.VLRNOTA-titulo.VLRFRETE) as FATURAMENTO from   (select DISTINCT GTT.DESCRGRUPOTIPTIT as 'TIPO_DE_TITULO', CAB.NUNOTA, CAB.VLRNOTA, cab.VLRFRETE /*SUM(cab.VLRNOTA) as FATURAMENTO */ from TGFCAB cab inner join TGFFIN fin on (fin.nunota = cab.nunota) inner join TGFTPV tpv on (cab.CODTIPVENDA = tpv.CODTIPVENDA) inner join TGFTIT tit on (tit.CODTIPTIT = fin.CODTIPTIT) INNER JOIN TGFGTT GTT ON (TIT.CODGRUPOTIPTIT = GTT.CODGRUPOTIPTIT) where cab.CODTIPOPER in (500,501,502,503,515) AND CAB.DTNEG >= :DATA_INICIAL AND CAB.DTNEG <= :DATA_FINAL AND CAB.AD_STATUSPGTO = 'E' /*GROUP BY GTT.DESCRGRUPOTIPTIT,cab.AD_STATUSPGTO*/) as titulo group by titulo.[TIPO_DE_TITULO]]]>
+			</expression>
+			<metadata>
+				<field name="TIPO_DE_TITULO" label="TIPO_DE_TITULO" type="S" visible="true" useFooter="false"/>
+				<field name="FATURAMENTO" label="FATURAMENTO" type="F" visible="true" useFooter="false"/>
+			</metadata>
+			<series>
+				<serie type="pizza">
+					<field>FATURAMENTO</field>
+					<nameField>TIPO_DE_TITULO</nameField>
+				</serie>
+			</series>
+		</chart>
+	</level>
+</gadget>

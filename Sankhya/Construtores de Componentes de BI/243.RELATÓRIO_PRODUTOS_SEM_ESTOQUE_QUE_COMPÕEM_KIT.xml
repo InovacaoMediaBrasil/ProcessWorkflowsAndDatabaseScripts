@@ -1,0 +1,86 @@
+<gadget>
+  <level id="lvl_aayl3ps" description="Principal">
+    <container orientacao="V" tamanhoRelativo="100">
+      <grid id="grd_aevllev">
+        <title><![CDATA[RELATÓRIO PRODUTOS SEM ESTOQUE QUE COMPÕEM KIT]]></title>
+        <expression type="sql" data-source="MGEDS"><![CDATA[SELECT 
+	PROCOMP.CODPROD AS 'CODCOMP',
+	PROCOMP.DESCRPROD AS 'NOMECOMP',
+	CASE WHEN PROCOMP.AD_PESTNEG = 'S' THEN 'Sim' ELSE 'Não' END AS 'PESTNEGCOMP',
+	ISNULL(sankhya.FN_CUSTO(ICP.CODMATPRIMA), 0) AS 'CUSTCOMP',
+	
+	(SELECT COUNT(*)  
+		FROM sankhya.TGFICP AS ICPC WITH (NOLOCK) 
+		INNER JOIN sankhya.TGFPRO AS PROKITC WITH (NOLOCK)
+		ON PROKITC.CODPROD = ICPC.CODPROD AND PROKITC.ATIVO = 'S'
+		WHERE ICPC.CODMATPRIMA = PROCOMP.CODPROD
+	) AS 'KITSATIVO',
+
+		CASE	WHEN 
+		
+		(SELECT COUNT(*)  
+		FROM sankhya.TGFICP AS ICPC WITH (NOLOCK) 
+		INNER JOIN sankhya.TGFPRO AS PROKITC WITH (NOLOCK)
+		ON PROKITC.CODPROD = ICPC.CODPROD AND PROKITC.ATIVO = 'S'
+		WHERE ICPC.CODMATPRIMA = PROCOMP.CODPROD) 
+		
+		= 1  THEN '#00FF00'
+
+		WHEN
+		 
+		(SELECT COUNT(*)  
+		FROM sankhya.TGFICP AS ICPC WITH (NOLOCK) 
+		INNER JOIN sankhya.TGFPRO AS PROKITC WITH (NOLOCK)
+		ON PROKITC.CODPROD = ICPC.CODPROD AND PROKITC.ATIVO = 'S'
+		WHERE ICPC.CODMATPRIMA = PROCOMP.CODPROD)
+
+		BETWEEN 1 AND 5 THEN '#FFFF00'
+
+		WHEN
+		 
+		(SELECT COUNT(*)  
+		FROM sankhya.TGFICP AS ICPC WITH (NOLOCK) 
+		INNER JOIN sankhya.TGFPRO AS PROKITC WITH (NOLOCK)
+		ON PROKITC.CODPROD = ICPC.CODPROD AND PROKITC.ATIVO = 'S'
+		WHERE ICPC.CODMATPRIMA = PROCOMP.CODPROD) 
+		
+		>= 6 THEN '#FF3300' END AS 'NUMSKITS',
+		
+	PROKIT.CODPROD AS 'CODKIT',
+	PROKIT.DESCRPROD AS 'NOMEKIT',
+	ISNULL(sankhya.FN_CUSTO(ICP.CODPROD), 0) AS 'CUSTKIT',
+	ISNULL(PROCOMP.ESTMIN, 0) AS 'ESTMINCOMP',
+	ISNULL(ESTCOMP.ESTOQUE,0) AS 'ESTFISCOMP',
+	ISNULL(ESTCOMP.RESERVADO,0) AS 'RESERVADOCOMP',
+	ISNULL((ESTCOMP.ESTOQUE - ESTCOMP.RESERVADO), 0) AS 'SALDOCOMP'
+FROM
+sankhya.TGFICP AS ICP WITH (NOLOCK)
+INNER JOIN sankhya.TGFPRO AS PROCOMP WITH (NOLOCK)
+ON PROCOMP.CODPROD = ICP.CODMATPRIMA
+INNER JOIN sankhya.TGFPRO AS PROKIT WITH (NOLOCK)
+ON PROKIT.CODPROD = ICP.CODPROD
+INNER JOIN sankhya.TGFEST AS ESTCOMP WITH (NOLOCK)
+ON ESTCOMP.CODPROD = PROCOMP.CODPROD
+WHERE PROCOMP.ATIVO = 'S'
+AND PROKIT.ATIVO = 'S'
+AND	ISNULL((ESTCOMP.ESTOQUE - ESTCOMP.RESERVADO), 0) <= 0
+ORDER BY ICP.CODMATPRIMA, ICP.CODPROD]]></expression>
+        <metadata>
+          <field name="CODCOMP" label="Código Produto" type="I" visible="true" useFooter="false"/>
+          <field name="NOMECOMP" label="Nome do Produto" type="S" visible="true" useFooter="false"/>
+          <field name="PESTNEGCOMP" label="Permite Estoque Negativo" type="S" visible="false" useFooter="false"/>
+          <field name="CUSTCOMP" label="Custo de Reposição" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+          <field name="KITSATIVO" label="Kits Ativos" type="I" visible="false" useFooter="false"/>
+          <field name="NUMSKITS" label="N. Kits" type="LP" visible="true" useFooter="false"/>
+          <field name="CODKIT" label="Código do Kit" type="I" visible="true" useFooter="false"/>
+          <field name="NOMEKIT" label="Nome do Kit" type="S" visible="true" useFooter="false"/>
+          <field name="CUSTKIT" label="Custo do Kit" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+          <field name="ESTMINCOMP" label="Estoque Minimo" type="I" visible="true" useFooter="false"/>
+          <field name="ESTFISCOMP" label="Estoque Fisico" type="I" visible="true" useFooter="false"/>
+          <field name="RESERVADOCOMP" label="Reservados" type="I" visible="true" useFooter="false"/>
+          <field name="SALDOCOMP" label="Saldo de Estoque" type="I" visible="true" useFooter="false"/>
+        </metadata>
+      </grid>
+    </container>
+  </level>
+</gadget>

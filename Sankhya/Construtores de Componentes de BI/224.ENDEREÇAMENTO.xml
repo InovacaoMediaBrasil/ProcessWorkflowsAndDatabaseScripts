@@ -1,0 +1,26 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODPROD" description="Código do Produto" metadata="integer" required="false" keep-last="false" keep-date="false"/>
+		<parameter id="MARCA" description="Marca" metadata="text" required="false" keep-last="false" keep-date="false"/>
+		<parameter id="REFERENCIA" description="Referência" metadata="text" required="false" keep-last="false" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_at89xtz" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_at89xt0">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PRO.CODPROD  AS 'CODIGO_DO_PRODUTO',   PRO.DESCRPROD AS 'DESCRICAO_DO_PRODUTO',   PRO.MARCA,   PRO.REFERENCIA,   PRO.REFFORN  AS 'REFERENCIA_DO_FORNECEDOR',   CASE WHEN EST.ESTOQUE < 0 THEN '#FF0000' ELSE '' END AS FGCOLOR,   EST.ESTOQUE,   LOC.DESCRLOCAL AS 'DESCRICAO_DO_LOCAL' FROM sankhya.TGFPRO PRO WITH (NOLOCK)   INNER JOIN sankhya.TGFEST EST WITH (NOLOCK) ON PRO.CODPROD = EST.CODPROD   LEFT JOIN sankhya.TGFLOC LOC WITH (NOLOCK) ON PRO.CODLOCALPADRAO = LOC.CODLOCAL WHERE CODVOL != 'KT'   AND PRO.ATIVO = 'S'   AND CODGRUPOPROD != 720000   AND (REFERENCIA LIKE '%'+:REFERENCIA+'%' OR :REFERENCIA IS NULL)   AND (MARCA LIKE '%'+:MARCA+'%' OR :MARCA IS NULL)   AND (PRO.CODPROD = :CODPROD OR :CODPROD IS NULL)]]>
+				</expression>
+				<metadata>
+					<field name="CODIGO_DO_PRODUTO" label="CODIGO_DO_PRODUTO" type="I" visible="true" useFooter="false"/>
+					<field name="DESCRICAO_DO_PRODUTO" label="DESCRICAO_DO_PRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="MARCA" label="MARCA" type="S" visible="true" useFooter="false"/>
+					<field name="REFERENCIA" label="REFERENCIA" type="S" visible="true" useFooter="false"/>
+					<field name="REFERENCIA_DO_FORNECEDOR" label="REFERENCIA_DO_FORNECEDOR" type="S" visible="true" useFooter="false"/>
+					<field name="FGCOLOR" label="FGCOLOR" type="S" visible="true" useFooter="false"/>
+					<field name="ESTOQUE" label="ESTOQUE" type="I" visible="true" useFooter="false"/>
+					<field name="DESCRICAO_DO_LOCAL" label="DESCRICAO_DO_LOCAL" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

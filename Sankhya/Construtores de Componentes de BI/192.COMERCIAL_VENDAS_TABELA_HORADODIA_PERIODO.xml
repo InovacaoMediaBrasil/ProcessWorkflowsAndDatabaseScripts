@@ -1,0 +1,58 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="PAGO" description="Pagamento Efetuado" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false"/>
+		<parameter id="NPAGO" description="Pagamento Pendente" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false"/>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="false" order="0"/>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="false" order="1"/>
+		<parameter id="OPERACAO" description="Operação" metadata="singleList:Text" required="false" keep-last="false" order="2" listType="text" keep-date="false">
+			<item value="500" label="ATIVO"/>
+			<item value="501" label="RECEPTIVO"/>
+			<item value="502" label="ECOMMERCE"/>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_yz10wv" description="Status Pagamento">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_3pf6u">
+				<title>
+					<![CDATA[VENDAS POR HORA DO DIA]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT          SUM(CabecalhoNota.VLRNOTA) AS FATURAMENTO,   DATEPART(HOUR,SC.DATA) AS HORA  FROM          sankhya.TGFCAB CabecalhoNota  with(nolock)   INNER JOIN sankhya.AD_PEDIDOVTEXSCFLUXO SC  with(nolock) ON SC.NUNOTA = CabecalhoNota.NUNOTA and OCORRENCIA = 'P'   WHERE CabecalhoNota.DTNEG >= :DATA_INICIAL     AND CabecalhoNota.DTNEG <= :DATA_FINAL         AND CabecalhoNota.CODTIPOPER = :OPERACAO AND (((:PAGO = 'S' AND :NPAGO = 'N' AND AD_STATUSPGTO = 'E') OR (:PAGO = 'N' AND :NPAGO = 'S' AND AD_STATUSPGTO = 'P')) OR ((:PAGO = 'S' AND :NPAGO = 'S' AND AD_STATUSPGTO IN ('E','P')) OR (:PAGO = 'N' AND :NPAGO = 'N' AND AD_STATUSPGTO IS NULL)))      GROUP BY DATEPART(HOUR,SC.DATA) ]]>
+				</expression>
+				<metadata>
+					<field name="FATURAMENTO" label="FATURAMENTO" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="HORA" label="HORA" type="I" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_yz10w0" description="Tipo de Título">
+		<args>
+			<arg id="STATUSPGTO" type="text"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_yz10w1" type="pizza">
+				<title>
+					<![CDATA[Tipo de Título]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT          SUM(CabecalhoNota.VLRNOTA) AS FATURAMENTO,         Tit.DESCRTIPTIT as FORMA_DE_PAGAMENTO    FROM          TGFCAB CabecalhoNota  JOIN TGFTPV Tpv ON (CabecalhoNota.CODTIPVENDA = Tpv.CODTIPVENDA) JOIN TGFPPG Ppg ON (Tpv.CODTIPVENDA = Ppg.CODTIPVENDA) JOIN TGFTIT Tit ON (Ppg.CODTIPTITPAD = Tit.CODTIPTIT)   WHERE CabecalhoNota.DTNEG >= :DATA_INICIAL     AND CabecalhoNota.DTNEG <= :DATA_INICIAL         AND CabecalhoNota.CODTIPOPER = :OPERACAO  GROUP BY Tit.DESCRTIPTIT]]>
+				</expression>
+				<metadata>
+					<field name="FATURAMENTO" label="FATURAMENTO" type="F" visible="true" useFooter="true"/>
+					<field name="FORMA_DE_PAGAMENTO" label="FORMA_DE_PAGAMENTO" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<series>
+					<serie type="pizza">
+						<field>FATURAMENTO</field>
+						<nameField>FORMA_DE_PAGAMENTO</nameField>
+						<on-click navigate-to="lvl_yz10w0">
+							<param id="STATUSPGTO">FORMA_DE_PAGAMENTO</param>
+						</on-click>
+					</serie>
+				</series>
+				<legend position="top" direction="h"/>
+			</chart>
+		</container>
+	</level>
+</gadget>

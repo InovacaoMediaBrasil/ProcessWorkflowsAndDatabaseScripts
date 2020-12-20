@@ -1,0 +1,63 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="1. Data Inicial" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DATA_FINAL" description="2. Data Final" metadata="date" required="true" keep-last="false"/>
+		<parameter id="PARCEIRO" description="Fornecedor" metadata="entity:Parceiro@CODPARC" required="false" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_52zahl" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_a7avkec" tamTexto="12">
+				<title>
+					<![CDATA[Produtos Mais Vendidos]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT PAR.CODPARC,     ISNULL(PAR.RAZAOSOCIAL, PAR.NOMEPARC) AS PARCEIRO FROM sankhya.TGFCAB CAB with(nolock)   INNER JOIN sankhya.TGFPAR PAR with(nolock) ON PAR.CODPARC = CAB.CODPARC WHERE DTNEG BETWEEN :DATA_INICIAL   AND :DATA_FINAL   AND CODTIPOPER IN (100,       101,                         102,                         103,                         104,                         105,                         106,                         107,                         108,                         109,                         110,                         111)   AND PAR.CODPARC = CASE WHEN :CODPARC IS NOT NULL THEN :PARCEIRO    ELSE PAR.CODPARC     END ]]>
+				</expression>
+				<metadata>
+					<field name="CODPARC" label="CODPARC" type="I" visible="true" useFooter="false"/>
+					<field name="PARCEIRO" label="PARCEIRO" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click navigate-to="lvl_a7avkd8">
+					<param id="CODPARC">$CODPARC</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_a7avkd8" description="Gráfico">
+		<args>
+			<arg id="CODPARC" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_a7avkd9" type="bar">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT  TOP 10  (RTRIM(PRO.DESCRPROD)+' '+ISNULL(PRO.COMPLDESC,'')) AS PRODUTO, SUM(ITE.QTDNEG) AS QTD, ITE.CODVOL   FROM SANKHYA_PRODUCAO.sankhya.TGFCAB CAB JOIN SANKHYA_PRODUCAO.sankhya.TGFITE ITE ON (ITE.NUNOTA = CAB.NUNOTA) JOIN SANKHYA_PRODUCAO.sankhya.TGFPRO PRO ON (ITE.CODPROD = PRO.CODPROD)  WHERE CAB.DTNEG >= :DATA_INICIAL AND CAB.DTNEG <= :DATA_FINAL AND CAB.CODTIPOPER IN (500,501,502,503,504,515) AND ITE.CODPROD IN (SELECT ITE.CODPROD  FROM SANKHYA_PRODUCAO.sankhya.TGFCAB CAB JOIN SANKHYA_PRODUCAO.sankhya.TGFITE ITE ON (ITE.NUNOTA = CAB.NUNOTA)   WHERE CODTIPOPER IN (100,101,102,103,104,105,106,107,108,109,110,111) AND DTNEG >= :DATA_INICIAL AND DTNEG <= :DATA_FINAL AND CAB.CODPARC = :CODPARC)  GROUP BY PRO.DESCRPROD, PRO.COMPLDESC, ITE.QTDNEG, ITE.CODVOL  ORDER BY ITE.QTDNEG]]>
+				</expression>
+				<metadata>
+					<field name="PRODUTO" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="QTD" label="QTD" type="I" visible="true" useFooter="false"/>
+					<field name="CODVOL" label="CODVOL" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<horizontal-axis>
+					<linear>
+						<mask/>
+						<title>Quantidade Vendida</title>
+					</linear>
+				</horizontal-axis>
+				<vertical-axis>
+					<category field="" rotation="0" dropLabel="false">
+						<title>produtos</title>
+					</category>
+				</vertical-axis>
+				<series>
+					<serie type="bar">
+						<xField>$QTD</xField>
+						<yField>$PRODUTO</yField>
+						<display>
+							<![CDATA[Quantidade Vendida]]>
+						</display>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

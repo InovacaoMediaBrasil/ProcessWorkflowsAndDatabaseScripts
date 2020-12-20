@@ -1,0 +1,85 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_ubwzmc" description="Principal">
+		<chart id="cht_aylwd27" type="pizza">
+			<title>
+				<![CDATA[PROJETOS]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT CLIENTE, COUNT(IDTAREFASTI) AS QTD FROM sankhya.AD_TAREFASTI WHERE ENTREGUEEM BETWEEN :DTINI AND :DTFIM GROUP BY CLIENTE]]>
+			</expression>
+			<metadata>
+				<field name="CLIENTE" label="CLIENTE" type="S" visible="true" useFooter="false"/>
+				<field name="QTD" label="QTD" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<series>
+				<serie type="pizza">
+					<field>QTD</field>
+					<nameField>CLIENTE</nameField>
+					<on-click navigate-to="lvl_aylwd6l">
+						<param id="CLIENTE">$CLIENTE</param>
+					</on-click>
+				</serie>
+			</series>
+		</chart>
+	</level>
+	<level id="lvl_aylwd6l" description="2o Nivel">
+		<args>
+			<arg id="CLIENTE" type="text"/>
+			<arg id="PROJETO" type="text"/>
+		</args>
+		<chart id="cht_aylwd6n" type="pizza">
+			<title>
+				<![CDATA[PROJETOS]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT PROJETO, COUNT(IDTAREFASTI) AS QTD FROM sankhya.AD_TAREFASTI WHERE ENTREGUEEM BETWEEN :DTINI AND :DTFIM AND CLIENTE = :CLIENTE GROUP BY PROJETO]]>
+			</expression>
+			<metadata>
+				<field name="PROJETO" label="PROJETO" type="S" visible="true" useFooter="false"/>
+				<field name="QTD" label="QTD" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<series>
+				<serie type="pizza">
+					<field>QTD</field>
+					<nameField>PROJETO</nameField>
+					<on-click navigate-to="lvl_aylwd6q">
+						<param id="CLIENTE">:CLIENTE</param>
+						<param id="PROJETO">:PROJETO</param>
+					</on-click>
+				</serie>
+			</series>
+		</chart>
+	</level>
+	<level id="lvl_aylwd6q" description="3o Nivel">
+		<args>
+			<arg id="CLIENTE" type="text"/>
+			<arg id="PROJETO" type="text"/>
+		</args>
+		<chart id="cht_aylwd6r" type="pizza">
+			<title>
+				<![CDATA[TIPO DE TAREFA]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT TIPODETAREFA, COUNT(IDTAREFASTI) AS QTD FROM sankhya.AD_TAREFASTI WHERE ENTREGUEEM BETWEEN :DTINI AND :DTFIM AND CLIENTE = :CLIENTE AND PROJETO = :PROJETO GROUP BY TIPODETAREFA]]>
+			</expression>
+			<metadata>
+				<field name="TIPODETAREFA" label="TIPODETAREFA" type="S" visible="true" useFooter="false"/>
+				<field name="QTD" label="QTD" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<series>
+				<serie type="pizza">
+					<field>QTD</field>
+					<nameField>TIPODETAREFA</nameField>
+					<on-click navigate-to="lvl_aylwd6l">
+						<param id="CLIENTE">:CLIENTE</param>
+						<param id="PROJETO"/>
+					</on-click>
+				</serie>
+			</series>
+		</chart>
+	</level>
+</gadget>

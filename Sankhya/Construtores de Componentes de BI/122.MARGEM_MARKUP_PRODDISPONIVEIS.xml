@@ -1,0 +1,41 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODLOJA" description="1. Loja" metadata="entity:LOJA@CODLOJA" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="MARCA" description="2. Marca" metadata="text" required="false" keep-last="true" keep-date="false"/>
+		<parameter id="MARKUP" description="3. Markup menor que" metadata="decimal" required="false" keep-last="false" keep-date="false" limit-char="4" precision="2"/>
+		<parameter id="MARGEM" description="Margem menor que" metadata="decimal" required="false" keep-last="false" keep-date="false" precision="2"/>
+	</prompt-parameters>
+	<level id="lvl_dfziur" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_dfzius">
+				<title>
+					<![CDATA[ANÁLISE DE MARGEM, MARKUP E ESTOQUE PARA A MARCA: $MARCA]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[select /* dados do produto*/ PRO.CODPROD AS CODIGO, RTRIM(DESCRPROD) AS DESCRICAO, ISNULL(RTRIM(COMPLDESC),'') AS COMPLEMENTO, RTRIM(MARCA) AS MARCA, CODVOL AS UNIDADE,  /* preços */ CASE WHEN sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) IS NULL THEN 0 ELSE sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) END AS preco_custo, CASE WHEN sankhya.PRECODEVENDA(PRO.CODPROD,CODVOL) IS NULL THEN 0 ELSE sankhya.PRECODEVENDA(PRO.CODPROD,CODVOL) END AS preco_venda, case when (sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) = 0 OR sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) is null) THEN 0 ELSE caSE WHEN sankhya.PRECODEVENDA(PRO.CODPROD,CODVOL) IS NULL THEN 0 ELSE sankhya.PRECODEVENDA(PRO.CODPROD,CODVOL)/sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) END END AS markup, CASE WHEN sankhya.PRECODEVENDA(PRO.CODPROD,CODVOL) IS NULL THEN 0 ELSE sankhya.PRECODEVENDA(PRO.CODPROD,CODVOL) END - CASE WHEN sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) IS NULL THEN 0 ELSE sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) END AS margem_contribuicao,  /* estoque */ isnull(est.ESTOQUE,0) as estoque_fisico, isnull(est.reservado,0) as reservado, isnull(est.ESTOQUE,0)-isnull(est.reservado,0) as saldo_real,  /* dados de vendas */ P.ATIVO AS liberado_venda_loja, isnull(pro.AD_PESTNEG,'N') as estoque_negativo, CASE WHEN sankhya.FN_ESTOQUE_INOVACAO(pro.codprod) IS NULL THEN 0 ELSE sankhya.FN_ESTOQUE_INOVACAO(pro.codprod)  END *(p.PESTTLOJA/100) as saldo_paraloja,   /* impostos */ CASE     WHEN PRO.GRUPOICMS IS NULL THEN 'Tributado Integralmente (18%)'    WHEN PRO.GRUPOICMS = 0 THEN 'Tributado Integralmente (18%)'    WHEN PRO.GRUPOICMS = 1 THEN 'Isento de ICMS na venda [Material Didático]'    WHEN PRO.GRUPOICMS = 2 THEN 'Isento de ICMS na venda [ST]'    WHEN PRO.GRUPOICMS = 3 THEN 'Isento de ICMS na venda [ST]'    ELSE 'Nao identificado'     END as DebitoICMS,  CASE   WHEN (PRO.GRUPOPIS = 'TODOS' and PRO.GRUPOCOFINS = 'TODOS') THEN 'Tributado PIS e COFINS (3.65%)'  WHEN (PRO.GRUPOPIS = 'ISENTO' AND PRO.GRUPOCOFINS = 'ISENTO') THEN 'Isento de PIS e COFINS'  ELSE 'Nao identificado' END as DebitoPISeCOFINS,  CASE WHEN (sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) IS NULL OR sankhya.PRECODEVENDA(PRO.CODPROD,CODVOL) IS NULL) THEN '#b35c00'  ELSE CASE WHEN (sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD) is null or sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD) <= 0) THEN '#ff1a1a'    ELSE '#FFFFFF' END END AS BKCOLOR,     CASE WHEN (sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) IS NULL OR sankhya.PRECODEVENDA(PRO.CODPROD,CODVOL) IS NULL) THEN '#FFFFFF'  ELSE CASE WHEN (sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD) is null or sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD) <= 0) THEN '#FFFFFF'    ELSE '#000000' END END AS FGCOLOR  from sankhya.TGFPRO PRO with(nolock) inner join sankhya.AD_PRODUTOLOJA P with(nolock) ON  CODLOJA = :CODLOJA AND P.CODPROD = PRO.CODPROD LEFT join sankhya.TGFEST EST with(nolock) ON EST.CODPROD = PRO.CODPROD  WHERE ((PRO.MARCA like '%' + :MARCA + '%' and :MARCA is not null) or :MARCA is null)      AND PRO.ATIVO = 'S' AND PRO.CODVOL != 'KT'  AND     case when (sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) = 0 OR sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) is null) THEN 0 ELSE caSE WHEN sankhya.PRECODEVENDA(PRO.CODPROD,CODVOL) IS NULL THEN 0 ELSE sankhya.PRECODEVENDA(PRO.CODPROD,CODVOL)/sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) END END < ISNULL(:MARKUP,999999) AND CASE WHEN sankhya.PRECODEVENDA(PRO.CODPROD,CODVOL) IS NULL THEN 0 ELSE sankhya.PRECODEVENDA(PRO.CODPROD,CODVOL) END - CASE WHEN sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) IS NULL THEN 0 ELSE sankhya.PRECODECUSTO(PRO.CODPROD,CODVOL) END < ISNULL(:MARGEM,999999999)      ]]>
+				</expression>
+				<metadata>
+					<field name="CODIGO" label="Codigo" type="I" visible="true" useFooter="false"/>
+					<field name="DESCRICAO" label="DESCRICAO" type="S" visible="true" useFooter="false"/>
+					<field name="COMPLEMENTO" label="COMPLEMENTO" type="S" visible="true" useFooter="false"/>
+					<field name="MARCA" label="Marca" type="S" visible="true" useFooter="false"/>
+					<field name="UNIDADE" label="UN" type="S" visible="true" useFooter="false"/>
+					<field name="preco_custo" label="Preco_Custo" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="preco_venda" label="Preco_Venda" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="markup" label="Markup" type="F" visible="true" useFooter="false" mask="###0,00;(-n)"/>
+					<field name="margem_contribuicao" label="Margem_Contribuicao" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="estoque_fisico" label="Estoque_Fisico" type="I" visible="true" useFooter="false"/>
+					<field name="reservado" label="Reservado" type="I" visible="true" useFooter="false"/>
+					<field name="saldo_real" label="Saldo_real" type="I" visible="true" useFooter="false"/>
+					<field name="liberado_venda_loja" label="Liberado_loja" type="S" visible="true" useFooter="false"/>
+					<field name="estoque_negativo" label="Estoque_negativo" type="S" visible="true" useFooter="false"/>
+					<field name="saldo_paraloja" label="Saldo_paraloja" type="I" visible="true" useFooter="false"/>
+					<field name="DebitoICMS" label="DebitoICMS" type="S" visible="true" useFooter="false"/>
+					<field name="DebitoPISeCOFINS" label="DebitoPISeCOFINS" type="S" visible="true" useFooter="false"/>
+					<field name="BKCOLOR" label="BKCOLOR" type="S" visible="false" useFooter="false"/>
+					<field name="FGCOLOR" label="FGCOLOR" type="S" visible="false" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,22 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_azcamam" description="Principal">
+		<grid id="grd_azcaman">
+			<title>
+				<![CDATA[TABELA ICMS - ITE]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT          CabecalhoNota.NUMNOTA,          CabecalhoNota.VLRNOTA,          SUM(ITE.BASEICMS) AS BASEICMS,          SUM(ITE.VLRICMS) AS VLRICMS FROM          TGFCAB CabecalhoNota      inner  join TGFITE ITE ON CabecalhoNota.NUNOTA = ITE.NUNOTA WHERE CabecalhoNota.TPAMBNFE = 1          AND CabecalhoNota.STATUSNFE = 'A'          AND CabecalhoNota.CODTIPOPER = 550          AND CabecalhoNota.DTNEG >= :DATA_INICIAL          AND CabecalhoNota.DTNEG <= :DATA_FINAL     AND ITE.CODVOL != 'KT' GROUP BY NUMNOTA,VLRNOTA]]>
+			</expression>
+			<metadata>
+				<field name="NUMNOTA" label="NUMNOTA" type="I" visible="true" useFooter="false"/>
+				<field name="VLRNOTA" label="VLRNOTA" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				<field name="BASEICMS" label="BASEICMS" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				<field name="VLRICMS" label="VLRICMS" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

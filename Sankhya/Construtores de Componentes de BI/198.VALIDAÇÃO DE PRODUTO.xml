@@ -1,0 +1,35 @@
+<gadget>
+	<level id="lvl_ardmtj2" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_ardmtj3">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CASE STATUS     WHEN 1 THEN 'EM PROCESSO COMERCIAL (1)'     WHEN 2 THEN 'FINALIZADO COMERCIAL (2)'     WHEN 3 THEN 'EM PROCESSO MARKETING (3)'     WHEN 4 THEN 'FINALIZADO MARKETING (4)'     WHEN 5 THEN 'REVISÃO COMERCIAL (5)'     WHEN 6 THEN 'EM PROCESSO ECOMMERCE (6)'     WHEN 7 THEN 'FINALIZADO ECOMMERCE (7)'     WHEN 8 THEN 'PRODUTO JÁ DISPONÍVEL (8)'    ELSE 'PRODUTO NÃO DISPONÍVEL'   END AS PROCESSO,   STATUS AS COD_STATUS,   COUNT(STATUS) AS 'QUANTIDADE' FROM SANKHYA.AD_VALPROD GROUP BY   CASE STATUS     WHEN 1 THEN 'EM PROCESSO COMERCIAL (1)'     WHEN 2 THEN 'FINALIZADO COMERCIAL (2)'     WHEN 3 THEN 'EM PROCESSO MARKETING (3)'     WHEN 4 THEN 'FINALIZADO MARKETING (4)'     WHEN 5 THEN 'REVISÃO COMERCIAL (5)'     WHEN 6 THEN 'EM PROCESSO ECOMMERCE (6)'     WHEN 7 THEN 'FINALIZADO ECOMMERCE (7)'     WHEN 8 THEN 'PRODUTO JÁ DISPONÍVEL (8)'    ELSE 'PRODUTO NÃO DISPONÍVEL'   END, STATUS]]>
+				</expression>
+				<metadata>
+					<field name="PROCESSO" label="Processo" type="S" visible="true" useFooter="false"/>
+					<field name="COD_STATUS" label="COD_STATUS" type="S" visible="false" useFooter="false"/>
+					<field name="QUANTIDADE" label="Quantidade" type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click navigate-to="lvl_ardmtj5">
+					<param id="COD_STATUS">$COD_STATUS</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_ardmtj5" description="Sessão">
+		<args>
+			<arg id="COD_STATUS" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_ardmtj6">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PROD.CODPROD AS CODPROD,   sankhya.FN_CONCATENANOMEPRODUTO(PROD.CODPROD) AS DESCRICAO FROM SANKHYA.AD_VALPROD AS VAL WITH (NOLOCK)   LEFT JOIN SANKHYA.TGFPRO AS PROD WITH (NOLOCK) ON VAL.CODPROD = PROD.CODPROD WHERE VAL.STATUS = :COD_STATUS]]>
+				</expression>
+				<metadata>
+					<field name="CODPROD" label="Codigto" type="I" visible="true" useFooter="false"/>
+					<field name="DESCRICAO" label="Descrição" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

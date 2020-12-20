@@ -1,0 +1,27 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_oxookg" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_oxookh">
+				<title>
+					<![CDATA[Relatório de Devoluções de Pedidos]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT ISNULL(upper(CAST(D.OBSERVACAO AS NVARCHAR(200))),'') AS OBSERVACAO,   FL.DATA AS DATA,   RTRIM(V.APELIDO) AS VENDEDOR,   V.AD_SETORVEND AS SETORVENDEDOR,   FL.NUNOTA,   P.VLRFRETE AS CUSTOFRETE,   CAB.VLRFRETE AS FRETECOBRADOCLIENTE FROM sankhya.AD_PEDIDOVTEXSC P WITH (NOLOCK)   INNER JOIN sankhya.AD_PEDIDOVTEXSCFLUXO FL WITH (NOLOCK) ON FL.ORDERID = P.ORDERID   INNER JOIN sankhya.TGFCAB CAB WITH (NOLOCK) ON CAB.AD_PEDORIGINAL = FL.PEDORIGINAL AND CAB.CODTIPOPER IN (500,501,502,503,515)   INNER JOIN sankhya.TGFVEN V WITH (NOLOCK) ON CAB.CODVEND = V.CODVEND   INNER JOIN sankhya.TGFCAB D WITH (NOLOCK) ON D.NUNOTA = FL.NUNOTA WHERE FL.OCORRENCIA = 'D'   AND FL.DATA >= :DTINI   AND FL.DATA <= DATEADD(DAY,1,:DTFIM)]]>
+				</expression>
+				<metadata>
+					<field name="OBSERVACAO" label="OBSERVACAO" type="S" visible="true" useFooter="false"/>
+					<field name="DATA" label="DATA" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					<field name="VENDEDOR" label="VENDEDOR" type="S" visible="true" useFooter="false"/>
+					<field name="SETORVENDEDOR" label="SETORVENDEDOR" type="S" visible="true" useFooter="false"/>
+					<field name="NUNOTA" label="PEDIDO" type="I" visible="true" useFooter="false"/>
+					<field name="CUSTOFRETE" label="CUSTOFRETE" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="FRETECOBRADOCLIENTE" label="FRETECOBRADOCLIENTE" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,94 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_ubwzmc" description="Principal">
+		<chart id="cht_ubwzmd" type="column" tamTexto="25">
+			<title>
+				<![CDATA[TAREFAS CRIADAS ENTRE :DTINI E :DTFIM]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[ SELECT      (CAST(YEAR(CRIADAEM) AS VARCHAR) +  '-' +     CASE WHEN MONTH(CRIADAEM) < 10 THEN '0'+CAST(MONTH(CRIADAEM) AS VARCHAR) ELSE CAST(MONTH(CRIADAEM) AS VARCHAR) END +  '-' +     CASE WHEN DAY(CRIADAEM) < 10 THEN '0'+CAST(DAY(CRIADAEM) AS VARCHAR) ELSE CAST(DAY(CRIADAEM) AS VARCHAR) END   ) AS DATA,          COUNT(IDTAREFASTI) AS QUANTIDADE  FROM          AD_TAREFASTI  WHERE CRIADAEM >= :DTINI          AND CRIADAEM <= :DTFIM  GROUP BY          (CAST(YEAR(CRIADAEM) AS VARCHAR) +  '-' +     CASE WHEN MONTH(CRIADAEM) < 10 THEN '0'+CAST(MONTH(CRIADAEM) AS VARCHAR) ELSE CAST(MONTH(CRIADAEM) AS VARCHAR) END +  '-' +     CASE WHEN DAY(CRIADAEM) < 10 THEN '0'+CAST(DAY(CRIADAEM) AS VARCHAR) ELSE CAST(DAY(CRIADAEM) AS VARCHAR) END   ) ORDER BY          (CAST(YEAR(CRIADAEM) AS VARCHAR) +  '-' +     CASE WHEN MONTH(CRIADAEM) < 10 THEN '0'+CAST(MONTH(CRIADAEM) AS VARCHAR) ELSE CAST(MONTH(CRIADAEM) AS VARCHAR) END +  '-' +     CASE WHEN DAY(CRIADAEM) < 10 THEN '0'+CAST(DAY(CRIADAEM) AS VARCHAR) ELSE CAST(DAY(CRIADAEM) AS VARCHAR) END   )]]>
+			</expression>
+			<metadata>
+				<field name="DATA" label="DATA" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+				<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<horizontal-axis>
+				<category field="DATA" rotation="67" dropLabel="false">
+					<title>Data</title>
+				</category>
+			</horizontal-axis>
+			<vertical-axis>
+				<linear>
+					<mask/>
+					<title>Quantidade</title>
+				</linear>
+			</vertical-axis>
+			<series>
+				<serie type="line" circle-intersection="true" show-tip="false">
+					<xField>$DATA</xField>
+					<yField>$QUANTIDADE</yField>
+					<display>Tarefas por data</display>
+					<color>0xcc3300</color>
+					<on-click navigate-to="lvl_ubwzmc"/>
+				</serie>
+			</series>
+			<legend position="top" direction="v"/>
+		</chart>
+	</level>
+	<level id="lvl_avdgcyf" description="2o Nivel">
+		<args>
+			<arg id="DATA" type="date"/>
+		</args>
+		<grid id="grd_avdgcyh">
+			<title>
+				<![CDATA[TAREFAS ENTREGUES PELA EQUIPE DIA :DATA]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT RESPONSAVEL, COUNT(IDTAREFASTI) AS QUANTIDADE from sankhya.AD_TAREFASTI  WHERE CAST(ENTREGUEEM AS DATE) = CAST(:DATA AS DATE) AND STATUS = 'ENTREGUE'  GROUP BY RESPONSAVEL]]>
+			</expression>
+			<metadata>
+				<field name="RESPONSAVEL" label="RESPONSAVEL" type="S" visible="true" useFooter="false"/>
+				<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="true"/>
+			</metadata>
+			<on-click navigate-to="lvl_avdgcyw">
+				<param id="DATA">:DATA</param>
+				<param id="RESPONSAVEL">$RESPONSAVEL</param>
+			</on-click>
+		</grid>
+		<grid id="grd_avdgcym">
+			<title>
+				<![CDATA[TAREFAS ABERTAS EM :DATA MAS AINDA PENDENTES]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT RESPONSAVEL, COUNT(IDTAREFASTI) QUANTIDADE from sankhya.AD_TAREFASTI  WHERE CAST(CRIADAEM AS DATE) >= CAST(:DATA AS DATE) AND CAST(CRIADAEM AS DATE) < DATEADD(DAY,1,CAST(:DATA AS DATE)) AND STATUS != 'ENTREGUE'  GROUP BY RESPONSAVEL]]>
+			</expression>
+			<metadata>
+				<field name="RESPONSAVEL" label="RESPONSAVEL" type="S" visible="true" useFooter="false"/>
+				<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="true"/>
+			</metadata>
+		</grid>
+	</level>
+	<level id="lvl_avdgcyw" description="3o Nivel">
+		<args>
+			<arg id="DATA" type="date"/>
+			<arg id="RESPONSAVEL" type="text"/>
+		</args>
+		<grid id="grd_avdgcyx">
+			<title>
+				<![CDATA[TAREFAS ENTREGUE EM :DATA PELO :RESPONSAVEL]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT RESPONSAVEL, CLIENTE, PROJETO, TAREFA from sankhya.AD_TAREFASTI  WHERE ENTREGUEEM = CAST(:DATA AS DATE) AND STATUS = 'ENTREGUE' AND RESPONSAVEL = :RESPONSAVEL]]>
+			</expression>
+			<metadata>
+				<field name="RESPONSAVEL" label="RESPONSAVEL" type="S" visible="true" useFooter="false"/>
+				<field name="CLIENTE" label="CLIENTE" type="S" visible="true" useFooter="false"/>
+				<field name="PROJETO" label="PROJETO" type="S" visible="true" useFooter="false"/>
+				<field name="TAREFA" label="TAREFA" type="S" visible="true" useFooter="false"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

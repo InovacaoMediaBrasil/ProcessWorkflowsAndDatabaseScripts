@@ -1,0 +1,47 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="false"/>
+		<parameter id="OPERACAO" description="Operacao" metadata="integer" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_yz10xk" description="Principal">
+		<chart id="cht_yz10xl" type="line">
+			<title>
+				<![CDATA[Vendas por Data]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[/* Gerada pelo SankhyaW QueryBuilder */ SELECT          SUM(CabecalhoNota.VLRNOTA) AS FATURAMENTO,          CabecalhoNota.DTNEG,          COUNT(CabecalhoNota.NUNOTA) AS PEDIDOS  FROM          TGFCAB CabecalhoNota  WHERE CabecalhoNota.CODTIPOPER = :OPERACAO          AND CabecalhoNota.DTNEG >= :DATA_INICIAL          AND CabecalhoNota.DTNEG <= :DATA_FINAL  GROUP BY          CabecalhoNota.DTNEG  ORDER BY          CabecalhoNota.DTNEG]]>
+			</expression>
+			<metadata>
+				<field name="FATURAMENTO" label="FATURAMENTO" type="F" visible="true" mask="R$ #.##0,00"/>
+				<field name="DTNEG" label="DTNEG" type="D" visible="true" mask="DD/MM/YYYY"/>
+				<field name="PEDIDOS" label="PEDIDOS" type="I" visible="true"/>
+			</metadata>
+			<horizontal-axis>
+				<category field="$DTNEG" rotation="0" dropLabel="false">
+					<title>Data</title>
+				</category>
+			</horizontal-axis>
+			<vertical-axis>
+				<linear>
+					<mask>R$ #.##0,00</mask>
+					<title>Faturamento</title>
+				</linear>
+			</vertical-axis>
+			<series>
+				<serie type="line" circle-intersection="true" show-tip="false">
+					<xField accumulated="true">DTNEG</xField>
+					<yField>FATURAMENTO</yField>
+					<display>Faturamento por Data</display>
+				</serie>
+				<serie type="line" circle-intersection="true">
+					<xField>DTNEG</xField>
+					<yField>PEDIDOS</yField>
+					<display>Quantidade Pedidos</display>
+					<color>0xff6600</color>
+				</serie>
+			</series>
+			<legend position="top" direction="v"/>
+		</chart>
+	</level>
+</gadget>

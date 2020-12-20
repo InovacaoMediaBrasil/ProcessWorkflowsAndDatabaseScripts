@@ -1,0 +1,38 @@
+<gadget refresh-time="60000">
+	<level id="lvl_mneydw" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_mneye8" type="line" tamTexto="12">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DATA AS DTNEG, SUM(QTD_FATURADO) AS QTD_FATURADO, SUM(QTD_IMPRESSO) AS QTD_IMPRESSO FROM (   SELECT CAST(DATA AS DATE) AS DATA, CAB.NUNOTA,   CASE WHEN OCORRENCIA = 'V' THEN 1 ELSE 0 END AS QTD_FATURADO,   CASE WHEN OCORRENCIA = 'I' THEN 1 ELSE 0 END AS QTD_IMPRESSO FROM sankhya.TGFCAB CAB WITH (NOLOCK) INNER JOIN sankhya.AD_PEDIDOVTEXSCFLUXO P WITH(NOLOCK) ON P.NUNOTA = CAB.NUNOTA WHERE CAST(DATA AS DATE) >= DATEADD(DAY,-15,GETDATE()) AND P.OCORRENCIA IN ('V','I')   UNION SELECT CAST(DATA AS DATE) AS DATA, CAB.NUNOTA,   CASE WHEN OCORRENCIA = 'V' THEN 1 ELSE 0 END AS QTD_FATURADO,   CASE WHEN OCORRENCIA = 'I' THEN 1 ELSE 0 END AS QTD_IMPRESSO FROM sankhya.TGFCAB CAB WITH (NOLOCK) INNER JOIN sankhya.AD_PEDIDOVTEXSCREENVIOFLUXO P WITH(NOLOCK) ON P.NUNOTA = CAB.NUNOTA WHERE CAST(DATA AS DATE) >= DATEADD(DAY,-15,GETDATE()) AND P.OCORRENCIA IN ('V','I') AND AD_BONIFICADO = 'S' ) PEDIDOS   GROUP BY DATA ORDER BY DATA desc]]>
+				</expression>
+				<metadata>
+					<field name="DTNEG" label="Data" type="D" visible="true" useFooter="false"/>
+					<field name="QTD_FATURADO" label="QTD_FATURADO" type="I" visible="true" useFooter="false"/>
+					<field name="QTD_IMPRESSO" label="QTD_IMPRESSO" type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<horizontal-axis>
+					<category field="DTNEG" rotation="-45" dropLabel="false"/>
+				</horizontal-axis>
+				<vertical-axis>
+					<linear resultRotation="0">
+						<mask/>
+					</linear>
+				</vertical-axis>
+				<series>
+					<serie type="line" circle-intersection="true">
+						<xField>$DTNEG</xField>
+						<yField>$QTD_FATURADO</yField>
+						<display>Faturamento</display>
+						<color>0x3366ff</color>
+					</serie>
+					<serie type="line" circle-intersection="true">
+						<xField>$DTNEG</xField>
+						<yField>$QTD_IMPRESSO</yField>
+						<display>Romaneios</display>
+						<color>0xcc0033</color>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,16 @@
+<gadget>
+	<level id="lvl_ax5p72d" description="Principal">
+		<grid id="grd_ax5p72e">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[DECLARE @CODPROD AS INT  SET @CODPROD = :CODPROD  SELECT C.NUNOTA,     I.CODPROD,      ISNULL(DESCRPROD + ' - ' + COMPLDESC, DESCRPROD) AS Produto,     SUM(I.QTDNEG) AS Quantidade,     SUM(I.VLRTOT) AS Custo           FROM TGFITE I  INNER JOIN TGFCAB C  ON C.NUNOTA = I.NUNOTA  INNER JOIN TGFPRO P ON P.CODPROD = I.CODPROD   WHERE DTNEG BETWEEN :DTINI AND :DTFIM  AND CODTIPOPER = 351  AND ((I.CODPROD = @CODPROD AND @CODPROD IS NOT NULL) OR I.CODPROD = I.CODPROD AND @CODPROD IS NULL)    GROUP BY C.NUNOTA, I.CODPROD, P.DESCRPROD, P.COMPLDESC]]>
+			</expression>
+			<metadata>
+				<field name="NUNOTA" label="NUNOTA" type="I" visible="true" useFooter="false"/>
+				<field name="CODPROD" label="CODPROD" type="I" visible="true" useFooter="false"/>
+				<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+				<field name="Quantidade" label="Quantidade" type="I" visible="true" useFooter="false"/>
+				<field name="Custo" label="Custo" type="I" visible="true" useFooter="false"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

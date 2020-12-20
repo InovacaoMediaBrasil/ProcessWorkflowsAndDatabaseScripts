@@ -1,0 +1,32 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="KIT" description="1. Código do Kit" metadata="integer" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_m3nzpo" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_m3nzpp" tamTexto="12">
+				<title>
+					<![CDATA[ITENS DO KIT]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PRO.CODPROD,   RTRIM(PRO.DESCRPROD)+' '+ isnull(RTRIM(PRO.COMPLDESC),'') AS produto,   ICP.AD_OBSERVACAO,   ICP.CODVOL,   ICP.QTDMISTURA AS QTDNOKIT,   ISNULL(PRO.AD_PESTNEG,'N') AS ESTOQUENEGATIVO,   ISNULL(EST.ESTOQUE,0) AS ESTOQUE,    ISNULL(EST.RESERVADO,0) AS RESERVADO,   ISNULL((EST.ESTOQUE-EST.RESERVADO), 0) AS SALDOTOTAL,   CASE WHEN ISNULL(PRO.AD_PESTNEG,'N') = 'S' THEN 1000 ELSE FLOOR(ISNULL((EST.ESTOQUE-EST.RESERVADO), 0) /QTDMISTURA) END AS SALDOPARAOKIT,   isnull(rtrim(pro.refforn),'') as refforn,   case when ISNULL(PRO.AD_PESTNEG,'N') = 'S' THEN '#000000' ELSE CASE WHEN   FLOOR(ISNULL((EST.ESTOQUE-EST.RESERVADO), 0) /QTDMISTURA) <= 0 then '#FF0000' ELSE '#000000' END END as FGCOLOR, FLOOR(ISNULL((EST.ESTOQUE-EST.RESERVADO), 0) /QTDMISTURA) AS SALDOPARAOKITREAL   FROM sankhya.TGFICP ICP WITH (NOLOCK)   INNER JOIN sankhya.TGFPRO PRO WITH (NOLOCK) ON ICP.CODMATPRIMA = PRO.CODPROD   LEFT JOIN sankhya.TGFEST EST WITH (NOLOCK) ON EST.CODPROD = PRO.CODPROD WHERE ICP.CODPROD =  :KIT]]>
+				</expression>
+				<metadata>
+					<field name="CODPROD" label="Código" type="I" visible="true" useFooter="false"/>
+					<field name="produto" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="AD_OBSERVACAO" label="Observação" type="S" visible="true" useFooter="false"/>
+					<field name="CODVOL" label="Unidade Padrão" type="S" visible="true" useFooter="false"/>
+					<field name="QTDNOKIT" label="Quant. no Kit" type="F" visible="true" useFooter="false"/>
+					<field name="ESTOQUENEGATIVO" label="Permite Estoq. Negativo" type="S" visible="true" useFooter="false"/>
+					<field name="ESTOQUE" label="Estoque Físico" type="F" visible="true" useFooter="false"/>
+					<field name="RESERVADO" label="Reservado" type="F" visible="true" useFooter="false"/>
+					<field name="SALDOTOTAL" label="Saldo Total do Item" type="F" visible="true" useFooter="false"/>
+					<field name="SALDOPARAOKIT" label="Saldo para o Kit" type="I" visible="true" useFooter="false"/>
+					<field name="refforn" label="Referência do Fornecedor" type="S" visible="true" useFooter="false"/>
+					<field name="FGCOLOR" label="FGCOLOR" type="S" visible="false" useFooter="false"/>
+					<field name="SALDOPARAOKITREAL" label="Saldo para o Kit (REAL)" type="I" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

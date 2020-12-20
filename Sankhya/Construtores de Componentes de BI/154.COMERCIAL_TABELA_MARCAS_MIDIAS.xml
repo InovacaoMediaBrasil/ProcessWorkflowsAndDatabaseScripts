@@ -1,0 +1,42 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+		<parameter id="CODPARC" description="3. Código do Parceiro" metadata="entity:Parceiro@CODPARC" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_a4zos8b" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_a4zos8c">
+				<title>
+					<![CDATA[EXIBIÇÃO DE MÍDIAS DO PARCEIRO $Parceiro ENTRE :DTINI E :DTFIM]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT A.CODIGO,   PA.NOMEPARC AS Parceiro,   OP.OPCAO AS Midia,   A.DATA AS Data,   CONVERT(VARCHAR(5),A.DATA,108) AS HoraInicial,   CONVERT(VARCHAR(5),A.DURACAO,108) AS HoraFinal,   A.STATUS AS Status,   O.OPCAO AS TipoCampanha,   P.NOMEPARC AS Artesao,   A.NOME_DO_PRODUTO as PecaPronta,   ISNULL(M.CITACAO,'NAO') AS Citacao,   ISNULL(M.QTDCITACAO,0) AS Qtd_Citacao,   ISNULL(M.venda,'NAO') Venda,   ISNULL(M.QTDVENDA,0) AS Qtd_Venda,   ISNULL(M.VISUALIZACAO,'NAO') AS Visualizacao,   ISNULL(M.QTDVISUALIZACAO,0) AS Qtd_Visualizacao,   ISNULL(M.BLOCOS,'Não Cadastrado') AS Blocos,   ISNULL(M.TEMPOEXIBICAO,0) AS TempoExibicao FROM sankhya.AD_AGENDAMIDIAS A WITH (NOLOCK)   INNER JOIN sankhya.AD_MARCASAGENDAMIDIAS M WITH (NOLOCK) ON M.CODIGO = A.CODIGO   INNER JOIN sankhya.TGFPAR P WITH (NOLOCK) ON P.CODPARC = A.CODPARC   INNER JOIN sankhya.tgfpar PA WITH (NOLOCK) on PA.codparc = M.CODPARC   INNER JOIN sankhya.TDDOPC O WITH (NOLOCK) ON O.VALOR = A.TIPOCAMPANHA   INNER JOIN sankhya.TDDOPC OP WITH (NOLOCK) ON OP.VALOR = A.MIDIA WHERE A.DATA >= :DTINI AND A.DATA <= DATEADD(DAY,1,:DTFIM)   AND ((:CODPARC <> 0 AND M.CODPARC = :CODPARC)     OR :CODPARC = 0)]]>
+				</expression>
+				<metadata>
+					<field name="CODIGO" label="CODIGO" type="I" visible="true" useFooter="false"/>
+					<field name="Parceiro" label="Parceiro" type="S" visible="true" useFooter="false"/>
+					<field name="Midia" label="Midia" type="S" visible="true" useFooter="false"/>
+					<field name="Data" label="Data" type="D" visible="true" useFooter="false"/>
+					<field name="HoraInicial" label="Hora Inicial" type="S" visible="true" useFooter="false"/>
+					<field name="HoraFinal" label="Hora Final" type="S" visible="true" useFooter="false"/>
+					<field name="Status" label="Status" type="S" visible="true" useFooter="false"/>
+					<field name="TipoCampanha" label="TipoCampanha" type="S" visible="true" useFooter="false"/>
+					<field name="Artesao" label="Artesao" type="S" visible="true" useFooter="false"/>
+					<field name="PecaPronta" label="PecaPronta" type="S" visible="true" useFooter="false"/>
+					<field name="Citacao" label="Citacao" type="S" visible="true" useFooter="false"/>
+					<field name="Qtd_Citacao" label="Qtd_Citacao" type="I" visible="true" useFooter="true"/>
+					<field name="Venda" label="Merchandising" type="S" visible="true" useFooter="false"/>
+					<field name="Qtd_Venda" label="Qtd_Venda" type="I" visible="false" useFooter="false"/>
+					<field name="Visualizacao" label="Visualizacao" type="S" visible="true" useFooter="false"/>
+					<field name="Qtd_Visualizacao" label="Qtd_Visualizacao" type="I" visible="true" useFooter="true"/>
+					<field name="Blocos" label="Blocos" type="S" visible="true" useFooter="false"/>
+					<field name="TempoExibicao" label="TempoExibicao" type="I" visible="true" useFooter="true"/>
+				</metadata>
+				<on-click-launcher resource-id="br.com.sankhya.menu.adicional.AGENDAMIDIAS">
+					<CODIGO>$codigo</CODIGO>
+				</on-click-launcher>
+			</grid>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,42 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATA_FIM" description="2, Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_n5jld3" description="Principal">
+		<simple-value id="svl_ajb251f" tamTexto="18">
+			<title>
+				<![CDATA[FRETE GRÁTIS DE :DATA_INI ATÉ :DATA_FIM]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[select COUNT(c.PEDORIGINAL) as Pedidos, SUM(c.VLRFRETE) as ValorFreteCorreios, AVG(c.VLRFRETE) as Media from sankhya.AD_PEDIDOVTEXSC C inner join sankhya.TGFCAB cab on cab.AD_PEDORIGINAL = c.PEDORIGINAL inner join  (select nunota, sum(PRO.PESOBRUTO) as peso from sankhya.TGFITE ITE inner join  sankhya.TGFPRO PRO ON ITE.CODPROD = pro.CODPROD where ITE.USOPROD = 'R' group by NUNOTA) ite on ite.NUNOTA = cab.NUNOTA inner join sankhya.AD_PEDIDOVTEXSCFLUXO f on f.OCORRENCIA = 'T' and f.PEDORIGINAL = c.PEDORIGINAL WHERE c.VLRFRETE is not null and cab.CODTIPOPER in (500,501,502,503,515) and f.DATA between :DATA_INI and :DATA_FIM and cab.VLRFRETE = 0]]>
+			</expression>
+			<metadata>
+				<field name="Pedidos" label="Pedidos" type="I" visible="true" useFooter="false"/>
+				<field name="ValorFreteCorreios" label="ValorFreteCorreios" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+				<field name="Media" label="Media" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+			</metadata>
+			<value-expression>
+				<![CDATA[ <b>Total de Pedidos:</b> $Pedidos <b>Valor Total Cobrado:</b> $ValorFreteCorreios <b>Média por pedido:</b> $Media]]>
+			</value-expression>
+		</simple-value>
+		<chart id="cht_ajb251y" type="pizza">
+			<title>
+				<![CDATA[Quantidade de Frete]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[select count(Pedido) as Quantidade, Frete as TipoFrete from (select c.PEDORIGINAL as Pedido,  case when cab.VLRFRETE = 0 then 'Frete Grátis' else 'Frete Cobrado' end as Frete from sankhya.AD_PEDIDOVTEXSC C with (NOLOCK) inner join sankhya.TGFCAB cab on cab.AD_PEDORIGINAL = c.PEDORIGINAL inner join  (select nunota, sum(PRO.PESOBRUTO) as peso from sankhya.TGFITE ITE with (NOLOCK) inner join  sankhya.TGFPRO PRO ON ITE.CODPROD = pro.CODPROD where ITE.USOPROD = 'R' group by NUNOTA) ite on ite.NUNOTA = cab.NUNOTA inner join sankhya.AD_PEDIDOVTEXSCFLUXO f on f.OCORRENCIA = 'T' and f.PEDORIGINAL = c.PEDORIGINAL WHERE c.VLRFRETE is not null and cab.CODTIPOPER in (500,501,502,503,515) and f.DATA between :DATA_INI and :DATA_FIM) p group by frete]]>
+			</expression>
+			<metadata>
+				<field name="Quantidade" label="Quantidade" type="I" visible="true" useFooter="false"/>
+				<field name="TipoFrete" label="TipoFrete" type="S" visible="true" useFooter="false"/>
+			</metadata>
+			<series>
+				<serie type="pizza">
+					<field>Quantidade</field>
+					<nameField>TipoFrete</nameField>
+				</serie>
+			</series>
+		</chart>
+	</level>
+</gadget>

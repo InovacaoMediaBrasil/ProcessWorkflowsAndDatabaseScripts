@@ -1,0 +1,24 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_s40l5u" description="Principal">
+		<chart id="cht_s40l5v" type="gauge" tamTexto="18">
+			<title>
+				<![CDATA[CHAMADOS REGISTRADOS NO PERÍODO]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT COUNT(CODCHAMADO) AS QTD FROM sankhya.AD_CHAMADOS WHERE DATA BETWEEN :DTINI AND :DTFIM  ]]>
+			</expression>
+			<metadata>
+				<field name="QTD" label="QTD" type="I" visible="true" useFooter="false" mask="###0"/>
+			</metadata>
+			<show-ticks>true</show-ticks>
+			<min-value>0</min-value>
+			<max-value>300</max-value>
+			<value-field>$QTD</value-field>
+			<alert-colors values="0,50,100,200,300" colors="0xcccc,0xff33,0xffcc00,0xff0000"/>
+		</chart>
+	</level>
+</gadget>

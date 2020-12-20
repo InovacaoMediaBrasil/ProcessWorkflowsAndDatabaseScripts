@@ -1,0 +1,20 @@
+<gadget>
+	<level id="lvl_pc0mmx" description="Principal">
+		<grid id="grd_pc0mm9">
+			<title>
+				<![CDATA[Ranking Top 15 - Itens mais valiosos no estoque]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[ SELECT top 15 CUS.CODPROD AS PROD, PRO.DESCRPROD, PRO.CODVOL, CUS.CUSREP AS CUST, EST.ESTOQUE AS EST, CONVERT(FLOAT(2),(CUS.CUSREP * EST.ESTOQUE)) AS VALOR FROM SANKHYA_PRODUCAO.sankhya.TGFCUS CUS INNER JOIN (SELECT DISTINCT TOP 100 PERCENT CODPROD, MAX(DTATUAL) AS DATA FROM SANKHYA_PRODUCAO.sankhya.TGFCUS GROUP BY CODPROD ORDER BY CODPROD) AS CUSTO ON CUSTO.CODPROD = CUS.CODPROD AND CUSTO.DATA = CUS.DTATUAL INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFEST EST ON CUS.CODPROD = EST.CODPROD INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFPRO PRO ON PRO.CODPROD = CUS.CODPROD WHERE CUS.CUSREP > 0 AND EST.ESTOQUE > 0 order by VALOR desc]]>
+			</expression>
+			<metadata>
+				<field name="PROD" label="PROD" type="I" visible="true"/>
+				<field name="DESCRPROD" label="DESCRPROD" type="S" visible="true"/>
+				<field name="CODVOL" label="CODVOL" type="S" visible="true"/>
+				<field name="CUST" label="CUST" type="I" visible="true" mask="R$ #.##0,00"/>
+				<field name="EST" label="EST" type="F" visible="true" mask="#.##0"/>
+				<field name="VALOR" label="VALOR" type="I" visible="true" mask="R$ #.##0,00"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

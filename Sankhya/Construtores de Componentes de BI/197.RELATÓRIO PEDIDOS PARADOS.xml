@@ -1,0 +1,53 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="NUNOTA" description="Expedição" metadata="integer" listType="sql" required="false" keep-last="false" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_ac4im60" description="Principal">
+		<container orientacao="H" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="50">
+				<grid id="grd_ac4im61">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT DISTINCT ITE.CODPROD AS CODPROD,   sankhya.FN_CONCATENANOMEPRODUTO(ITE.CODPROD) AS PRODUTO,   MIN(CONVERT(DATE, CAB.DTNEG)) AS DATAROMANEIO,   COUNT(1)  AS QTDROMANEIO,   SUM(ITE.QTDPROD) AS QTDPRODUTOS,   VEN.AD_CODAFILIADO FROM sankhya.AD_PEDIDOSPARADOS AS PED WITH (NOLOCK)   INNER JOIN sankhya.AD_ITEMPARADO AS ITE WITH (NOLOCK) ON ITE.NUNOTA = PED.NUNOTA   INNER JOIN sankhya.TGFCAB AS CAB WITH (NOLOCK) ON CAB.NUNOTA = PED.NUNOTA   INNER JOIN sankhya.TGFVEN AS VEN WITH (NOLOCK) ON VEN.CODVEND = CAB.CODVEND WHERE ((:NUNOTA >= 0 AND PED.NUNOTA = :NUNOTA) OR :NUNOTA IS NULL) GROUP BY sankhya.FN_CONCATENANOMEPRODUTO(ITE.CODPROD), ITE.CODPROD, VEN.AD_CODAFILIADO ORDER BY MIN(CONVERT(DATE, CAB.DTNEG)) DESC]]>
+					</expression>
+					<metadata>
+						<field name="CODPROD" label="CÓDIGO DO PRODUTO" type="I" visible="true" useFooter="false"/>
+						<field name="PRODUTO" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+						<field name="DATAROMANEIO" label="DATA MAIS ANTIGA" type="D" visible="true" useFooter="false"/>
+						<field name="QTDROMANEIO" label="QUANTIDADE DE ROMANEIOS" type="I" visible="true" useFooter="true"/>
+						<field name="QTDPRODUTOS" label="QUANTIDADE DE PRODUTOS" type="I" visible="true" useFooter="true"/>
+						<field name="AD_CODAFILIADO" label="MARKETPLACE" type="S" visible="true" useFooter="false"/>
+					</metadata>
+					<on-click navigate-to="lvl_aegl7gh">
+						<param id="CODPROD">$CODPROD</param>
+					</on-click>
+				</grid>
+			</container>
+		</container>
+	</level>
+	<level id="lvl_aegl7gh" description="Detalhe">
+		<args>
+			<arg id="CODPROD" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_aegl7gi">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PED.NUNOTA AS EXPEDICAO,   CAB.AD_PEDORIGINAL AS PEDIDOORIGINAL,   ITE.CODPROD AS CODPROD,   CODKIT AS CODKIT,   CONVERT(DATE, CAB.DTNEG) AS DATAROMANEIO,   sankhya.FN_CONCATENANOMEPRODUTO(ISNULL(CODKIT,0)) AS NOMEKIT,   SUM(QTDPROD) AS SOMA,   CAB.CODPARC,   VEN.AD_CODAFILIADO FROM sankhya.AD_PEDIDOSPARADOS PED WITH (NOLOCK)   INNER JOIN sankhya.AD_ITEMPARADO ITE WITH (NOLOCK) ON ITE.NUNOTA = PED.NUNOTA   INNER JOIN sankhya.TGFCAB CAB WITH (NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   INNER JOIN sankhya.TGFVEN VEN WITH (NOLOCK) ON VEN.CODVEND = CAB.CODVEND WHERE  ITE.CODPROD = :CODPROD   AND ((:NUNOTA >= 0 AND PED.NUNOTA = :NUNOTA) OR :NUNOTA is null) GROUP BY PED.NUNOTA, CODPROD, CODKIT, CAB.DTNEG, VEN.AD_CODAFILIADO, CAB.AD_PEDORIGINAL, CAB.CODPARC]]>
+				</expression>
+				<metadata>
+					<field name="EXPEDICAO" label="EXPEDICAO" type="I" visible="true" useFooter="false"/>
+					<field name="PEDIDOORIGINAL" label="PEDIDO ORIGINAL" type="I" visible="true" useFooter="false"/>
+					<field name="CODPROD" label="CODIGO DO PRODUTO" type="I" visible="true" useFooter="false"/>
+					<field name="CODKIT" label="CODIGO DO KIT" type="I" visible="true" useFooter="false"/>
+					<field name="DATAROMANEIO" label="DATA DO ROMANEIO" type="D" visible="true" useFooter="false"/>
+					<field name="NOMEKIT" label="NOME DO KIT" type="S" visible="true" useFooter="false"/>
+					<field name="SOMA" label="QUANTIDADE DE PRODUTOS" type="I" visible="true" useFooter="true"/>
+					<field name="CODPARC" label="CÓDIGO DO PARCEIRO" type="I" visible="true" useFooter="false"/>
+					<field name="AD_CODAFILIADO" label="MARKETPLACE" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click navigate-to="lvl_aegl7gh">
+					<param id="CODPROD"/>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+</gadget>

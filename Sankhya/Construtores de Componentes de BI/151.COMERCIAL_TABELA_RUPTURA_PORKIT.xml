@@ -1,0 +1,20 @@
+<gadget>
+	<level id="lvl_ay4exf1" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_ay4exf2">
+				<title>
+					<![CDATA[Relatório de Ruptura por Kit]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT PRO.CODPROD AS Codigo,   RTRIM(pro.DESCRPROD) + ' ' + RTRIM(ISNULL(PRO.COMPLDESC,'')) AS Produto,   PRO.CODVOL AS Unidade,   sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD) AS Saldo FROM sankhya.TGFPRO PRO WITH (NOLOCK)   INNER JOIN sankhya.AD_PRODUTOLOJA P WITH (NOLOCK) ON P.CODPROD = PRO.CODPROD WHERE PRO.ATIVO = 'S'   AND P.ATIVO = 'SIM'   AND CODVOL = 'KT'   AND (sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD) < 1.00)]]>
+				</expression>
+				<metadata>
+					<field name="Codigo" label="Codigo" type="I" visible="true" useFooter="false"/>
+					<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="Unidade" label="Unidade" type="S" visible="true" useFooter="false"/>
+					<field name="Saldo" label="Saldo" type="I" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

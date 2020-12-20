@@ -1,0 +1,20 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODPROD" description="Código do Produto" metadata="entity:Produto@CODPROD" required="true" keep-last="false" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_0gfzdl" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<simple-value id="svl_0gfzdm">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT RTRIM(RTRIM(DESCRPROD)+ ' ' + ISNULL(RTRIM(COMPLDESC),'')) + ' ['+ RTRIM(MARCA)+ ']' AS PRODUTO FROM sankhya.TGFPRO WITH(NOLOCK) WHERE CODPROD = :CODPROD]]>
+				</expression>
+				<metadata>
+					<field name="PRODUTO" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<value-expression>
+					<![CDATA[<div style='text-align: center;'><span style='font-size: 30px;'><b>$PRODUTO</b></span></div>]]>
+				</value-expression>
+			</simple-value>
+		</container>
+	</level>
+</gadget>

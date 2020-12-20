@@ -1,0 +1,36 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODKIT" description="Código do Kit:" metadata="integer" required="true" keep-last="false"/>
+		<parameter id="QTDKITS" description="Quantidade:" metadata="integer" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<local-vars>
+		<var id="NomeKit1">
+			<expression type="sql">
+				<![CDATA[SELECT    RTRIM(PRODUTOS.DESCRPROD) + ' - ' + RTRIM(PRODUTOS.COMPLDESC)    FROM SANKHYA.TGFPRO PRODUTOS WITH (NOLOCK)     WHERE PRODUTOS.CODPROD = :CODKIT]]>
+			</expression>
+		</var>
+	</local-vars>
+	<level id="lvl_a6uabic" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_a6uabid" tamTexto="12">
+				<title>
+					<![CDATA[Kit $NomeKit1]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PRO.CODPROD AS Codigo,   RTRIM(PRO.DESCRPROD) AS Produto,   RTRIM(PRO.COMPLDESC) AS Complemento,   PRO.REFFORN AS Referencia,   PRO.MARCA AS Marca,   ICP.CODVOL AS Unidade,   ICP.QTDMISTURA AS QuantidadePorKit,   ICP.QTDMISTURA * :QTDKITS AS QuantidadeCalculada FROM SANKHYA.TGFPRO PRO WITH(NOLOCK)   INNER JOIN SANKHYA.TGFICP ICP WITH(NOLOCK) ON ICP.CODMATPRIMA = PRO.CODPROD WHERE ICP.CODPROD = :CODKIT]]>
+				</expression>
+				<metadata>
+					<field name="Codigo" label="Codigo" type="I" visible="true" useFooter="false"/>
+					<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="Complemento" label="Complemento" type="S" visible="true" useFooter="false"/>
+					<field name="Referencia" label="Referencia" type="S" visible="true" useFooter="false"/>
+					<field name="Marca" label="Marca" type="S" visible="true" useFooter="false"/>
+					<field name="Unidade" label="Unidade" type="S" visible="true" useFooter="false"/>
+					<field name="QuantidadePorKit" label="QuantidadePorKit" type="F" visible="true" useFooter="false"/>
+					<field name="QuantidadeCalculada" label="QuantidadeCalculada" type="F" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click-launcher resource-id="br.com.sankhya.menu.adicional.nuDsb.42"/>
+			</grid>
+		</container>
+	</level>
+</gadget>

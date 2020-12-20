@@ -1,0 +1,52 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="DATA INICIAL" metadata="date" required="true" keep-last="true" keep-date="false" order="0"/>
+		<parameter id="DATA_FINAL" description="DATA FINAL" metadata="date" required="true" keep-last="true" keep-date="false" order="1"/>
+		<parameter id="CODTIPOPER" description="CÓDIGO DA OPERAÇÃO" metadata="integer" required="true" keep-last="false" keep-date="false" order="2"/>
+		<parameter id="PAGO" description="Pagamento efetuado" metadata="boolean" required="false" keep-last="false" order="2" keep-date="false" default="false"/>
+		<parameter id="NPAGO" description="Pagamento pendente" metadata="boolean" required="false" keep-last="false" order="2" keep-date="false" default="false"/>
+	</prompt-parameters>
+	<level id="lvl_5ibz7y" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_5ix3la">
+				<title>
+					<![CDATA[MÊS]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT sankhya.FN_CONCATENANOMEPRODUTO(ITE.CODPROD) AS DESCRPROD,   ITE.CODPROD       AS CODPROD,   SUM(QTDNEG)       AS QTDPROD,   SUM(ITE.VLRTOT-ITE.VLRDESC)        AS VLRTOT FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFITE ITE WITH (NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA WHERE CODTIPOPER = :CODTIPOPER   AND CAB.DTNEG >= :DATA_INICIAL   AND CAB.DTNEG <= :DATA_FINAL   AND ITE.CODPROD IN (SELECT CODPROD        FROM sankhya.AD_AGENDAMIDIAS AG WITH (NOLOCK)        WHERE AG.DATA IS NOT NULL        AND AG.DATA >= :DATA_INICIAL        AND AG.DATA <= :DATA_FINAL)   AND (((:PAGO = 'S' AND :NPAGO = 'N' AND AD_STATUSPGTO = 'E')    OR (:PAGO = 'N' AND :NPAGO = 'S' AND AD_STATUSPGTO = 'P'))    OR ((:PAGO = 'S' AND :NPAGO = 'S' AND AD_STATUSPGTO IN ('E','P'))    OR (:PAGO = 'N' AND :NPAGO = 'N' AND AD_STATUSPGTO IS NULL))) GROUP BY ITE.CODPROD,    sankhya.FN_CONCATENANOMEPRODUTO(ITE.CODPROD)]]>
+				</expression>
+				<metadata>
+					<field name="DESCRPROD" label="DESCRIÇÃO DO PRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="CODPROD" label="CÓDIGO DO PRODUTO" type="I" visible="true" useFooter="false"/>
+					<field name="QTDPROD" label="QUANTIDADE DO PRODUTO" type="I" visible="true" useFooter="false"/>
+					<field name="VLRTOT" label="VALOR TOTAL" type="C" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click navigate-to="lvl_5ix3k7">
+					<param id="CODPROD">$CODPROD</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_5ix3k7" description="DIA">
+		<args>
+			<arg id="CODPROD" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_5ix3k8">
+				<title>
+					<![CDATA[DIA]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CONVERT(DATE,DATA)   AS DATA,   COUNT(CODIGO)    AS QTD_MIDIAS,   (SELECT SUM(VLRTOT-VLRDESC)    FROM sankhya.TGFITE ITE WITH (NOLOCK)     INNER JOIN sankhya.TGFCAB CAB WITH (NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA    WHERE ITE.CODPROD = :CODPROD     AND CAB.DTNEG = CONVERT(DATE,DATA)     AND CODTIPOPER = :CODTIPOPER     AND (((:PAGO = 'S' AND :NPAGO = 'N' AND AD_STATUSPGTO = 'E')      OR (:PAGO = 'N' AND :NPAGO = 'S' AND AD_STATUSPGTO = 'P'))      OR ((:PAGO = 'S' AND :NPAGO = 'S' AND AD_STATUSPGTO IN ('E','P'))      OR (:PAGO = 'N' AND :NPAGO = 'N' AND AD_STATUSPGTO IS NULL)))) AS VLR_VENDIDO,   (SELECT SUM(QTDNEG)    FROM sankhya.TGFITE ITE WITH (NOLOCK)     INNER JOIN sankhya.TGFCAB CAB WITH (NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA    WHERE ITE.CODPROD = :CODPROD     AND CAB.DTNEG = CONVERT(DATE,DATA)     AND CODTIPOPER = :CODTIPOPER     AND (((:PAGO = 'S' AND :NPAGO = 'N' AND AD_STATUSPGTO = 'E')      OR (:PAGO = 'N' AND :NPAGO = 'S' AND AD_STATUSPGTO = 'P'))      OR ((:PAGO = 'S' AND :NPAGO = 'S' AND AD_STATUSPGTO IN ('E','P'))      OR (:PAGO = 'N' AND :NPAGO = 'N' AND AD_STATUSPGTO IS NULL)))) AS QTD_VENDIDA FROM sankhya.AD_AGENDAMIDIAS AG WITH (NOLOCK) WHERE CONVERT(DATE,DATA) >= :DATA_INICIAL   AND CONVERT(DATE,DATA) <= :DATA_FINAL   AND CODPROD = :CODPROD GROUP BY CONVERT(DATE,DATA)  UNION  SELECT DTNEG       AS DATA,   0        AS QTD_MIDIAS,   SUM(ITE.VLRTOT-ITE.VLRDESC)  AS VLR_VENDIDO,   SUM(ITE.QTDNEG)     AS QTD_VENDIDA FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFITE ITE WITH (NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA AND CODPROD = :CODPROD  WHERE DTNEG >= :DATA_INICIAL   AND DTNEG <= :DATA_FINAL   AND CODTIPOPER = :CODTIPOPER   AND DTNEG NOT IN (SELECT CONVERT(DATE,DATA)         FROM sankhya.AD_AGENDAMIDIAS WITH (NOLOCK)         WHERE CONVERT(DATE,DATA) >= :DATA_INICIAL         AND CONVERT(DATE,DATA) <= :DATA_FINAL         AND CODPROD = :CODPROD)   AND (((:PAGO = 'S' AND :NPAGO = 'N' AND AD_STATUSPGTO = 'E')    OR (:PAGO = 'N' AND :NPAGO = 'S' AND AD_STATUSPGTO = 'P'))    OR ((:PAGO = 'S' AND :NPAGO = 'S' AND AD_STATUSPGTO IN ('E','P'))    OR (:PAGO = 'N' AND :NPAGO = 'N' AND AD_STATUSPGTO IS NULL))) GROUP BY DTNEG]]>
+				</expression>
+				<metadata>
+					<field name="DATA" label="DATA" type="D" visible="true" useFooter="false"/>
+					<field name="QTD_MIDIAS" label="QTD_MIDIAS" type="I" visible="true" useFooter="true"/>
+					<field name="VLR_VENDIDO" label="VLR_VENDIDO" type="I" visible="true" useFooter="true"/>
+					<field name="QTD_VENDIDA" label="QTD_VENDIDA" type="I" visible="true" useFooter="true"/>
+				</metadata>
+				<on-click navigate-to="lvl_5ix3k7"/>
+			</grid>
+		</container>
+	</level>
+</gadget>

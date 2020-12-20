@@ -1,0 +1,40 @@
+<gadget refresh-time="60000">
+	<level id="lvl_mneydw" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_mneye0" type="column">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[  SELECT 'FATURAMENTO' AS FATURAMENTO, SUM(QTD_FATURAMENTO) AS NOTAS, 'ROMANEIOS' AS IMPRESSAO, SUM(QTD_ROMANEIOS) AS ROMANEIOS, 'NOTAS X ROMANEIOS' AS TIPO  FROM (  SELECT DISTINCT CAB.NUNOTA, CASE WHEN OCORRENCIA = 'I' THEN 1 ELSE 0 END AS QTD_ROMANEIOS, CASE WHEN OCORRENCIA = 'V' THEN 1 ELSE 0 END AS QTD_FATURAMENTO FROM sankhya.AD_PEDIDOVTEXSCFLUXO P WITH(NOLOCK) INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = P.NUNOTA WHERE CAST(DATA AS DATE) = CAST(GETDATE() AS DATE) AND OCORRENCIA IN ('I','V')  union SELECT DISTINCT CAB.NUNOTA, CASE WHEN OCORRENCIA = 'I' THEN 1 ELSE 0 END AS QTD_ROMANEIOS, CASE WHEN OCORRENCIA = 'V' THEN 1 ELSE 0 END AS QTD_FATURAMENTO FROM sankhya.AD_PEDIDOVTEXSCREENVIOFLUXO P WITH(NOLOCK) INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = P.NUNOTA and cab.AD_BONIFICADO = 'S' WHERE CAST(DATA AS DATE) = CAST(GETDATE() AS DATE) AND OCORRENCIA IN ('I','V')  ) DIARIO]]>
+				</expression>
+				<metadata>
+					<field name="FATURAMENTO" label="FATURAMENTO" type="S" visible="true" useFooter="false"/>
+					<field name="NOTAS" label="NOTAS" type="I" visible="true" useFooter="false"/>
+					<field name="IMPRESSAO" label="IMPRESSAO" type="S" visible="true" useFooter="false"/>
+					<field name="ROMANEIOS" label="ROMANEIOS" type="I" visible="true" useFooter="false"/>
+					<field name="TIPO" label="TIPO" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<horizontal-axis>
+					<category field="$" rotation="0" dropLabel="true"/>
+				</horizontal-axis>
+				<series>
+					<serie type="column">
+						<xField>$TIPO</xField>
+						<yField>$NOTAS</yField>
+						<display>
+							<![CDATA[NOTAS]]>
+						</display>
+						<color>0x66cc</color>
+					</serie>
+					<serie type="column">
+						<xField>$TIPO</xField>
+						<yField>$ROMANEIOS</yField>
+						<display>
+							<![CDATA[ROMANEIOS]]>
+						</display>
+						<color>0xff0033</color>
+					</serie>
+				</series>
+				<legend position="top" direction="v"/>
+			</chart>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,25 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODIGO" description="Código do Produto" metadata="integer" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_anz7ooj" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_anz7ook">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT TOPE.DESCROPER,    ITE.CODPROD,    CAB.NUNOTA,    CAB.AD_PEDORIGINAL,    CAB.DTNEG,    CASE AD_STATUSPGTO     WHEN 'P' THEN 'Pagamento Pendente'     WHEN 'E' THEN 'Pagamento Efetuado'    ELSE 'Nao Identificado' END   as Pagamento   FROM  sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFITE ITE WITH (NOLOCK) ON (ITE.NUNOTA = CAB.NUNOTA)   INNER JOIN sankhya.TGFTOP TOPE WITH (NOLOCK) ON (TOPE.CODTIPOPER = CAB.CODTIPOPER) WHERE ITE.CODPROD = :CODIGO   AND CAB.PENDENTE = 'S'   AND CAB.CODTIPOPER IN (500,501,502,503,504,505,515)]]>
+				</expression>
+				<metadata>
+					<field name="DESCROPER" label="Status Operação" type="S" visible="true" useFooter="false"/>
+					<field name="CODPROD" label="Código Produto" type="I" visible="true" useFooter="false"/>
+					<field name="NUNOTA" label="Nro. único" type="I" visible="true" useFooter="false"/>
+					<field name="AD_PEDORIGINAL" label="Pedido Original" type="I" visible="true" useFooter="false"/>
+					<field name="DTNEG" label="Data Operação" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					<field name="Pagamento" label="Pagamento" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click-launcher resource-id="br.com.sankhya.com.mov.CentralNotas">
+					<NUNOTA>$NUNOTA</NUNOTA>
+				</on-click-launcher>
+			</grid>
+		</container>
+	</level>
+</gadget>

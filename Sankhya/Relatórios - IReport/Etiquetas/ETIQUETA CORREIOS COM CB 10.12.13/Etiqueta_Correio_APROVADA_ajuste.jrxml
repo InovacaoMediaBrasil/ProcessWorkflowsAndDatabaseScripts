@@ -1,0 +1,386 @@
+﻿<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="Etiqueta_Cod_Barra_Correio_16.01_APROVADA_ajuste"
+		 columnCount="2"
+		 printOrder="Horizontal"
+		 orientation="Portrait"
+		 pageWidth="595"
+		 pageHeight="842"
+		 columnWidth="280"
+		 columnSpacing="18"
+		 leftMargin="8"
+		 rightMargin="8"
+		 topMargin="0"
+		 bottomMargin="6"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.zoom" value="2.0" />
+	<property name="ireport.x" value="0" />
+	<property name="ireport.y" value="462" />
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="java.lang.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="NUNOTA" isForPrompting="true" class="java.math.BigDecimal"/>
+	<parameter name="NUNOTAORIG" isForPrompting="true" class="java.math.BigDecimal"/>
+	<parameter name="PDIR_MODELO" isForPrompting="true" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["C:\\Sankhya\\Modelos\\"]]></defaultValueExpression>
+	</parameter>
+
+	<field name="CODPARC" class="java.math.BigDecimal"/>
+	<field name="NOMEPARC" class="java.lang.String"/>
+	<field name="NUNOTA" class="java.math.BigDecimal"/>
+	<field name="NUMNOTA" class="java.math.BigDecimal"/>
+	<field name="QTDVOL" class="java.math.BigDecimal"/>
+	<field name="RAZAOSOCIAL" class="java.lang.String"/>
+	<field name="TELEFONE" class="java.lang.String"/>
+	<field name="NUMEND" class="java.lang.String"/>
+	<field name="CEP" class="java.lang.String"/>
+	<field name="COMPLEMENTO" class="java.lang.String"/>
+	<field name="CAIXAPOSTAL" class="java.lang.String"/>
+	<field name="IDENTINSCESTAD" class="java.lang.String"/>
+	<field name="CGC_CPF" class="java.lang.String"/>
+	<field name="DTCAD" class="java.sql.Timestamp"/>
+	<field name="NOMECID" class="java.lang.String"/>
+	<field name="UF" class="java.lang.String"/>
+	<field name="NOMEEND" class="java.lang.String"/>
+	<field name="TIPO" class="java.lang.String"/>
+	<field name="NOMEBAI" class="java.lang.String"/>
+	<field name="CODREG" class="java.math.BigDecimal"/>
+	<field name="ENTREGA_NUM" class="java.lang.String"/>
+	<field name="ENTREGA_CEP" class="java.lang.String"/>
+	<field name="ENTREGA_COMPLEMENTO" class="java.lang.String"/>
+	<field name="ENTREGA_TIPO" class="java.lang.String"/>
+	<field name="ENTREGA_NOMEEND" class="java.lang.String"/>
+	<field name="ENTREGA_NOMEBAI" class="java.lang.String"/>
+	<field name="ENTREGA_NOMECID" class="java.lang.String"/>
+	<field name="ENTREGA_UF" class="java.lang.String"/>
+	<field name="RECEBE_NUM" class="java.lang.String"/>
+	<field name="RECEBE_COMPLEMENTO" class="java.lang.String"/>
+	<field name="RECEBE_CEP" class="java.lang.String"/>
+	<field name="RECEBE_TIPO" class="java.lang.String"/>
+	<field name="RECEBE_NOMEEND" class="java.lang.String"/>
+	<field name="RECEBE_NOMECID" class="java.lang.String"/>
+	<field name="RECEBE_UF" class="java.lang.String"/>
+	<field name="RECEBE_NOMEBAI" class="java.lang.String"/>
+	<field name="NOMECONTATO" class="java.lang.String"/>
+	<field name="CONTATO_NUM" class="java.lang.String"/>
+	<field name="CONTATO_COMPLEMENTO" class="java.lang.String"/>
+	<field name="CONTATO_CEP" class="java.lang.String"/>
+	<field name="CONTATO_TELEFONE" class="java.lang.String"/>
+	<field name="CONTATO_NOMEEND" class="java.lang.String"/>
+	<field name="CONTATO_TIPO" class="java.lang.String"/>
+	<field name="CONTATO_NOMEBAI" class="java.lang.String"/>
+	<field name="CONTATO_NOMECID" class="java.lang.String"/>
+	<field name="CONTATO_UF" class="java.lang.String"/>
+	<field name="EMP_RAZAOSOCIAL" class="java.lang.String"/>
+	<field name="EMP_TELEFONE" class="java.lang.String"/>
+	<field name="EMP_NOMEFANTASIA" class="java.lang.String"/>
+	<field name="EMP_NUMEND" class="java.lang.String"/>
+	<field name="EMP_EMAIL" class="java.lang.String"/>
+	<field name="EMP_NOMEEND" class="java.lang.String"/>
+	<field name="EMP_NOMEBAI" class="java.lang.String"/>
+	<field name="EMP_NOMECID" class="java.lang.String"/>
+	<field name="EMP_UF" class="java.lang.String"/>
+	<field name="TRANS_NOMEPARC" class="java.lang.String"/>
+	<field name="TRANS_RAZAOSOCIAL" class="java.lang.String"/>
+	<field name="TRANS_TELEFONE" class="java.lang.String"/>
+	<field name="AD_NUMETIQ" class="java.lang.String"/>
+	<field name="AD_DIGETIQ" class="java.lang.String"/>
+	<field name="AD_PAISETIQUETA" class="java.lang.String"/>
+	<field name="NUNOTAORIG" class="java.math.BigDecimal"/>
+	<field name="AD_PEDORIGINAL" class="java.lang.Integer"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="401"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="10"
+						y="167"
+						width="262"
+						height="22"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{NOMEPARC}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="10"
+						y="183"
+						width="262"
+						height="32"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{TIPO} + " " + 
+				$F{NOMEEND} + " " + 
+				( $F{NUMEND}.compareTo("0") == 0 ? 
+				"S/N" : $F{NUMEND}) + " " + 
+				($F{COMPLEMENTO} != null ? 
+				$F{COMPLEMENTO} : "" )]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="46"
+						y="230"
+						width="196"
+						height="23"
+						key="textField"/>
+					<box></box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="14" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{CEP}.substring(0,5) + "-" + $F{CEP}.substring(5,8)]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="10"
+						y="212"
+						width="262"
+						height="22"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font size="12"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{NOMEBAI} + " - " + $F{NOMECID} + " / " + $F{UF}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="10"
+						y="15"
+						width="28"
+						height="14"
+						key="staticText-3"/>
+					<box></box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Data]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="10"
+						y="29"
+						width="36"
+						height="14"
+						key="staticText-7"/>
+					<box></box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<text><![CDATA[Pedido]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="10"
+						y="153"
+						width="77"
+						height="14"
+						key="staticText-8"/>
+					<box></box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[Destinatário]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="10"
+						y="326"
+						width="77"
+						height="14"
+						key="staticText-9"/>
+					<box></box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" isBold="true"/>
+					</textElement>
+				<text><![CDATA[ Remetente]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="10"
+						y="339"
+						width="190"
+						height="14"
+						key="staticText-10"/>
+					<box></box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"CODVEND","TGFCAB","NUNOTA="+$F{NUNOTA}).compareTo("93") == 0 ?
+				" Artesanato Fast"  :
+				br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"CODVEND","TGFCAB","NUNOTA="+$F{NUNOTA}).compareTo("94") == 0 ?
+				" Tania Silva"  : 
+				" Vitrine do Artesanato"]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="10"
+						y="350"
+						width="190"
+						height="14"
+						key="staticText-11"/>
+					<box></box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<text><![CDATA[ Rua Itanhaém, 527]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="10"
+						y="362"
+						width="190"
+						height="14"
+						key="staticText-12"/>
+					<box></box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<text><![CDATA[ Vila Prudente - São Paulo / SP]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="10"
+						y="374"
+						width="190"
+						height="14"
+						key="staticText-13"/>
+					<box></box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica" isBold="false"/>
+					</textElement>
+				<text><![CDATA[ 03137-020]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern="dd/MM/yyyy" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="38"
+						y="15"
+						width="56"
+						height="14"
+						key="textField-5"/>
+					<box></box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="10" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="46"
+						y="63"
+						width="196"
+						height="18"
+						key="textField"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"AD_NUMETIQ","TGFCAB","NUNOTA=" + $F{NUNOTA})+
+				br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"AD_DIGETIQ","TGFCAB","NUNOTA=" + $F{NUNOTA})
+				+ br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"AD_PAISETIQUETA","TGFCAB","NUNOTA=" +
+				$F{NUNOTA})]]></textFieldExpression>
+				</textField>
+				<image  scaleImage="FillFrame" vAlign="Top" hAlign="Left" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="58"
+						y="253"
+						width="169"
+						height="72"
+						forecolor="#000000"
+						backcolor="#FFFFFF"
+						key="barcode-1"/>
+					<box></box>
+					<graphicElement stretchType="NoStretch" fill="Solid" />
+					<imageExpression class="java.awt.Image"><![CDATA[it.businesslogic.ireport.barcode.BcImage.getBarcodeImage(8,$F{CEP},false,false,null,0,0)]]></imageExpression>
+				</image>
+				<image  scaleImage="FillFrame" vAlign="Top" hAlign="Left" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						mode="Opaque"
+						x="17"
+						y="81"
+						width="250"
+						height="72"
+						forecolor="#000000"
+						backcolor="#FFFFFF"
+						key="barcode-1"/>
+					<box></box>
+					<graphicElement stretchType="NoStretch" fill="Solid" />
+					<imageExpression class="java.awt.Image"><![CDATA[it.businesslogic.ireport.barcode.BcImage.getBarcodeImage(6,br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"AD_NUMETIQ","TGFCAB","NUNOTA=" + $F{NUNOTA})+
+					br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"AD_DIGETIQ","TGFCAB","NUNOTA=" +
+					$F{NUNOTA}) +
+					br.com.sankhya.jasperfuncs.Funcoes.pdes($P{REPORT_CONNECTION},"AD_PAISETIQUETA","TGFCAB","NUNOTA=" + $F{NUNOTA}),false,false,null,0,0)]]></imageExpression> 				</image>
+				<image  evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="183"
+						y="8"
+						width="84"
+						height="53"
+						key="image"/>
+					<box></box>
+					<graphicElement stretchType="NoStretch"/>
+					<imageExpression class="java.lang.String"><![CDATA[br.com.sankhya.jasperfuncs.Funcoes.pdes(
+					$P{REPORT_CONNECTION},"AD_IDMOD","TGFCAB","NUNOTA="+$F{NUNOTA}).compareTo("4") == 0 ?
+					$P{PDIR_MODELO} + "SEDEX_C.jpg"  : 
+					br.com.sankhya.jasperfuncs.Funcoes.pdes(
+					$P{REPORT_CONNECTION},"AD_IDMOD","TGFCAB","NUNOTA="+$F{NUNOTA}).compareTo("3") == 0 ? 
+					$P{PDIR_MODELO} + "PAC_C.jpg"  : 
+					$P{PDIR_MODELO} + "E-SEDEX_C.jpg"]]></imageExpression>
+				</image>
+				<textField isStretchWithOverflow="false" pattern="###0" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="47"
+						y="29"
+						width="100"
+						height="14"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{NUNOTA}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

@@ -1,0 +1,35 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_s40l5u" description="Principal">
+		<chart id="cht_s40l6r" type="bar">
+			<title>
+				<![CDATA[Atendimento Equipe TI]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT NOME, COUNT(CODCHAMADO) AS QTD FROM sankhya.AD_CHAMADOS WHERE cast(DATA as date) >= :DTINI AND cast(data as date) <= :DTFIM GROUP BY NOME order by qtd desc]]>
+			</expression>
+			<metadata>
+				<field name="NOME" label="NOME" type="S" visible="true" useFooter="false"/>
+				<field name="QTD" label="QTD" type="I" visible="true" useFooter="false" mask="###0"/>
+			</metadata>
+			<horizontal-axis>
+				<linear>
+					<mask/>
+				</linear>
+			</horizontal-axis>
+			<vertical-axis>
+				<category field="" rotation="0" dropLabel="false"/>
+			</vertical-axis>
+			<series>
+				<serie type="bar">
+					<xField>$QTD</xField>
+					<yField>$NOME</yField>
+					<display>Cliente Interno</display>
+				</serie>
+			</series>
+		</chart>
+	</level>
+</gadget>

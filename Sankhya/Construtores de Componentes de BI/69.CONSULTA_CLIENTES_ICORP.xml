@@ -1,0 +1,49 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="NOME_CLIENTE" description="Nome do cliente" metadata="text" required="false" keep-last="false"/>
+		<parameter id="TELEFONE" description="Telefone" metadata="text" required="false" keep-last="false"/>
+		<parameter id="CPF" description="CPF" metadata="text" required="false" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_vdhuyy" description="Principal">
+		<simple-value id="svl_vdhuyz" tamTexto="18">
+			<title>
+				<![CDATA[CONSULTA DE CLIENTES XCOMPANY I-CORP]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT * FROM sankhya.AD_CLIENTESICORP where   (NOMECOMPLETO LIKE '%'+:NOME_CLIENTE+'%') OR ((TELEFONE1_NRO LIKE '%'+:TELEFONE+'%')  OR  (TELEFONE2_NRO LIKE '%'+:TELEFONE+'%')  OR  (TELEFONE3_NRO LIKE '%'+:TELEFONE+'%')) OR (CPF_CNPJ LIKE '%'+:CPF+'%')]]>
+			</expression>
+			<metadata>
+				<field name="CODIGOCLIENTE" label="CODIGOCLIENTE" type="I" visible="true" useFooter="false"/>
+				<field name="ATIVO" label="ATIVO" type="S" visible="true" useFooter="false"/>
+				<field name="NOMECOMPLETO" label="NOMECOMPLETO" type="S" visible="true" useFooter="false"/>
+				<field name="CPF_CNPJ" label="CPF_CNPJ" type="S" visible="true" useFooter="false"/>
+				<field name="RG" label="RG" type="S" visible="true" useFooter="false"/>
+				<field name="FISICO_JURIDICO" label="FISICO_JURIDICO" type="S" visible="true" useFooter="false"/>
+				<field name="TELEFONE1_TIPO" label="TELEFONE1_TIPO" type="S" visible="true" useFooter="false"/>
+				<field name="TELEFONE1_DDD" label="TELEFONE1_DDD" type="S" visible="true" useFooter="false"/>
+				<field name="TELEFONE1_NRO" label="TELEFONE1_NRO" type="S" visible="true" useFooter="false"/>
+				<field name="TELEFONE2_TIPO" label="TELEFONE2_TIPO" type="S" visible="true" useFooter="false"/>
+				<field name="TELEFONE2_DDD" label="TELEFONE2_DDD" type="S" visible="true" useFooter="false"/>
+				<field name="TELEFONE2_NRO" label="TELEFONE2_NRO" type="S" visible="true" useFooter="false"/>
+				<field name="TELEFONE3_TIPO" label="TELEFONE3_TIPO" type="S" visible="true" useFooter="false"/>
+				<field name="TELEFONE3_DDD" label="TELEFONE3_DDD" type="S" visible="true" useFooter="false"/>
+				<field name="TELEFONE3_NRO" label="TELEFONE3_NRO" type="S" visible="true" useFooter="false"/>
+				<field name="COMO_SOUBE" label="COMO_SOUBE" type="S" visible="true" useFooter="false"/>
+				<field name="EMAIL" label="EMAIL" type="S" visible="true" useFooter="false"/>
+				<field name="CEP" label="CEP" type="S" visible="true" useFooter="false"/>
+				<field name="LOGRADOURO" label="LOGRADOURO" type="S" visible="true" useFooter="false"/>
+				<field name="ENDERECO" label="ENDERECO" type="S" visible="true" useFooter="false"/>
+				<field name="NUMERO" label="NUMERO" type="S" visible="true" useFooter="false"/>
+				<field name="COMPLEMENTO" label="COMPLEMENTO" type="S" visible="true" useFooter="false"/>
+				<field name="BAIRRO" label="BAIRRO" type="S" visible="true" useFooter="false"/>
+				<field name="CIDADE" label="CIDADE" type="S" visible="true" useFooter="false"/>
+				<field name="ESTADO" label="ESTADO" type="S" visible="true" useFooter="false"/>
+				<field name="DATA_CADASTRO" label="DATA_CADASTRO" type="S" visible="true" useFooter="false"/>
+				<field name="DATA_NASCIMENTO" label="DATA_NASCIMENTO" type="S" visible="true" useFooter="false"/>
+			</metadata>
+			<value-expression>
+				<![CDATA[Código do Cliente: $CODIGOCLIENTE ($ATIVO) - Pessoa $FISICO_JURIDICO <hr> Nome :$NOMECOMPLETO CPF/CNPJ: $CPF_CNPJ RG/Inscrição: $RG E-mail: $EMAIL <hr> Telefone1: $TELEFONE1_TIPO $TELEFONE1_DDD $TELEFONE1_NRO Telefone2: $TELEFONE2_TIPO $TELEFONE2_DDD $TELEFONE2_NRO Telefone3: $TELEFONE3_TIPO $TELEFONE3_DDD $TELEFONE3_NRO <hr> Endereço: $LOGRADOURO $ENDERECO $NUMERO $COMPLEMENTO Bairro: $BAIRRO Cidade/UF: $CIDADE / $ESTADO CEP: $CEP <hr> Data de Cadastro: $DATA_CADASTRO Data de Aniversário: $DATA_NASCIMENTO Como soube: ]]>
+			</value-expression>
+		</simple-value>
+	</level>
+</gadget>

@@ -1,0 +1,15 @@
+<gadget>
+	<level id="lvl_10t8l7" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_10t8l8">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT VALOR AS OCORRENCIA, OPCAO AS DESCRICAO FROM sankhya.TDDOPC O WHERE O.NUCAMPO = (SELECT T.NUCAMPO FROM sankhya.TDDCAM T WHERE T.NOMETAB = 'AD_PEDIDOVTEXSCFLUXO' AND T.DESCRCAMPO = 'OCORRENCIA') ]]>
+				</expression>
+				<metadata>
+					<field name="OCORRENCIA" label="OCORRENCIA" type="S" visible="true" useFooter="false"/>
+					<field name="DESCRICAO" label="DESCRICAO" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

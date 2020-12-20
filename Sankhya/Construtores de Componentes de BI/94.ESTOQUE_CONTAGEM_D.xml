@@ -1,0 +1,44 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_395lgg" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_96cmpr">
+				<title>
+					<![CDATA[Produtos e Kits com D. sendo vendidos]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT PRO.CODPROD AS CODIGO_PRODUTO,   PRO.DESCRPROD   AS DESCRICAO_PRODUTO,   KIT.CODPROD    AS CODIGO_KIT,   KIT.DESCRPROD   AS DESCRICAO_KIT FROM sankhya.TGFPRO PRO WITH (NOLOCK)   INNER JOIN sankhya.TGFICP ICP WITH (NOLOCK) ON (ICP.CODMATPRIMA = PRO.CODPROD)   INNER JOIN sankhya.TGFPRO KIT WITH (NOLOCK) ON (ICP.CODPROD = KIT.CODPROD)   INNER JOIN sankhya.AD_PRODUTOLOJA P WITH (NOLOCK) ON (P.CODPROD = PRO.CODPROD)   INNER JOIN sankhya.AD_PRODUTOLOJA K WITH (NOLOCK) ON (K.CODPROD = KIT.CODPROD) WHERE (PRO.DESCRPROD LIKE 'D.%'   AND P.ATIVO = 'S'   AND (P.ATIVO = 'Sim'    OR pro.AD_UTITVENDA = 'S'))   OR (KIT.DESCRPROD LIKE 'D.%'    AND KIT.ATIVO = 'S'    AND (K.ATIVO = 'SIM'     OR KIT.AD_UTITVENDA = 'S'))]]>
+				</expression>
+				<metadata>
+					<field name="CODIGO_PRODUTO" label="CODIGO_PRODUTO" type="I" visible="true" useFooter="false"/>
+					<field name="DESCRICAO_PRODUTO" label="DESCRICAO_PRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="CODIGO_KIT" label="CODIGO_KIT" type="I" visible="true" useFooter="false"/>
+					<field name="DESCRICAO_KIT" label="DESCRICAO_KIT" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_395lgk" description="2o nivel">
+		<args>
+			<arg id="DTULTCONT" type="date"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_395lgl">
+				<title>
+					<![CDATA[Visualizando produtos contados em: $datacontagem]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT EST.CODPROD AS CODIGO,   (RTRIM(PRO.DESCRPROD) + CASE WHEN PRO.COMPLDESC IS NULL           THEN ''           ELSE ' ' + RTRIM(COMPLDESC)           END) AS NOMEPRODUTO,   CAST(EST.AD_DTULTCONT AS DATE) AS DATACONTAGEM FROM sankhya.TGFEST EST WITH (NOLOCK)   INNER JOIN sankhya.TGFPRO PRO WITH (NOLOCK) ON (PRO.CODPROD = EST.CODPROD) WHERE CAST(AD_DTULTCONT AS DATE) = CAST(:DTULTCONT AS DATE) ORDER BY CAST(EST.AD_DTULTCONT AS DATE)]]>
+				</expression>
+				<metadata>
+					<field name="CODIGO" label="CODIGO" type="I" visible="true" useFooter="false"/>
+					<field name="NOMEPRODUTO" label="NOMEPRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="DATACONTAGEM" label="DATACONTAGEM" type="D" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

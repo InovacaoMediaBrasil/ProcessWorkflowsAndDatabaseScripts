@@ -1,0 +1,36 @@
+.<gadget>
+	<prompt-parameters>
+		<parameter id="PRODUTO" description="1. Produto" metadata="text" required="false" keep-last="true"/>
+		<parameter id="COMPLEMENTO" description="2. Complemento" metadata="text" required="false" keep-last="true"/>
+		<parameter id="MARCA" description="3. Marca" metadata="text" required="false" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_n1mjkh" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_n1mjki">
+				<title>
+					<![CDATA[RELATÓRIO DE SORTIMENTO POR ITEM (SKU) - :PRODUTO :COMPLEMENTO :MARCA]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PRO.CODPROD,   RTRIM(PRO.DESCRPROD)+' '+ ISNULL(RTRIM(PRO.COMPLDESC),'') AS produto,   PRO.CODVOL,   PRO.MARCA,   ISNULL(PRO.AD_PESTNEG,'N') AS ESTOQUENEGATIVO,   ISNULL(PRO.ESTMIN,0) AS ESTOQUEMINIMO,   ISNULL(EST.ESTOQUE,0) AS ESTOQUEFISICO,   ISNULL(EST.RESERVADO,0) AS RESERVADO,   ISNULL((EST.ESTOQUE-est.RESERVADO),0) AS SALDO,   ISNULL(RTRIM(CONVERT (VARCHAR(11),H.DATACONT,103)),'Não Contado') AS DTULTIMACONTAGEM,   ISNULL(LOC.DESCRLOCAL,'Não Existe') AS LOCAL_PADRAO,   ISNULL(LOC2.ENDERECO_2,'Não Existe') AS LOCAL_SECUNDARIO,   ISNULL(L.ATIVO,'NÃO') AS LAVENDERE,   ISNULL(V.ATIVO,'NÃO') AS VITRINE,    ISNULL(T.ATIVO,'NÃO') AS TANIA FROM sankhya.TGFPRO PRO WITH(NOLOCK)   LEFT JOIN sankhya.TGFEST EST WITH(NOLOCK) ON EST.CODPROD = PRO.CODPROD   LEFT JOIN sankhya.AD_ESTHIST H WITH(NOLOCK) ON H.CODPROD = PRO.CODPROD AND H.DATACONT = (SELECT MAX(DATACONT)                         FROM sankhya.AD_ESTHIST                         WHERE CODPROD = PRO.CODPROD)   LEFT JOIN sankhya.AD_PRODUTOLOJA L WITH(NOLOCK) ON L.CODPROD = PRO.CODPROD AND L.CODLOJA = 0   LEFT JOIN sankhya.AD_PRODUTOLOJA V WITH(NOLOCK) ON V.CODPROD = PRO.CODPROD AND V.CODLOJA = 1   LEFT JOIN sankhya.AD_PRODUTOLOJA T WITH(NOLOCK) ON T.CODPROD = PRO.CODPROD AND T.CODLOJA = 3   LEFT JOIN sankhya.TGFLOC LOC WITH(NOLOCK) ON LOC.CODLOCAL = PRO.CODLOCALPADRAO   LEFT JOIN (SELECT CODPROD,        CASE WHEN MAX(CODLOC) IS NULL          THEN 'Não Existe'        ELSE 'Estoque 02'        END AS ENDERECO_2      FROM sankhya.AD_LOCSEC WITH(NOLOCK)      GROUP BY CODPROD) LOC2 ON LOC2.CODPROD = PRO.CODPROD WHERE PRO.ATIVO = 'S'   AND CODVOL != 'KT'   AND USOPROD = 'R'   AND PRO.CODGRUPOPROD NOT BETWEEN 200000 AND 499999   AND ISNULL(PRO.MARCA,'') LIKE '%'+ISNULL(:MARCA,'')+'%'   AND ISNULL(PRO.DESCRPROD,'') LIKE '%'+ISNULL(:PRODUTO,'')+'%'   AND ISNULL(PRO.COMPLDESC,'') LIKE '%'+ISNULL(:COMPLEMENTO,'')+'%']]>
+				</expression>
+				<metadata>
+					<field name="CODPROD" label="Código" type="I" visible="true" useFooter="false"/>
+					<field name="produto" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="CODVOL" label="UN" type="S" visible="true" useFooter="false"/>
+					<field name="MARCA" label="MARCA" type="S" visible="true" useFooter="false"/>
+					<field name="ESTOQUENEGATIVO" label="EstoqueNegativo?" type="S" visible="true" useFooter="false" mask="###0,00;-n"/>
+					<field name="ESTOQUEMINIMO" label="EstoqueMinimo" type="I" visible="true" useFooter="false" mask="###0,00;-n"/>
+					<field name="ESTOQUEFISICO" label="EstoqueFisico" type="F" visible="true" useFooter="false" mask="###0,00;-n"/>
+					<field name="RESERVADO" label="Reservado" type="F" visible="true" useFooter="false" mask="###0,00;-n"/>
+					<field name="SALDO" label="Saldo" type="F" visible="true" useFooter="false" mask="###0,00;-n"/>
+					<field name="DTULTIMACONTAGEM" label="DataUltimaContagem" type="S" visible="true" useFooter="false"/>
+					<field name="LOCAL_PADRAO" label="LOCAL_PADRAO" type="S" visible="true" useFooter="false"/>
+					<field name="LOCAL_SECUNDARIO" label="LOCAL_SECUNDARIO" type="S" visible="true" useFooter="false"/>
+					<field name="LAVENDERE" label="LojaLavendere" type="S" visible="true" useFooter="false"/>
+					<field name="VITRINE" label="LojaVitrine" type="S" visible="true" useFooter="false"/>
+					<field name="TANIA" label="LojaTania" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

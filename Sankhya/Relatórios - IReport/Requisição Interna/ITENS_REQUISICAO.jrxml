@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ITENS_REQUISICAO" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="6.276856753442055"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="11"/>
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="NUNOTA" class="java.math.BigDecimal" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[-- ITENS REQUISIÇÃO
+
+SELECT	ITE.CODPROD,
+		RTRIM(PRO.DESCRPROD) AS DESCRPROD,
+		RTRIM(PRO.COMPLDESC) AS COMPLDESC,
+		SUM(ITE.QTDNEG) AS QTDNEG,
+		ITE.CODVOL,
+		ICP.CODMATPRIMA,
+		ICP.CODVOL ICPCODVOL,
+		ICP.QTDMISTURA as QTDMISTURA,
+		ICP.AD_OBSERVACAO,
+		RTRIM(COM.DESCRPROD) COMDESCRPROD,
+		RTRIM(COM.COMPLDESC) COMCOMPLDESC,
+		CASE WHEN ITE.CODVOL = 'KT' THEN '' ELSE (CASE WHEN PRO.CODPROD IS NOT NULL THEN ISNULL(RTRIM(LOCKT.DESCRLOCAL), ISNULL(RTRIM(LSECD.DESCRLOCAL),''))
+													   ELSE ISNULL(RTRIM(LOCR.DESCRLOCAL), '')
+												  END)
+		END AS LOCAL_PRODUTO,
+		CASE WHEN COM.CODPROD IS NULL THEN '' ELSE ISNULL(RTRIM(LOCR.DESCRLOCAL),ISNULL(LSECR.DESCRLOCAL,'')) END AS LOCAL_COMPONENTE,
+		ISNULL(RTRIM(PRO.REFFORN),'') AS REFFORNPRO,
+		ISNULL(RTRIM(COM.REFFORN),'') AS REFFORNCOM,
+
+		CASE WHEN PRO.CODVOL = 'KT' THEN '' ELSE (CASE WHEN PRO.DESCRPROD = PRO.MARCA THEN '' ELSE (CASE WHEN PRO.DESCRPROD IS NULL THEN '' ELSE ISNULL(RTRIM(PRO.MARCA),'') END) END) END AS MARCAPRO,
+		CASE WHEN COM.DESCRPROD IS NULL THEN '' ELSE ISNULL(RTRIM(COM.MARCA),'') END AS MARCACOM
+FROM	sankhya.TGFITE ITE
+		INNER JOIN sankhya.TGFPRO PRO ON(ITE.CODPROD = PRO.CODPROD)
+		LEFT JOIN sankhya.TGFICP ICP ON(ITE.CODPROD = ICP.CODPROD)
+		LEFT JOIN sankhya.TGFPRO COM ON(ICP.CODMATPRIMA = COM.CODPROD)
+		LEFT JOIN sankhya.TGFLOC LOCR WITH(NOLOCK) ON COM.CODLOCALPADRAO = LOCR.CODLOCAL
+		LEFT JOIN sankhya.TGFLOC LOCD WITH(NOLOCK) ON PRO.CODLOCALPADRAO = LOCD.CODLOCAL
+		LEFT JOIN sankhya.TGFLOC LOCKT WITH(NOLOCK) ON PRO.CODLOCALPADRAO = LOCKT.CODLOCAL
+		LEFT JOIN (select CODPROD, MIN(CODLOC) AS CODLOC from sankhya.AD_LOCSEC WITH(NOLOCK) GROUP BY CODPROD) LOCSECR ON LOCSECR.CODPROD = COM.CODPROD
+		LEFT JOIN (select CODPROD, MIN(CODLOC) AS CODLOC from sankhya.AD_LOCSEC WITH(NOLOCK) GROUP BY CODPROD) LOCSECD ON LOCSECD.CODPROD = PRO.CODPROD
+		LEFT JOIN sankhya.TGFLOC LSECR WITH(NOLOCK) ON LSECR.CODLOCAL = LOCSECR.CODLOC
+		LEFT JOIN sankhya.TGFLOC LSECD WITH(NOLOCK) ON LSECD.CODLOCAL = LOCSECD.CODLOC
+WHERE	ITE.USOPROD = 'R' and
+		ITE.NUNOTA = $P{NUNOTA}
+GROUP BY
+		ITE.CODPROD,
+		RTRIM(PRO.DESCRPROD),
+		RTRIM(PRO.COMPLDESC),
+		ITE.CODVOL,
+		ICP.CODMATPRIMA,
+		ICP.CODVOL,
+		ICP.AD_OBSERVACAO,
+		RTRIM(COM.DESCRPROD),
+		RTRIM(COM.COMPLDESC),
+		ICP.QTDMISTURA,
+		ISNULL(RTRIM(PRO.REFFORN),''),
+		ISNULL(RTRIM(COM.REFFORN), ''),
+		CASE WHEN ITE.CODVOL = 'KT' THEN '' ELSE (CASE WHEN PRO.CODPROD IS NOT NULL THEN ISNULL(RTRIM(LOCKT.DESCRLOCAL), ISNULL(RTRIM(LSECD.DESCRLOCAL),''))
+													   ELSE ISNULL(RTRIM(LOCR.DESCRLOCAL), '')
+												  END)
+		END,
+		CASE WHEN COM.CODPROD IS NULL THEN '' ELSE ISNULL(RTRIM(LOCR.DESCRLOCAL),ISNULL(LSECR.DESCRLOCAL,'')) END,
+
+		CASE WHEN PRO.CODVOL = 'KT' THEN '' ELSE (CASE WHEN PRO.DESCRPROD = PRO.MARCA THEN '' ELSE (CASE WHEN PRO.DESCRPROD IS NULL THEN '' ELSE ISNULL(RTRIM(PRO.MARCA),'') END) END) END ,
+		CASE WHEN COM.DESCRPROD IS NULL THEN '' ELSE ISNULL(RTRIM(COM.MARCA),'') END]]>
+	</queryString>
+	<field name="CODPROD" class="java.lang.Integer"/>
+	<field name="DESCRPROD" class="java.lang.String"/>
+	<field name="COMPLDESC" class="java.lang.String"/>
+	<field name="QTDNEG" class="java.lang.Double"/>
+	<field name="CODVOL" class="java.lang.String"/>
+	<field name="CODMATPRIMA" class="java.lang.Integer"/>
+	<field name="ICPCODVOL" class="java.lang.String"/>
+	<field name="QTDMISTURA" class="java.lang.Double"/>
+	<field name="AD_OBSERVACAO" class="java.lang.String"/>
+	<field name="COMDESCRPROD" class="java.lang.String"/>
+	<field name="COMCOMPLDESC" class="java.lang.String"/>
+	<field name="LOCAL_PRODUTO" class="java.lang.String"/>
+	<field name="LOCAL_COMPONENTE" class="java.lang.String"/>
+	<field name="REFFORNPRO" class="java.lang.String"/>
+	<field name="REFFORNCOM" class="java.lang.String"/>
+	<field name="MARCAPRO" class="java.lang.String"/>
+	<field name="MARCACOM" class="java.lang.String"/>
+	<variable name="TOTAL_SERVICO" class="java.math.BigDecimal"/>
+	<variable name="TOTAL_PRODUTO" class="java.math.BigDecimal" calculation="Sum"/>
+	<variable name="DESCONTO_TOTAL" class="java.math.BigDecimal" calculation="Sum"/>
+	<variable name="VALOR_LIQUIDO" class="java.math.BigDecimal" calculation="Sum"/>
+	<group name="CODPROD">
+		<groupExpression><![CDATA[$F{CODPROD}]]></groupExpression>
+		<groupHeader>
+			<band height="18" splitType="Stretch">
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+					<reportElement key="textField" stretchType="RelativeToBandHeight" x="0" y="1" width="42" height="13"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Integer"><![CDATA[$F{CODPROD}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+					<reportElement key="textField" stretchType="RelativeToBandHeight" x="43" y="1" width="386" height="15"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{DESCRPROD}
+    + " "
+    + ($F{COMPLDESC} == null ? "" : $F{COMPLDESC})
+    + ($F{MARCAPRO} == null ? "" : (" - " + $F{MARCAPRO} + " ")).replace(" - "," ")
+    + (String.valueOf($F{CODVOL}) == "KT" ? "" :($F{REFFORNPRO} == null ? "" : ("- [" + $F{REFFORNPRO} + "]"))).replace("- []"," ")]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement key="textField" stretchType="RelativeToBandHeight" x="510" y="0" width="21" height="15"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{CODVOL}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="##" isBlankWhenNull="true">
+					<reportElement key="textField" stretchType="RelativeToBandHeight" x="531" y="1" width="28" height="14"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Integer"><![CDATA[$F{QTDNEG}.intValue()]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement key="line-1" x="0" y="1" width="1" height="14"/>
+				</line>
+				<line>
+					<reportElement key="line-2" x="42" y="1" width="1" height="15"/>
+				</line>
+				<line>
+					<reportElement key="line-3" x="509" y="1" width="1" height="15"/>
+				</line>
+				<line>
+					<reportElement key="line-4" x="531" y="1" width="1" height="15"/>
+				</line>
+				<line>
+					<reportElement key="line-9" x="559" y="0" width="1" height="15"/>
+				</line>
+				<line>
+					<reportElement key="line-11" x="0" y="15" width="560" height="1"/>
+				</line>
+				<line>
+					<reportElement key="line-23" x="0" y="0" width="560" height="1"/>
+				</line>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement key="textField" stretchType="RelativeToBandHeight" x="430" y="1" width="79" height="15"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[String.valueOf($F{CODVOL}) == "KT" ? "" : ($F{LOCAL_PRODUTO})]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement key="line-3" x="429" y="1" width="1" height="15"/>
+				</line>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band splitType="Stretch">
+				<line>
+					<reportElement key="line-27" x="0" y="-1" width="559" height="1"/>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="32" splitType="Stretch">
+			<rectangle radius="0">
+				<reportElement key="element-1" mode="Opaque" x="1" y="0" width="558" height="17" forecolor="#000000" backcolor="#EBEBEB"/>
+			</rectangle>
+			<staticText>
+				<reportElement key="staticText-1" x="0" y="17" width="42" height="15" forecolor="#000000"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[CÓD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-2" x="43" y="17" width="386" height="15" forecolor="#000000"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[DESCRIÇÃO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-3" x="510" y="17" width="21" height="15" forecolor="#000000"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[UN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-4" x="531" y="17" width="29" height="14" forecolor="#000000"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[QTD]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-12" stretchType="RelativeToBandHeight" x="42" y="18" width="1" height="14"/>
+			</line>
+			<line>
+				<reportElement key="line-13" stretchType="RelativeToBandHeight" x="509" y="17" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement key="line-14" stretchType="RelativeToBandHeight" x="531" y="17" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement key="line-19" x="559" y="17" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement key="line-21" x="0" y="17" width="1" height="15"/>
+			</line>
+			<staticText>
+				<reportElement key="staticText-3" x="430" y="18" width="79" height="14" forecolor="#000000"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="10" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[LOCAL]]></text>
+			</staticText>
+			<line>
+				<reportElement key="line-13" stretchType="RelativeToBandHeight" x="429" y="17" width="1" height="15"/>
+			</line>
+			<staticText>
+				<reportElement key="element-2" x="1" y="1" width="558" height="16" forecolor="#000000"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="12" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[PRODUTOS]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="11" splitType="Stretch">
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-2" stretchType="RelativeToBandHeight" x="1" y="0" width="41" height="11"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{CODMATPRIMA}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-3" stretchType="RelativeToBandHeight" x="43" y="0" width="386" height="11"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[($F{COMDESCRPROD} == null ? " " :
+    ($F{COMDESCRPROD} == null ? " " : $F{COMDESCRPROD} + " ")
+    + ($F{COMCOMPLDESC} == null ? " " : $F{COMCOMPLDESC} + " ")
+    + ($F{MARCACOM} == null ? " " : ("- " + $F{MARCACOM}).replace(" - "," "))
+    + ($F{AD_OBSERVACAO} == null ? " " : $F{AD_OBSERVACAO})
+    + ($F{REFFORNCOM} == null ? " " : (" - [" + $F{REFFORNCOM} + "]")))]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-5" stretchType="RelativeToBandHeight" x="510" y="0" width="21" height="11"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{ICPCODVOL}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-25" x="0" y="-13" width="1" height="24"/>
+			</line>
+			<line>
+				<reportElement key="line-26" x="559" y="-14" width="1" height="25"/>
+			</line>
+			<textField pattern="##" isBlankWhenNull="true">
+				<reportElement key="textField" x="531" y="0" width="28" height="11" isRemoveLineWhenBlank="true"/>
+				<textElement textAlignment="Center">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{QTDMISTURA}.intValue() * $F{QTDNEG}.intValue()]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-29" x="0" y="10" width="560" height="1"/>
+				<graphicElement fill="Solid">
+					<pen lineWidth="0.1" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement key="line-12" stretchType="RelativeToBandHeight" x="42" y="-13" width="1" height="24"/>
+			</line>
+			<line>
+				<reportElement key="line-12" stretchType="RelativeToBandHeight" x="509" y="-14" width="1" height="24"/>
+			</line>
+			<line>
+				<reportElement key="line-12" stretchType="RelativeToBandHeight" x="531" y="-14" width="1" height="25"/>
+			</line>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField-5" stretchType="RelativeToBandHeight" x="430" y="0" width="79" height="11"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{LOCAL_COMPONENTE}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-12" stretchType="RelativeToBandHeight" x="429" y="-14" width="1" height="25"/>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

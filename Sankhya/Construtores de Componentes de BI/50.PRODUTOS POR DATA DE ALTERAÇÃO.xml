@@ -1,0 +1,20 @@
+<gadget>
+	<level id="lvl_at122nd" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_at122ne">
+				<title>
+					<![CDATA[Últimos produtos alterados para VTEX]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT TOP 50 PRO.CODPROD,   (RTRIM(PRO.DESCRPROD) + ' ' +ISNULL(RTRIM(PRO.COMPLDESC),'')) AS PRODUTO,   M.DTMODIF AS DATA_DE_ALTERACAO,   CONVERT(nvarchar(8),M.DTMODIF,108) AS HORA FROM sankhya.TGFPRO PRO WITH (NOLOCK)   INNER JOIN sankhya.AD_MULTILOJA M WITH (NOLOCK) ON (M.CODPROD = PRO.CODPROD)   INNER JOIN sankhya.AD_PRODUTOLOJA P WITH (NOLOCK) ON (P.CODPROD = M.CODPROD) WHERE P.CODLOJA = 1 ORDER BY M.DTMODIF DESC]]>
+				</expression>
+				<metadata>
+					<field name="CODPROD" label="CODPROD" type="I" visible="true" useFooter="false"/>
+					<field name="PRODUTO" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="DATA_DE_ALTERACAO" label="DATA" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					<field name="HORA" label="HORA" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

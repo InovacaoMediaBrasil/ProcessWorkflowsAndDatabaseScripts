@@ -1,0 +1,32 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA1" description="1.Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATA2" description="2.Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_lqfmd2" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_lqfmd3">
+				<title>
+					<![CDATA[Pedidos de Patrocinio]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CAB.NUNOTA  AS NroUnico,   FIN.DTVENC  AS Vencimento,   CAB.NUMNOTA  AS Contrato,   PAR.NOMEPARC AS Cliente,    CASE AD_PROGRAMA    WHEN '1' THEN ('Arte Brasil')    WHEN '2' THEN ('Vitrine do Artesanato')    WHEN '3' THEN ('Vitrine do Artesanato na TV')    WHEN '4' THEN ('Vida com Arte')    WHEN '5' THEN ('Revista Idéias p/ Escola')    ELSE AD_PROGRAMA   END AS Depto,   PRO.DESCRPROD AS Produto,   CONVERT(VARCHAR(10),   ITE.AD_DATAENTR,103) AS Exibicao,   FIN.VLRDESDOB AS ValorFin,   ITE.VLRTOT / (SELECT COUNT(NUFIN)       FROM sankhya.TGFFIN FINA WITH (NOLOCK)       WHERE FINA.NUNOTA = CAB.NUNOTA) AS VlrProduto FROM sankhya.TGFCAB AS CAB WITH (NOLOCK),   sankhya.TGFFIN AS FIN WITH (NOLOCK),   sankhya.TGFITE AS ITE WITH (NOLOCK),   sankhya.TGFPAR AS PAR WITH (NOLOCK),   sankhya.TGFPRO AS PRO WITH (NOLOCK) WHERE ((CAB.NUNOTA = FIN.NUNOTA)    AND (CAB.NUNOTA = ITE.NUNOTA)    AND (CAB.CODPARC = PAR.CODPARC)    AND (ITE.CODPROD = PRO.CODPROD)   )   AND DTVENC BETWEEN :DATA1 AND :DATA2   AND CAB.CODTIPOPER = 506   AND CAB.STATUSNOTA = 'L'  ORDER BY CAB.NUMNOTA, FIN.DTVENC]]>
+				</expression>
+				<metadata>
+					<field name="NroUnico" label="Numero Unico" type="I" visible="true" useFooter="false"/>
+					<field name="Vencimento" label="Vencimento" type="D" visible="true" useFooter="false"/>
+					<field name="Contrato" label="Contrato" type="I" visible="true" useFooter="false"/>
+					<field name="Cliente" label="Cliente" type="S" visible="true" useFooter="false"/>
+					<field name="Depto" label="Departamento" type="S" visible="true" useFooter="false"/>
+					<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="Exibicao" label="Exibicao" type="S" visible="true" useFooter="false"/>
+					<field name="ValorFin" label="ValorFin" type="F" visible="true" useFooter="false"/>
+					<field name="VlrProduto" label="Valor" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click-launcher resource-id="br.com.sankhya.com.mov.CentralNotas">
+					<NUNOTA>$NroUnico</NUNOTA>
+				</on-click-launcher>
+			</grid>
+		</container>
+	</level>
+</gadget>

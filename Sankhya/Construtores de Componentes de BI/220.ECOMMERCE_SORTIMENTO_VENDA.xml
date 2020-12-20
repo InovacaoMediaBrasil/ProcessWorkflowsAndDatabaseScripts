@@ -1,0 +1,39 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="TOP" description="3. Operacao" metadata="multiList:Text" listType="text" required="true" keep-last="true" keep-date="false">
+			<item value="500 " label=" Ativo"/>
+			<item value="501 " label=" Receptivo"/>
+			<item value="502 " label=" Ecommerce"/>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_uou6gf" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_uou6gg">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PRO.CODPROD,   sankhya.FN_CONCATENANOMEPRODUTO(pro.codprod) AS produto,   PRO.CODVOL,   rtrim(PRO.MARCA) as marca,   ISNULL(PRO.AD_PESTNEG,'N') AS ESTOQUENEGATIVO,   ISNULL(PRO.ESTMIN,0) AS ESTOQUEMINIMO,   ISNULL(EST.ESTOQUE,0) AS ESTOQUEFISICO,   ISNULL(EST.RESERVADO,0) AS RESERVADO,   ISNULL((EST.ESTOQUE-est.RESERVADO),0) AS SALDO,   ISNULL(RTRIM(CONVERT (VARCHAR(11),H.DATACONT,103)),'Não Contado') AS DTULTIMACONTAGEM,   ISNULL(LOC.DESCRLOCAL,'Não Existe') AS LOCAL_PADRAO,   ISNULL(LOC2.ENDERECO_2,'Não Existe') AS LOCAL_SECUNDARIO,   ISNULL(L.ATIVO,'NÃO') AS LAVENDERE,   ISNULL(V.ATIVO,'NÃO') AS VITRINE,    ISNULL(T.ATIVO,'NÃO') AS TANIA,   SUM(ITE.VLRTOT-ITE.VLRDESC) AS VLR_VENDIDO,   SUM(ITE.QTDNEG) AS QTD_VENDIDA FROM sankhya.TGFPRO PRO WITH(NOLOCK)   INNER JOIN sankhya.TGFITE ITE WITH(NOLOCK) ON ITE.CODPROD = PRO.CODPROD   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA   LEFT JOIN sankhya.TGFEST EST WITH(NOLOCK) ON EST.CODPROD = PRO.CODPROD   LEFT JOIN sankhya.AD_ESTHIST H WITH(NOLOCK) ON H.CODPROD = PRO.CODPROD AND H.DATACONT = (SELECT MAX(DATACONT)                         FROM sankhya.AD_ESTHIST                         WHERE CODPROD = PRO.CODPROD)   LEFT JOIN sankhya.AD_PRODUTOLOJA L WITH(NOLOCK) ON L.CODPROD = PRO.CODPROD AND L.CODLOJA = 0   LEFT JOIN sankhya.AD_PRODUTOLOJA V WITH(NOLOCK) ON V.CODPROD = PRO.CODPROD AND V.CODLOJA = 1   LEFT JOIN sankhya.AD_PRODUTOLOJA T WITH(NOLOCK) ON T.CODPROD = PRO.CODPROD AND T.CODLOJA = 3   LEFT JOIN sankhya.TGFLOC LOC WITH(NOLOCK) ON LOC.CODLOCAL = PRO.CODLOCALPADRAO   LEFT JOIN (SELECT CODPROD,        CASE WHEN MAX(CODLOC) IS NULL          THEN 'Não Existe'        ELSE 'Estoque 02'        END AS ENDERECO_2      FROM sankhya.AD_LOCSEC WITH(NOLOCK)      GROUP BY CODPROD) LOC2 ON LOC2.CODPROD = PRO.CODPROD    WHERE PRO.ATIVO = 'S'   AND PRO.USOPROD = 'R' AND PRO.CODVOL != 'KT'   AND (CAB.CODTIPOPER IN :TOP)   AND CAB.DTNEG BETWEEN :DTINI AND :DTFIM   AND AD_STATUSPGTO = 'E'   AND (ISNULL((EST.ESTOQUE-est.RESERVADO),0) <= 0 AND ISNULL(PRO.AD_PESTNEG,'N') = 'N')    GROUP BY PRO.CODPROD,   sankhya.FN_CONCATENANOMEPRODUTO(pro.codprod),   PRO.CODVOL,   rtrim(PRO.MARCA),   ISNULL(PRO.AD_PESTNEG,'N'),   ISNULL(PRO.ESTMIN,0),   ISNULL(EST.ESTOQUE,0),   ISNULL(EST.RESERVADO,0),   ISNULL((EST.ESTOQUE-est.RESERVADO),0),   ISNULL(RTRIM(CONVERT (VARCHAR(11),H.DATACONT,103)),'Não Contado'),   ISNULL(LOC.DESCRLOCAL,'Não Existe'),   ISNULL(LOC2.ENDERECO_2,'Não Existe'),   ISNULL(L.ATIVO,'NÃO') ,   ISNULL(V.ATIVO,'NÃO'),    ISNULL(T.ATIVO,'NÃO')   UNION   SELECT PRO.CODPROD,   sankhya.FN_CONCATENANOMEPRODUTO(pro.codprod) AS produto,   PRO.CODVOL,   rtrim(PRO.MARCA) as marca,   ISNULL(PRO.AD_PESTNEG,'N') AS ESTOQUENEGATIVO,   0 AS ESTOQUEMINIMO,   0 AS ESTOQUEFISICO,   0 AS RESERVADO,   sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD) AS SALDO,   ISNULL(RTRIM(CONVERT (VARCHAR(11),H.DATACONT,103)),'---') AS DTULTIMACONTAGEM,   ISNULL(LOC.DESCRLOCAL,'---') AS LOCAL_PADRAO,   ISNULL(LOC2.ENDERECO_2,'---') AS LOCAL_SECUNDARIO,   ISNULL(L.ATIVO,'NÃO') AS LAVENDERE,   ISNULL(V.ATIVO,'NÃO') AS VITRINE,    ISNULL(T.ATIVO,'NÃO') AS TANIA,   SUM(ITE.VLRTOT-ITE.VLRDESC) AS VLR_VENDIDO,   SUM(ITE.QTDNEG) AS QTD_VENDIDA FROM sankhya.TGFPRO PRO WITH(NOLOCK)   INNER JOIN sankhya.TGFITE ITE WITH(NOLOCK) ON ITE.CODPROD = PRO.CODPROD   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA   LEFT JOIN sankhya.TGFEST EST WITH(NOLOCK) ON EST.CODPROD = PRO.CODPROD   LEFT JOIN sankhya.AD_ESTHIST H WITH(NOLOCK) ON H.CODPROD = PRO.CODPROD AND H.DATACONT = (SELECT MAX(DATACONT)                         FROM sankhya.AD_ESTHIST                         WHERE CODPROD = PRO.CODPROD)   LEFT JOIN sankhya.AD_PRODUTOLOJA L WITH(NOLOCK) ON L.CODPROD = PRO.CODPROD AND L.CODLOJA = 0   LEFT JOIN sankhya.AD_PRODUTOLOJA V WITH(NOLOCK) ON V.CODPROD = PRO.CODPROD AND V.CODLOJA = 1   LEFT JOIN sankhya.AD_PRODUTOLOJA T WITH(NOLOCK) ON T.CODPROD = PRO.CODPROD AND T.CODLOJA = 3   LEFT JOIN sankhya.TGFLOC LOC WITH(NOLOCK) ON LOC.CODLOCAL = PRO.CODLOCALPADRAO   LEFT JOIN (SELECT CODPROD,        CASE WHEN MAX(CODLOC) IS NULL          THEN 'Não Existe'        ELSE 'Estoque 02'        END AS ENDERECO_2      FROM sankhya.AD_LOCSEC WITH(NOLOCK)      GROUP BY CODPROD) LOC2 ON LOC2.CODPROD = PRO.CODPROD    WHERE PRO.ATIVO = 'S'   AND PRO.USOPROD = 'R' AND PRO.CODVOL = 'KT'   AND (CAB.CODTIPOPER IN :TOP)   AND CAB.DTNEG BETWEEN :DTINI AND :DTFIM   AND AD_STATUSPGTO = 'E'   AND (sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD) <= 0 AND ISNULL(PRO.AD_PESTNEG,'N') = 'N')      GROUP BY PRO.CODPROD,   sankhya.FN_CONCATENANOMEPRODUTO(pro.codprod),   PRO.CODVOL,   rtrim(PRO.MARCA) ,   ISNULL(PRO.AD_PESTNEG,'N'),   sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD),   ISNULL(RTRIM(CONVERT (VARCHAR(11),H.DATACONT,103)),'---') ,   ISNULL(LOC.DESCRLOCAL,'---') ,   ISNULL(LOC2.ENDERECO_2,'---') ,   ISNULL(L.ATIVO,'NÃO') ,   ISNULL(V.ATIVO,'NÃO') ,    ISNULL(T.ATIVO,'NÃO')]]>
+				</expression>
+				<metadata>
+					<field name="CODPROD" label="Código" type="I" visible="true" useFooter="false"/>
+					<field name="produto" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="CODVOL" label="UN" type="S" visible="true" useFooter="false"/>
+					<field name="marca" label="Marca" type="S" visible="true" useFooter="false"/>
+					<field name="ESTOQUENEGATIVO" label="Permite Vender Negativo" type="S" visible="true" useFooter="false"/>
+					<field name="ESTOQUEMINIMO" label="Est. Mínimo" type="I" visible="true" useFooter="false"/>
+					<field name="ESTOQUEFISICO" label="Estoque Físico" type="I" visible="true" useFooter="false"/>
+					<field name="RESERVADO" label="Reservado" type="I" visible="true" useFooter="false"/>
+					<field name="SALDO" label="Saldo" type="I" visible="true" useFooter="false"/>
+					<field name="DTULTIMACONTAGEM" label="Dt. Ult. Contagem" type="S" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					<field name="LOCAL_PADRAO" label="Local Padrão" type="S" visible="true" useFooter="false"/>
+					<field name="LOCAL_SECUNDARIO" label="Local Secundário" type="S" visible="true" useFooter="false"/>
+					<field name="LAVENDERE" label="Ativo WMW Vendas" type="S" visible="true" useFooter="false"/>
+					<field name="VITRINE" label="Ativo E-commerce" type="S" visible="true" useFooter="false"/>
+					<field name="TANIA" label="Ativo Tânia Silva" type="S" visible="true" useFooter="false"/>
+					<field name="VLR_VENDIDO" label="Valor Vendido" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="QTD_VENDIDA" label="Qtd Vendida" type="I" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

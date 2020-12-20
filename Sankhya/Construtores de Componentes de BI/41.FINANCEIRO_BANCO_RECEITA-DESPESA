@@ -1,0 +1,38 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA" description="Data" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_f1xa71" description="Principal">
+		<chart id="cht_f1xa72" type="column">
+			<title>
+				<![CDATA[Receitas - Despesas]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT distinct dhbaixa as DATA, (SELECT sum(VLRCHEQUE) FROM sankhya_producao.sankhya.TGFFIN  WHERE DHBAIXA = :DATA and CODCTABCOINT in (4,5,6,7,11,8,16) AND RECDESP = 1)  - (SELECT sum(VLRCHEQUE) FROM sankhya_producao.sankhya.TGFFIN  WHERE DHBAIXA = :DATA and CODCTABCOINT in (4,5,6,7,11,8,16) AND RECDESP = -1)     AS VALOR FROM sankhya_producao.sankhya.TGFFIN where dhbaixa = :DATA]]>
+			</expression>
+			<metadata>
+				<field name="DATA" label="DATA" type="D" visible="true" useFooter="false"/>
+				<field name="VALOR" label="VALOR" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+			</metadata>
+			<horizontal-axis>
+				<category field="" rotation="0" dropLabel="false">
+					<title>Data</title>
+				</category>
+			</horizontal-axis>
+			<vertical-axis>
+				<linear>
+					<mask>R$ #.##0,00</mask>
+					<title>Receita - Despesas</title>
+				</linear>
+			</vertical-axis>
+			<series>
+				<serie type="column">
+					<xField>$DATA</xField>
+					<yField>$VALOR</yField>
+					<display>Receita - Despesa</display>
+					<color>0xff6600</color>
+				</serie>
+			</series>
+		</chart>
+	</level>
+</gadget>

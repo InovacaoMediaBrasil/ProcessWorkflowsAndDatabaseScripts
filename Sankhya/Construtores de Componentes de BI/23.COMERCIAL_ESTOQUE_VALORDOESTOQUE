@@ -1,0 +1,20 @@
+<gadget>
+	<level id="lvl_pc0mmx" description="Principal">
+		<chart id="cht_pc0mmy" type="gauge">
+			<title>
+				<![CDATA[Valoração do estoque]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT SUM(CONVERT(FLOAT(2),(CUS.CUSREP * EST.ESTOQUE))) AS VALOR FROM SANKHYA_PRODUCAO.sankhya.TGFCUS CUS INNER JOIN (SELECT DISTINCT TOP 100 PERCENT CODPROD, MAX(DTATUAL) AS DATA FROM SANKHYA_PRODUCAO.sankhya.TGFCUS GROUP BY CODPROD ORDER BY CODPROD) AS CUSTO ON CUSTO.CODPROD = CUS.CODPROD AND CUSTO.DATA = CUS.DTATUAL INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFEST EST ON CUS.CODPROD = EST.CODPROD WHERE CUS.CUSREP > 0 AND EST.ESTOQUE > 0]]>
+			</expression>
+			<metadata>
+				<field name="VALOR" label="VALOR" type="I" visible="true" mask="R$ #.##0,00"/>
+			</metadata>
+			<show-ticks>true</show-ticks>
+			<min-value>0</min-value>
+			<max-value>2000000</max-value>
+			<value-field>$VALOR</value-field>
+			<alert-colors values="0,50000,200000,500000,750000,1000000,1500000,2000000" colors="0xcccccc,0x999999,0x666666,0x333333,0x0,0xff6600,0xff0000"/>
+		</chart>
+	</level>
+</gadget>

@@ -1,0 +1,33 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA" description="1. Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="DURACAO" description="2. Data Final" metadata="date" required="true" keep-last="true" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_u46nga" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_u46ngb">
+				<title>
+					<![CDATA[MÍDIAS ENTRE :DATA E :DURACAO]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT OP.OPCAO,   DATA,   CONVERT(VARCHAR(5),DATA,108) AS HORA,   CASE WHEN STATUS = 'P' THEN 'Planejada'     WHEN STATUS = 'R' THEN 'Realizada'     WHEN STATUS = 'G' THEN 'Gravado'     WHEN STATUS = 'E' THEN 'Exibido'   END AS STATUS,   PAR.NOMEPARC,   ISNULL(NOME_DO_PRODUTO,'') AS PAUTA,   ISNULL(CAST(M.CODPROD AS VARCHAR(6)),'') AS CODIGO,   ISNULL(RTRIM(RTRIM(PRO.DESCRPROD) + ' ' + RTRIM(ISNULL(PRO.COMPLDESC,''))),'<SEM PRODUTO>') AS PRODUTO,   ISNULL(PC.ATIVO,'') AS LIBERADO_CALLCENTER,   ISNULL(PL.ATIVO,'') AS LIBERADO_LOJAVIRTUAL,   ISNULL(CAST(sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD) AS VARCHAR(6)),'') AS SALDO,   CASE WHEN sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD) <= 1 THEN '#000000'   ELSE CASE WHEN (M.CODPROD IS NULL OR M.CODPROD = 0) THEN '#FFFFFF'   ELSE CASE WHEN (PC.ATIVO = 'N' OR PL.ATIVO = 'N') THEN '#FFFFFF' ELSE '#000000' END END END AS FGCOLOR,   CASE WHEN sankhya.FN_ESTOQUE_INOVACAO(PRO.CODPROD) < 1 THEN '#FFFB00'   ELSE CASE WHEN (M.CODPROD IS NULL OR M.CODPROD = 0) THEN '#FF0000'   ELSE CASE WHEN (PC.ATIVO = 'N' OR PL.ATIVO = 'N') THEN '#FF6600' ELSE '#FFFFFF' END END END AS BKCOLOR FROM sankhya.AD_AGENDAMIDIAS M WITH(NOLOCK)   INNER JOIN sankhya.TGFPAR PAR WITH(NOLOCK) ON PAR.CODPARC = M.CODPARC   INNER JOIN sankhya.TDDOPC O WITH(NOLOCK) ON O.VALOR = M.TIPOCAMPANHA   INNER JOIN sankhya.TDDOPC OP WITH(NOLOCK) ON OP.VALOR = M.MIDIA   LEFT JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON PRO.CODPROD = M.CODPROD   LEFT JOIN sankhya.AD_PRODUTOLOJA PC WITH(NOLOCK) ON PC.CODPROD = PRO.CODPROD AND PC.CODLOJA = 0   LEFT JOIN sankhya.AD_PRODUTOLOJA PL WITH(NOLOCK) ON PL.CODPROD = PRO.CODPROD AND PL.CODLOJA = 1 WHERE DATA >= :data   AND duracao < DATEADD(DAY,1,:duracao)   AND STATUS IN ('P','G','E')   AND TIPOCAMPANHA NOT IN ('PAR_ARTIST','MERCHAN')   AND (M.SEMPRODUTO IS NULL OR M.SEMPRODUTO = 'N') ORDER BY DATA]]>
+				</expression>
+				<metadata>
+					<field name="OPCAO" label="Mídia" type="S" visible="true" useFooter="false"/>
+					<field name="DATA" label="Data" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+					<field name="HORA" label="Hora" type="H" visible="true" useFooter="false"/>
+					<field name="STATUS" label="STATUS" type="S" visible="true" useFooter="false"/>
+					<field name="NOMEPARC" label="Artesão" type="S" visible="true" useFooter="false"/>
+					<field name="PAUTA" label="Pauta" type="S" visible="true" useFooter="false"/>
+					<field name="CODIGO" label="Código" type="I" visible="true" useFooter="false"/>
+					<field name="PRODUTO" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="LIBERADO_CALLCENTER" label="Liberado Call Center" type="S" visible="true" useFooter="false"/>
+					<field name="LIBERADO_LOJAVIRTUAL" label="Liberado E-commerce" type="S" visible="true" useFooter="false"/>
+					<field name="SALDO" label="Saldo" type="I" visible="true" useFooter="false"/>
+					<field name="FGCOLOR" label="FGCOLOR" type="S" visible="false" useFooter="false"/>
+					<field name="BKCOLOR" label="BKCOLOR" type="S" visible="false" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

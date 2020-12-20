@@ -1,0 +1,45 @@
+<gadget refresh-time="60000">
+	<prompt-parameters>
+		<parameter id="OPERACAO" description="Código da Operação" metadata="integer" required="true" keep-last="false"/>
+		<parameter id="DATA_INICIAL" description="Data" metadata="date" required="true" keep-last="false"/>
+		<parameter id="CODSUPERVISOR" description="Supervisor" metadata="singleList:Text" listType="sql" required="false" keep-last="false" keep-date="false">
+			<expression type="SQL">
+				<![CDATA[SELECT CODVEND AS VALUE, APELIDO AS LABEL FROM TGFVEN WHERE TIPVEND = 'S' OR CODVEND = 0]]>
+			</expression>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_yz10te" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_yz10tf" type="column">
+				<title>
+					<![CDATA[VENDEDORES]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT VENDEDOR.APELIDO AS VENDEDOR,    SUM(CabecalhoNota.VLRNOTA) AS VENDAS  FROM  sankhya.TGFCAB CabecalhoNota WITH (NOLOCK)   LEFT join sankhya.TGFVEN Vendedor WITH (NOLOCK) ON (Vendedor.CODVEND = CabecalhoNota.CODVEND) WHERE ((:CODSUPERVISOR <> 0 AND Vendedor.AD_CODSUPERVISOR = :CODSUPERVISOR)    OR :CODSUPERVISOR = 0)   AND CabecalhoNota.DTNEG = :DATA_INICIAL   AND CabecalhoNota.CODTIPOPER = :OPERACAO GROUP BY Vendedor.APELIDO ]]>
+				</expression>
+				<metadata>
+					<field name="VENDEDOR" label="VENDEDOR" type="S" visible="true" useFooter="false"/>
+					<field name="VENDAS" label="VENDAS" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+				<horizontal-axis>
+					<category field="" rotation="-45" dropLabel="false">
+						<title>VENDEDOR</title>
+					</category>
+				</horizontal-axis>
+				<vertical-axis>
+					<linear>
+						<mask>#.##0,00</mask>
+						<title>VENDAS</title>
+					</linear>
+				</vertical-axis>
+				<series>
+					<serie type="column">
+						<xField>VENDEDOR</xField>
+						<yField>VENDAS</yField>
+						<display>VENDAS</display>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

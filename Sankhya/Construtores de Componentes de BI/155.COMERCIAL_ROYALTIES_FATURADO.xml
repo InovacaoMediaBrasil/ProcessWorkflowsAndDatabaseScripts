@@ -1,0 +1,55 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATAINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATAFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<local-vars>
+		<var id="Nome">
+			<expression type="sql">
+				<![CDATA[ SELECT nomeparc   FROM  tgfpar par WITH (NOLOCK)  where codparc = :codparc]]>
+			</expression>
+		</var>
+	</local-vars>
+	<level id="lvl_awqbngv" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_aw3n00z">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT Codigo,   Parceiro,   SUM(ValorVendido) AS ValorVendido,   SUM(QuantidadeVendida) AS QuantidadeVendida,   SUM(ValorRoyaltie) AS Valor FROM (SELECT PAR.CODPARC AS Codigo,     PAR.NOMEPARC AS Parceiro,     SUM(ITE.VLRTOT) AS ValorVendido,      SUM(ITE.QTDNEG) AS QuantidadeVendida,     case       WHEN prod.ad_tipcalc = '01 - %' THEN sum(ite.vlrtot) * (prod.ad_vcomaut / 100)      WHEN prod.ad_tipcalc like '02%' THEN sum(ite.qtdneg) * (prod.ad_vcomaut)     ELSE ''     END AS ValorRoyaltie   FROM sankhya.TGFCAB CAB WITH (NOLOCK)     INNER JOIN sankhya.TGFITE ITE WITH (NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA      INNER JOIN sankhya.TGFPRO PROD WITH (NOLOCK) ON PROD.CODPROD = ITE.CODPROD     INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON PAR.CODPARC = PROD.AD_CODPARC   WHERE CAB.DTNEG BETWEEN :DATAINI AND :DATAFIM      AND PROD.AD_CALCCOMAUT = 'S'     AND CAB.CODPARC != PROD.AD_CODPARC     AND ((CAB.CODTIPOPER IN (550,562)      AND CAB.AD_STATUSPGTO = 'E' )      OR (CAB.CODTIPOPER IN (556,562)     AND CAB.AD_STATUSPGTO IS NULL)      )     AND (CAB.AD_BONIFICADO IS NULL OR CAB.AD_BONIFICADO = 'N')   GROUP BY PAR.CODPARC, AD_TIPCALC, AD_VCOMAUT, PAR.NOMEPARC   ) AS Interna  GROUP BY Codigo, Parceiro ORDER BY Parceiro]]>
+				</expression>
+				<metadata>
+					<field name="Codigo" label="Codigo" type="I" visible="true" useFooter="false"/>
+					<field name="Parceiro" label="Parceiro" type="S" visible="true" useFooter="false"/>
+					<field name="ValorVendido" label="Valor Vendido" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="QuantidadeVendida" label="Quantidade Vendida" type="I" visible="true" useFooter="false"/>
+					<field name="Valor" label="Valor de Royalties" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click navigate-to="lvl_aw3n00v">
+					<param id="CODPARC">$Codigo</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_aw3n00v" description="DETALHADO">
+		<args>
+			<arg id="CODPARC" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_ammmz6l">
+				<title>
+					<![CDATA[$Nome]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT ITE.CODPROD AS CodProduto,   DESCRPROD + ISNULL(COMPLDESC, '') AS Produto,   CAST(SUM(ITE.QTDNEG) AS VARCHAR) + ' ' + PROD.CODVOL AS QuantidadeVenda,   SUM(ITE.VLRTOT) AS ValorVendido,   CASE PROD.AD_TIPCALC    WHEN '02 - $' THEN 'Valor(R$) ' +' ' + CAST(PROD.AD_VCOMAUT AS VARCHAR)    WHEN '01 - %' THEN 'Porcentagem(%)' + ' ' + CAST(PROD.AD_VCOMAUT AS VARCHAR)    ELSE ''   END AS TipoRoyaltie,   CASE WHEN PROD.AD_TIPCALC = '01 - %' THEN SUM(ITE.VLRTOT) * (PROD.AD_VCOMAUT / 100)     WHEN PROD.AD_TIPCALC like '02%' THEN SUM(ITE.QTDNEG) * (PROD.AD_VCOMAUT)   ELSE ''   END AS ValorRoyaltie FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFITE ITE WITH (NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA   INNER JOIN sankhya.TGFPRO PROD WITH (NOLOCK) ON PROD.CODPROD = ITE.CODPROD   INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON PAR.CODPARC = PROD.AD_CODPARC WHERE CAB.DTNEG BETWEEN :DATAINI AND :DATAFIM   AND PROD.AD_CALCCOMAUT = 'S'   AND PAR.CODPARC = :CODPARC   AND ((CAB.CODTIPOPER IN(550,562) AND CAB.AD_STATUSPGTO = 'E')    OR (CAB.CODTIPOPER = 556     AND CAB.AD_STATUSPGTO IS NULL)    )   AND (CAB.AD_BONIFICADO IS NULL OR CAB.AD_BONIFICADO = 'N') GROUP BY ITE.CODPROD, DESCRPROD, COMPLDESC, AD_CODPARC, AD_TIPCALC, AD_VCOMAUT, PROD.CODVOL]]>
+				</expression>
+				<metadata>
+					<field name="CodProduto" label="CodProduto" type="I" visible="true" useFooter="false"/>
+					<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="QuantidadeVenda" label="QuantidadeVenda" type="S" visible="true" useFooter="false"/>
+					<field name="ValorVendido" label="ValorVendido" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="TipoRoyaltie" label="TipoRoyaltie" type="S" visible="true" useFooter="false"/>
+					<field name="ValorRoyaltie" label="ValorRoyaltie" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

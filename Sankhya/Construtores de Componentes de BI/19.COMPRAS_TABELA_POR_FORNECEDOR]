@@ -1,0 +1,79 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATA_FINAL" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+		<parameter id="PARCEIRO" description="Fornecedor" metadata="entity:Parceiro@CODPARC" required="false" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_52zagu" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_52zagv">
+				<title>
+					<![CDATA[Compras no período de :DATA_INICIAL  até :DATA_FINAL]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PAR.CODPARC,   ISNULL(PAR.RAZAOSOCIAL, PAR.NOMEPARC) AS PARCEIRO,   SUM(CAB.VLRNOTA) as ValorComprado FROM sankhya.TGFCAB CAB  with(nolock)   INNER JOIN sankhya.TGFPAR PAR with(nolock) ON PAR.CODPARC = CAB.CODPARC WHERE DTNEG >= :DATA_INICIAL   AND DTNEG <= :data_final   AND CODTIPOPER IN (100,                         101,                         102,                         103,                         104,                         105,                         106,                         107,                         108,                         109,                         110,                         111)   AND PAR.CODPARC = CASE WHEN :PARCEIRO IS NOT NULL THEN :PARCEIRO    ELSE PAR.CODPARC     END GROUP BY PAR.CODPARC, PAR.RAZAOSOCIAL, PAR.NOMEPARC ORDER BY VALORCOMPRADO DESC]]>
+				</expression>
+				<metadata>
+					<field name="CODPARC" label="Código Parceiro" type="I" visible="true" useFooter="false"/>
+					<field name="PARCEIRO" label="Parceiro" type="S" visible="true" useFooter="false"/>
+					<field name="ValorComprado" label="Valor Comprado" type="C" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click navigate-to="lvl_52zag5">
+					<param id="CODPARC">$CODPARC</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_52zag5" description="Fornecedor">
+		<args>
+			<arg id="CODPARC" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_a1lktlv">
+				<title>
+					<![CDATA[Compras no período de :DATA_INICIAL  até :DATA_FINAL]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT SUM(COMPRAS.VALORTOT) as VALORCOMPRADO, MES, ANO FROM (SELECT   SUM(VLRNOTA) AS VALORTOT,   PAR.CODPARC AS NOMEPARC,   MONTH(DTNEG) AS MES,   YEAR(DTNEG) AS ANO FROM TGFCAB CAB   JOIN TGFPAR PAR ON (PAR.CODPARC = CAB.CODPARC) WHERE DTNEG >= :DATA_INICIAL AND DTNEG <= :DATA_FINAL AND CODTIPOPER IN (100,101,102,103,104,105,106,107,108,109,110,111) AND PAR.CODPARC = :CODPARC GROUP BY PAR.CODPARC,DTNEG, MONTH(CAB.DTNEG)) AS COMPRAS GROUP BY MES, ANO]]>
+				</expression>
+				<metadata>
+					<field name="VALORCOMPRADO" label="Valor Comprado" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="MES" label="Mês" type="S" visible="true" useFooter="false"/>
+					<field name="ANO" label="Ano" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click navigate-to="lvl_a1kq71t">
+					<param id="MES">$MES</param>
+					<param id="CODPARC">:CODPARC</param>
+					<param id="ANO">$ANO</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_a1kq71t" description="Itens">
+		<args>
+			<arg id="MES" type="integer"/>
+			<arg id="CODPARC" type="integer"/>
+			<arg id="ANO" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_a1kq71u">
+				<title>
+					<![CDATA[Compras no período de :DATA_INICIAL  até :DATA_FINAL]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT (RTRIM(PRO.DESCRPROD)+' '+ISNULL(PRO.COMPLDESC,'')) AS PRODUTO,   SUM(ITE.QTDNEG) AS QTD,   ITE.CODVOL,   SUM(ITE.VLRTOT) VLRCUSTO,   SUM(ITE.VLRICMS) CUSTICMS,   SUM(ITE.VLRIPI) AS CUSTIPI,   SUM(ITE.VLRSUBST) AS VLRST,   SUM(ITE.VLRTOT + ITE.VLRIPI + ITE.VLRSUBST) AS VLRTOTAL FROM TGFCAB CAB   JOIN TGFITE ITE ON (ITE.NUNOTA = CAB.NUNOTA)   JOIN TGFPRO PRO ON (ITE.CODPROD = PRO.CODPROD) WHERE CODTIPOPER IN (100,101,102,103,104,105,106,107,108,109,110,111)   AND CAST(MONTH(DTNEG) AS INT)= :MES   AND CAST(YEAR(DTNEG) AS INT) = :ANO   AND CAB.CODPARC = :CODPARC  GROUP BY PRO.DESCRPROD, PRO.COMPLDESC, ITE.CODVOL]]>
+				</expression>
+				<metadata>
+					<field name="PRODUTO" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="QTD" label="Quantidade" type="I" visible="true" useFooter="false"/>
+					<field name="CODVOL" label="Unidade" type="S" visible="true" useFooter="false"/>
+					<field name="VLRCUSTO" label="Custo" type="C" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="CUSTICMS" label="ICMS" type="C" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="CUSTIPI" label="IPI" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="VLRST" label="ST" type="I" visible="true" useFooter="false"/>
+					<field name="VLRTOTAL" label="Total" type="C" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

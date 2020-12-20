@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="Etiqueta Teste2 - Inovação"
+
+		 language="groovy"		 columnCount="2"
+		 printOrder="Horizontal"
+		 orientation="Portrait"
+		 pageWidth="623"
+		 pageHeight="882"
+		 columnWidth="286"
+		 columnSpacing="1"
+		 leftMargin="21"
+		 rightMargin="29"
+		 topMargin="27"
+		 bottomMargin="25"
+		 whenNoDataType="NoPages"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.zoom" value="1.0" />
+	<property name="ireport.x" value="0" />
+	<property name="ireport.y" value="0" />
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="NUNOTA" isForPrompting="true" class="java.math.BigDecimal"/>
+
+	<field name="NOMEPARC" class="java.lang.String"/>
+	<field name="NUNOTA" class="java.math.BigDecimal"/>
+	<field name="NUMEND" class="java.lang.String"/>
+	<field name="CEP" class="java.lang.String"/>
+	<field name="COMPLEMENTO" class="java.lang.String"/>
+	<field name="NOMECID" class="java.lang.String"/>
+	<field name="UF" class="java.lang.String"/>
+	<field name="NOMEEND" class="java.lang.String"/>
+	<field name="TIPO" class="java.lang.String"/>
+	<field name="NOMEBAI" class="java.lang.String"/>
+	<field name="NUMNOTA" class="java.math.BigDecimal"/>
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="72"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="10"
+						width="208"
+						height="13"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{NOMEPARC}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="23"
+						width="285"
+						height="16"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{TIPO} + " " + $F{NOMEEND} + " " + ( $F{NUMEND}.compareTo("0") == 0 ? "S/N" : $F{NUMEND}) + " " +
+( $F{COMPLEMENTO} != null ? $F{COMPLEMENTO} : "" )]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="39"
+						width="285"
+						height="17"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{NOMEBAI} + " - " + $F{NOMECID} + " / " + $F{UF}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="56"
+						width="100"
+						height="16"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{CEP}.substring(0,5) + "-" + $F{CEP}.substring(5,8)]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="208"
+						y="10"
+						width="38"
+						height="13"
+						key="staticText"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font size="9"/>
+					</textElement>
+				<text><![CDATA[Pedido:]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="246"
+						y="10"
+						width="39"
+						height="13"
+						key="textField"/>
+					<box></box>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{NUNOTA}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

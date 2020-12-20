@@ -1,0 +1,22 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_v0i5ov" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_v0i5ow">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[    SELECT L.CODPROD, L.OCORRENCIA, MAX(L.DTALTER) MAXDATE, ISNULL(V.ATIVO,'N') AS LIBERADO_VTEX,  ISNULL(T.ATIVO,'N') AS LIBERADO_TANIA  FROM sankhya.AD_LOGALTERACOESVTEX L WITH(NOLOCK)  LEFT JOIN sankhya.AD_PRODUTOLOJA V WITH(NOLOCK) ON V.CODPROD = L.CODPROD AND V.CODLOJA = 1  LEFT JOIN sankhya.AD_PRODUTOLOJA T WITH(NOLOCK) ON V.CODPROD = L.CODPROD AND T.CODLOJA = 3  WHERE L.DTALTER >= :DTINI AND L.DTALTER < DATEADD(DAY,1,:DTFIM)  GROUP BY L.CODPROD, L.OCORRENCIA, ISNULL(V.ATIVO,'N'), ISNULL(T.ATIVO,'N')  ORDER BY MAXDATE DESC]]>
+				</expression>
+				<metadata>
+					<field name="CODPROD" label="Código" type="I" visible="true" useFooter="false"/>
+					<field name="OCORRENCIA" label="Ocorrência" type="S" visible="true" useFooter="false"/>
+					<field name="MAXDATE" label="Data" type="T" visible="true" useFooter="false" mask="DD MMM YYYY HH:NN:SS"/>
+					<field name="LIBERADO_VTEX" label="Liberado VTEX" type="S" visible="true" useFooter="false"/>
+					<field name="LIBERADO_TANIA" label="Liberado Tânia" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

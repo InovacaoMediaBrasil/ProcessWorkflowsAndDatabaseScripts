@@ -1,0 +1,27 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODTIPOPER" description="1. Código da operação" metadata="integer" required="true" keep-last="false" keep-date="false"/>
+		<parameter id="DT1" description="2. Data inicio" metadata="date" required="true" keep-last="false" keep-date="false"/>
+		<parameter id="DT2" description="3. Data final" metadata="date" required="true" keep-last="false" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_ayasce" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<simple-value id="svl_ayascf" tamTexto="18">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[/* SELECIONANDO A SOMATÓRIA DOS PEDIDOS PAGOS E DOS PEDIDOS NÃOPAGOS E CANCELADOS */ SELECT SUM(vlr_pago+vlr_naopago) AS vlr_total,   SUM(qtd_pago) AS qtd_pago,   SUM(vlr_pago) AS vlr_pago,   SUM(qtd_naopago) AS qtd_naopago,   SUM(vlr_naopago) AS vlr_naopago,   ROUND((SUM(vlr_pago) / SUM(vlr_pago+vlr_naopago))*100,2) AS '%_pago_vlr' -- A PORCENTAGEM É A DIVISÃO DOS BOLETOS PAGOS, PELO TOTAL (PAGOS+NAOPAGOS+CANCELADOS) FROM (/* PARTE 1 PEDIDOS ATIVOS COM PAGAMENTO EFETUADO (PAGOS) */   SELECT COUNT(NUNOTA) AS qtd_pago,   SUM(VLRNOTA) AS vlr_pago,   0 AS qtd_naopago,   0 AS vlr_naopago FROM sankhya.TGFCAB WITH (NOLOCK)  WHERE DTNEG BETWEEN :DT1 AND :DT2   AND CODTIPVENDA IN (4,5,33,34)   AND CODTIPOPER = :CODTIPOPER   AND AD_STATUSPGTO LIKE 'E' -- MARCAÇÃO QUE O PEDIDO FOI PAGO UNION /* PARTE 2 PEDIDOS ATIVOS COM PAGAMENTO PENDENTE (NAO PAGO) */  SELECT 0 AS qtd_pago,   0 AS vlr_pago,   COUNT(NUNOTA) AS qtd_naopago,   SUM(VLRNOTA) AS vlr_naopago FROM sankhya.TGFCAB WITH (NOLOCK)  WHERE DTNEG BETWEEN :DT1 AND :DT2   AND CODTIPVENDA IN (4,5,33,34)   AND CODTIPOPER = :CODTIPOPER   AND (AD_STATUSPGTO IS NULL OR AD_STATUSPGTO LIKE 'p') -- MARCAÇÃO QUE O PEDIDO NÃO FOI PAGO UNION /* PARTE 1 PEDIDOS CANCELADOS*/ SELECT 0 AS qtd_pago,   0 AS vlr_pago,   COUNT(NUNOTA) AS qtd_naopago,   SUM(VLRNOTA) AS vlr_naopago FROM sankhya.TGFCAB_EXC WITH (NOLOCK) -- TABELA DOS PEDIDOS CANCELADOS WHERE DTNEG BETWEEN :DT1 AND :DT2   AND CODTIPVENDA IN (4,5,33,34)   AND CODTIPOPER = :CODTIPOPER   ) a ]]>
+				</expression>
+				<metadata>
+					<field name="vlr_total" label="vlr_total" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="qtd_pago" label="qtd_pago" type="I" visible="true" useFooter="false"/>
+					<field name="vlr_pago" label="vlr_pago" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="qtd_naopago" label="qtd_naopago" type="I" visible="true" useFooter="false"/>
+					<field name="vlr_naopago" label="vlr_naopago" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="%_pago_vlr" label="%_pago_vlr" type="F" visible="true" useFooter="false" mask="#.##0,00 %"/>
+				</metadata>
+				<value-expression>
+					<![CDATA[<span style='font-family: "Arial Black", Gadget, sans-serif; color: #000000;'><b>Total de boletos:   </b>$vlr_total</span>  <span style='color: #000000; font-family: "Arial Black", Gadget, sans-serif;'><b>Boletos pagos:  </b>$vlr_pago</span>  <span style='color: #000000; font-family: "Arial Black", Gadget, sans-serif;'><b>Boletos não pagos:  </b>$vlr_naopago</span></div>]]>
+				</value-expression>
+			</simple-value>
+		</container>
+	</level>
+</gadget>

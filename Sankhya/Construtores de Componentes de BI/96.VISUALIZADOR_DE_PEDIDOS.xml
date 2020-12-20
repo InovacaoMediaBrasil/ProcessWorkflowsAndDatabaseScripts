@@ -1,0 +1,132 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="NOMEPARC" description="1.Nome do Cliente" metadata="text" required="false" keep-last="false"/>
+		<parameter id="CODPARC" description="2.Codigo do Cliente" metadata="integer" required="false" keep-last="false"/>
+		<parameter id="CGC_CPF" description="3.CPF/CNPJ" metadata="text" required="false" keep-last="false"/>
+		<parameter id="TELEFONE" description="4.Telefone/Celular/Fax" metadata="text" required="false" keep-last="false"/>
+		<parameter id="PEDORIGINAL" description="5. Pedido Original" metadata="integer" required="false" keep-last="false"/>
+		<parameter id="NUNOTA" description="6.Numero Unico" metadata="integer" required="false" keep-last="false"/>
+		<parameter id="CODAUT" description="7.Codigo de Autorizacao" metadata="integer" required="false" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_at1r0wg" description="Principal">
+		<grid id="grd_at1r0wn">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[  IF (:NOMEPARC) is not null (     SELECT       PAR.NOMEPARC as Nome,    PAR.CODPARC as Codigo,           Tipo = CASE PAR.TIPPESSOA       WHEN 'F' THEN ('Fisica')       WHEN 'J' THEN ('Juridica')      ELSE ''      END,         SEXO = CASE PAR.SEXO       WHEN 'M' THEN ('Masculino')       WHEN 'F' THEN ('Feminino')      ELSE 'Nenhum'      END,     PAR.CGC_CPF AS CPFCNPJ,     PAR.TELEFONE      FROM SANKHYA.TGFPAR PAR WITH(NOLOCK)         WHERE PAR.NOMEPARC LIKE '%'+:NOMEPARC+'%'  )    ELSE      IF (:CODPARC) is not null(     SELECT       PAR.NOMEPARC as Nome,    PAR.CODPARC as Codigo,           Tipo = CASE PAR.TIPPESSOA       WHEN 'F' THEN ('Fisica')       WHEN 'J' THEN ('Juridica')      ELSE ''      END,         SEXO = CASE PAR.SEXO       WHEN 'M' THEN ('Masculino')       WHEN 'F' THEN ('Feminino')      ELSE 'Nenhum'      END,     PAR.CGC_CPF AS CPFCNPJ,     PAR.TELEFONE      FROM SANKHYA.TGFPAR PAR WITH(NOLOCK)         WHERE PAR.CODPARC = :CODPARC  )    ELSE   IF (:CGC_CPF) is not null (     SELECT       PAR.NOMEPARC as Nome,    PAR.CODPARC as Codigo,           Tipo = CASE PAR.TIPPESSOA       WHEN 'F' THEN ('Fisica')       WHEN 'J' THEN ('Juridica')      ELSE ''      END,         SEXO = CASE PAR.SEXO       WHEN 'M' THEN ('Masculino')       WHEN 'F' THEN ('Feminino')      ELSE 'Nenhum'      END,     PAR.CGC_CPF AS CPFCNPJ,     PAR.TELEFONE      FROM SANKHYA.TGFPAR PAR WITH(NOLOCK)         WHERE PAR.CGC_CPF = :CGC_CPF  )    ELSE   IF (:TELEFONE) is not null (     SELECT       PAR.NOMEPARC as Nome,    PAR.CODPARC as Codigo,           Tipo = CASE PAR.TIPPESSOA       WHEN 'F' THEN ('Fisica')       WHEN 'J' THEN ('Juridica')      ELSE ''      END,         SEXO = CASE PAR.SEXO       WHEN 'M' THEN ('Masculino')       WHEN 'F' THEN ('Feminino')      ELSE 'Nenhum'      END,     PAR.CGC_CPF AS CPFCNPJ,     PAR.TELEFONE      FROM SANKHYA.TGFPAR PAR WITH(NOLOCK)         WHERE (PAR.TELEFONE LIKE '%'+:TELEFONE+'%')    OR (PAR.FAX LIKE '%'+:TELEFONE+'%')  )   /*ELSE(   select nomeparc  from sankhya.tgfpar  where codparc = 0  )*/     ELSE  IF (:PEDORIGINAL) is not null (     SELECT  DISTINCT     PAR.NOMEPARC as Nome,    PAR.CODPARC as Codigo,           Tipo = CASE PAR.TIPPESSOA       WHEN 'F' THEN ('Fisica')       WHEN 'J' THEN ('Juridica')      ELSE ''      END,         SEXO = CASE PAR.SEXO       WHEN 'M' THEN ('Masculino')       WHEN 'F' THEN ('Feminino')      ELSE 'Nenhum'      END,     PAR.CGC_CPF AS CPFCNPJ,     PAR.TELEFONE      FROM SANKHYA.TGFPAR PAR WITH(NOLOCK)     INNER JOIN SANKHYA.TGFCAB CAB WITH (NOLOCK) ON CAB.CODPARC = PAR.CODPARC     INNER JOIN SANKHYA.TGFTOP TIPOPER WITH (NOLOCK) ON TIPOPER.CODTIPOPER = CAB.CODTIPOPER     WHERE cab.ad_pedoriginal = :PEDORIGINAL and GRUPO IN ('PEDIDO VDA', 'REENVIO')  )     /*ELSE(   SELECT       PAR.NOMEPARC as Nome,    PAR.CODPARC as Codigo,           Tipo = CASE PAR.TIPPESSOA       WHEN 'F' THEN ('Fisica')       WHEN 'J' THEN ('Juridica')      ELSE ''      END,         SEXO = CASE PAR.SEXO       WHEN 'M' THEN ('Masculino')       WHEN 'F' THEN ('Feminino')      ELSE 'Nenhum'      END,     PAR.CGC_CPF AS CPFCNPJ,     PAR.TELEFONE     FROM SANKHYA.TGFPAR PAR      WHERE PAR.CODPARC = 0  )*/   ELSE     IF (:NUNOTA) is not null (     SELECT  distinct     PAR.NOMEPARC as Nome,    PAR.CODPARC as Codigo,           Tipo = CASE PAR.TIPPESSOA       WHEN 'F' THEN ('Fisica')       WHEN 'J' THEN ('Juridica')      ELSE ''      END,         SEXO = CASE PAR.SEXO       WHEN 'M' THEN ('Masculino')       WHEN 'F' THEN ('Feminino')      ELSE 'Nenhum'      END,     PAR.CGC_CPF AS CPFCNPJ,     PAR.TELEFONE      FROM SANKHYA.TGFPAR PAR WITH (NOLOCK)     INNER JOIN SANKHYA.TGFCAB CAB WITH (NOLOCK) ON CAB.CODPARC = PAR.CODPARC     INNER JOIN SANKHYA.TGFTOP TIPOPER WITH (NOLOCK) ON TIPOPER.CODTIPOPER = CAB.CODTIPOPER    WHERE CAB.NUNOTA = :NUNOTA AND TIPOPER.GRUPO IN ('PEDIDO VDA', 'EXPEDICAO','VENDA', 'DEV VDA', 'REENVIO')  )    ELSE   IF :CODAUT is not null (     SELECT  distinct     PAR.NOMEPARC as Nome,    PAR.CODPARC as Codigo,           Tipo = CASE PAR.TIPPESSOA       WHEN 'F' THEN ('Fisica')       WHEN 'J' THEN ('Juridica')      ELSE ''      END,         SEXO = CASE PAR.SEXO       WHEN 'M' THEN ('Masculino')       WHEN 'F' THEN ('Feminino')      ELSE 'Nenhum'      END,     PAR.CGC_CPF AS CPFCNPJ,     PAR.TELEFONE      FROM SANKHYA.TGFPAR PAR  WITH (NOLOCK)     INNER JOIN SANKHYA.TGFCAB CAB with(NOLOCK) ON CAB.CODPARC = PAR.CODPARC     INNER JOIN SANKHYA.TGFTOP TIPOPER with (nolock) ON TIPOPER.CODTIPOPER = CAB.CODTIPOPER    WHERE CAB.AD_CODAUT = :CODAUT AND TIPOPER.GRUpo IN ('PEDIDO VDA', 'EXPEDICAO','VENDA', 'DEV VDA', 'REENVIO')       ) ELSE(   SELECT       PAR.NOMEPARC as Nome,    PAR.CODPARC as Codigo,           Tipo = CASE PAR.TIPPESSOA       WHEN 'F' THEN ('Fisica')       WHEN 'J' THEN ('Juridica')      ELSE ''      END,         SEXO = CASE PAR.SEXO       WHEN 'M' THEN ('Masculino')       WHEN 'F' THEN ('Feminino')      ELSE 'Nenhum'      END,     PAR.CGC_CPF AS CPFCNPJ,     PAR.TELEFONE      FROM SANKHYA.TGFPAR PAR WITH(NOLOCK)      WHERE PAR.CODPARC = 0    )]]>
+			</expression>
+			<metadata>
+				<field name="Nome" label="Nome" type="S" visible="true" useFooter="false"/>
+				<field name="Codigo" label="Codigo" type="I" visible="true" useFooter="false"/>
+				<field name="Tipo" label="Tipo" type="S" visible="true" useFooter="false"/>
+				<field name="SEXO" label="SEXO" type="S" visible="true" useFooter="false"/>
+				<field name="CPFCNPJ" label="CPFCNPJ" type="S" visible="true" useFooter="false" mask="###.###.###-##"/>
+				<field name="TELEFONE" label="TELEFONE" type="S" visible="true" useFooter="false"/>
+			</metadata>
+			<on-click navigate-to="lvl_at1r0wh">
+				<param id="CODPARC">$Codigo</param>
+			</on-click>
+		</grid>
+	</level>
+	<level id="lvl_at1r0wh" description="Nivel 2">
+		<args>
+			<arg id="CODPARC" type="integer"/>
+		</args>
+		<simple-value id="svl_at1r0wi">
+			<title>
+				<![CDATA[<b>Dados do Cliente</b>]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT  TGFPAR.NOMEPARC as Nome, TGFPAR.CODPARC as Codigo,  Status = CASE TGFPAR.ATIVO    WHEN 'S' THEN ('Ativo')    WHEN 'N' THEN ('Inativo')    ELSE ''    END,     Tipo = CASE TGFPAR.TIPPESSOA    WHEN 'F' THEN ('Fisica')    WHEN 'J' THEN ('Juridica')   ELSE ''   END,    SEXO = CASE TGFPAR.SEXO    WHEN 'M' THEN ('Masculino')    WHEN 'F' THEN ('Feminino')   ELSE 'Nenhum'   END, TGFPAR.CGC_CPF,  TGFPAR.TELEFONE, TGFPAR.EMAIL, TGFPAR.CEP, TSIEND.NOMEEND AS Logradouro, rtrim(TGFPAR.NUMEND) AS Numero, TGFPAR.COMPLEMENTO as Complemento, TSIBAI.NOMEBAI as Bairro, RTRIM(TSICID.NOMECID) +  ' / ' +  RTRIM(TSIUFS.DESCRICAO) as CidadeUF  FROM SANKHYA.TGFPAR TGFPAR WITH (NOLOCK)  INNER JOIN SANKHYA.TSIEND TSIEND WITH (NOLOCK) ON TSIEND.CODEND = TGFPAR.CODEND  INNER JOIN SANKHYA.TSIBAI TSIBAI WITH (NOLOCK) ON TSIBAI.CODBAI = TGFPAR.CODBAI  INNER JOIN SANKHYA.TSICID TSICID WITH (NOLOCK) ON TGFPAR.CODCID = TSICID.CODCID   INNER JOIN SANKHYA.TSIUFS TSIUFS WITH (NOLOCK) ON TSIUFS.CODUF = TSICID.UF     WHERE CODPARC = :CODPARC]]>
+			</expression>
+			<metadata>
+				<field name="Nome" label="Nome" type="S" visible="true" useFooter="false"/>
+				<field name="Codigo" label="Codigo" type="I" visible="true" useFooter="false"/>
+				<field name="Status" label="Status" type="S" visible="true" useFooter="false"/>
+				<field name="Tipo" label="Tipo" type="S" visible="true" useFooter="false"/>
+				<field name="SEXO" label="SEXO" type="S" visible="true" useFooter="false"/>
+				<field name="CGC_CPF" label="CGC_CPF" type="S" visible="true" useFooter="false"/>
+				<field name="TELEFONE" label="TELEFONE" type="S" visible="true" useFooter="false"/>
+				<field name="EMAIL" label="EMAIL" type="S" visible="true" useFooter="false"/>
+				<field name="CEP" label="CEP" type="S" visible="true" useFooter="false"/>
+				<field name="Logradouro" label="Logradouro" type="S" visible="true" useFooter="false"/>
+				<field name="Numero" label="Numero" type="S" visible="true" useFooter="false"/>
+				<field name="Complemento" label="Complemento" type="S" visible="true" useFooter="false"/>
+				<field name="Bairro" label="Bairro" type="S" visible="true" useFooter="false"/>
+				<field name="CidadeUF" label="CidadeUF" type="S" visible="true" useFooter="false"/>
+			</metadata>
+			<value-expression>
+				<![CDATA[<table style="background-color: #e9e9e9;border:3px solid #fff; width: 450px; height: 165px;" border="1" solid #fff><caption>&nbsp;</caption> <tbody> <tr> <td>&nbsp;Nome:</td> <td>&nbsp;$Nome&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </td> </tr> <tr> <td>&nbsp;Codigo&ccedil;&atilde;o</td> <td>&nbsp;$Codigo</td> </tr> <tr> <td>&nbsp;Status:</td> <td>&nbsp;$Status</td> </tr> <tr> <td>&nbsp;Tipo m&iacute;nimo:</td> <td>&nbsp;$Tipo</td> </tr> <tr> <td>&nbsp;Sexo: </td> <td>&nbsp;$SEXO</td> </tr> <tr> <td>&nbsp;CGC_CPF:</td> <td>&nbsp;$CGC_CPF</td> </tr> <tr> <td>&nbsp;Telefone:</td> <td>&nbsp;$TELEFONE</td> </tr> <tr> <td>&nbsp;Celular/Fax:</td> <td><b>&nbsp;</b></td> </tr> <tr> <td>&nbsp;E-mail:</td> <td><b>&nbsp;$EMAIL</b></td> </tr> <tr> <td>&nbsp;CEP:</td> <td><b>&nbsp;$CEP</b></td> </tr> <tr> <td>&nbsp;Logradouro:</td> <td><b>&nbsp;$Logradouro</b></td> </tr> <tr> <td>&nbsp;Numero:</td> <td><b>&nbsp;$Numero</b></td> </tr> <tr> <td>&nbsp;Complemento:</td> <td><b>&nbsp;$Complemento</b></td> </tr> <tr> <td>&nbsp;Bairro:</td> <td><b>&nbsp;$Bairro</b></td> </tr> <tr> <td>&nbsp;CidadeUF:</td> <td><b>&nbsp;$CidadeUF</b></td> </tr> </tbody> </table>]]>
+			</value-expression>
+		</simple-value>
+		<grid id="grd_at1r0yf">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT  MIN(DTNEG) AS Data, AD_PEDORIGINAL AS PEDIDO, nunota as NroUnico,  VEN.APELIDO AS VENDEDOR, AD_BONIFICADO,  STATUS = CASE (SELECT TOP 1 CODTIPOPER FROM SANKHYA.TGFCAB CABI WITH(NOLOCK) where CABI.AD_PEDORIGINAL = cab.ad_pedoriginal and ((cab.ad_bonificado = cabi.ad_bonificado) OR (CAB.AD_BONIFICADO IS NULL AND CABI.AD_BONIFICADO IS NULL)) order by dtfatur desc)   WHEN (500) then 'Pendente'   WHEN (501) then 'Pendente'   WHEN (502) then 'Pendente'    WHEN (503) then 'Pendente'   WHEN (504) then 'Pendente'     WHEN (515) then 'Pendente'    WHEN (505) then 'Separando'   WHEN (508) then 'Pendente'   when (509) then 'Separando'   WHEN (550) then 'Pronto'    WHEN (556) then 'Pronto'   WHEN (510) then 'Pendente'   WHEN (600) then 'Devolvido'   ELSE 'N IDENTIFICADO' END,  /* STATUS = CASE GRUPO   WHEN ('PEDIDO VDA') then 'Pendente'   WHEN ('EXPEDICAO') then 'Separando'   WHEN ('VENDA') then 'Pronto'   WHEN ('DEV VDA') then 'Devolvido'   WHEN ('REENVIO') then 'Reenvio Pendente'   ELSE 'N IDENTIFICADO' END, */  Pagamento = CASE WHEN(AD_BONIFICADO = 'S') then 'Bonificado'     ELSE       CASE         WHEN  (AD_STATUSPGTO = 'P' and AD_CODAUT is null) then 'Pendente'        WHEN  (AD_STATUSPGTO = 'P' and AD_CODAUT is not null) then 'Pendente'        WHEN (AD_STATUSPGTO = 'E') then 'Aprovado'       ELSE 'N IDENTIFICADO'       END     END, CAB.VLRNOTA as Valor   from sankhya.tgfcab cab WITH (NOLOCK)  inner join sankhya.tgfven  ven WITH (NOLOCK) on ven.codvend = cab.codvend  inner join sankhya.tgftop tipop WITH (NOLOCK) on tipop.codtipoper = cab.codtipoper    where cab.codparc = :CODPARC and (grupo = 'PEDIDO VDA' or grupo = 'REENVIO') GROUP BY AD_PEDORIGINAL, ven.apelido, ad_statuspgto, ad_codaut, AD_BONIFICADO, nunota, vlrnota  ORDER BY Data DESC]]>
+			</expression>
+			<metadata>
+				<field name="Data" label="Data" type="D" visible="true" useFooter="false"/>
+				<field name="PEDIDO" label="PEDIDO" type="I" visible="true" useFooter="false"/>
+				<field name="NroUnico" label="NroUnico" type="I" visible="true" useFooter="false"/>
+				<field name="VENDEDOR" label="VENDEDOR" type="S" visible="true" useFooter="false"/>
+				<field name="AD_BONIFICADO" label="AD_BONIFICADO" type="S" visible="false" useFooter="false"/>
+				<field name="STATUS" label="STATUS" type="S" visible="true" useFooter="false"/>
+				<field name="Pagamento" label="Pagamento" type="S" visible="true" useFooter="false"/>
+				<field name="Valor" label="Valor" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+			</metadata>
+			<on-click navigate-to="lvl_aufqmdh">
+				<param id="nunota">$NroUnico</param>
+				<param id="pedido">$PEDIDO</param>
+				<param id="BONIFICADO">$AD_BONIFICADO</param>
+			</on-click>
+		</grid>
+	</level>
+	<level id="lvl_aufqmdh" description="Nivel 3">
+		<args>
+			<arg id="nunota" type="integer"/>
+			<arg id="pedido" type="integer"/>
+			<arg id="BONIFICADO" type="text"/>
+		</args>
+		<grid id="grd_a5whh0j">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT distinct cab.nunota, ite.CODPROD as CodigoProduto, DESCRPROD as Descricao, ite.CODVOL as Tipo, VLRUNIT as ValorUnitario, QTDNEG as Qtde, VLRTOT as ValorTotal  from sankhya.tgfite as ite WITH (NOLOCK)  inner join TGFCAB as CAB WITH (NOLOCK) on cab.nunota = ite.nunota  inner join TGFPRO as PRO WITH (NOLOCK) on pro.codprod = ite.codprod where ite.USOPROD in ('R') and cab.nunota = :nunota]]>
+			</expression>
+			<metadata>
+				<field name="nunota" label="nunota" type="I" visible="true" useFooter="false"/>
+				<field name="CodigoProduto" label="CodigoProduto" type="I" visible="true" useFooter="false"/>
+				<field name="Descricao" label="Descricao" type="S" visible="true" useFooter="false"/>
+				<field name="Tipo" label="Tipo" type="S" visible="true" useFooter="false"/>
+				<field name="ValorUnitario" label="ValorUnitario" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+				<field name="Qtde" label="Qtde" type="F" visible="true" useFooter="false"/>
+				<field name="ValorTotal" label="ValorTotal" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+			</metadata>
+		</grid>
+		<grid id="grd_a5whh0o">
+			<title>
+				<![CDATA[Pedido original: :pedido]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[DECLARE @NUNOTA AS INTEGER DECLARE @PEDIDO AS INTEGER DECLARE @BONIFICADO AS VARCHAR(1)  SET @NUNOTA = :nunota SET @PEDIDO = :pedido SET @BONIFICADO = :BONIFICADO  SELECT DISTINCT   Status = CASE GRUPO     WHEN 'PEDIDO VDA' THEN 'Pendente'     WHEN 'EXPEDICAO' THEN 'Separando'     WHEN 'REENVIO' THEN 'Pendente'     WHEN 'VENDA' THEN 'Pronto'     WHEN 'DEV VDA' THEN 'Devolucao'     ELSE 'Erro ao obter Status'     END,     NUNOTA as NroUnico ,  DTNEG as Data     FROM  sankhya.TGFCAB CAB WITH (NOLOCK)    inner join sankhya.TGFTOP TIPOPER WITH (NOLOCK) ON TIPOPER.CODTIPOPER = CAB.CODTIPOPER    where ad_pedoriginal = @PEDIDO and (AD_BONIFICADO = @BONIFICADO or (AD_BONIFICADO is null and @BONIFICADO is null)) ORDER BY DTNEG]]>
+			</expression>
+			<metadata>
+				<field name="Status" label="Status" type="S" visible="true" useFooter="false"/>
+				<field name="NroUnico" label="NroUnico" type="I" visible="true" useFooter="false"/>
+				<field name="Data" label="Data" type="D" visible="true" useFooter="false"/>
+			</metadata>
+		</grid>
+		<simple-value id="svl_a5whh0u">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT  modtrans.decrmodtrans as Transporte, cab.vlrfrete as Frete, cab.vlrnota as Total, TPV.descrtipvenda,   cab.ad_codaut as codaut,   (SELECT TOP 1 (ad_numetiq + cast(cab1.ad_digetiq as varchar) +  ad_paisetiqueta)    FROM sankhya.tgfvar var WITH (NOLOCK)     inner join sankhya.tgfcab cab1 WITH (NOLOCK) on cab1.nunota = var.nunota    where var.nunotaorig = :nunota and codtipoper = 505 and var.nunotaorig <> var.nunota) as postagem,    (ISNULL(ven.apelido, '') + '/' + ISNULL(ven.ad_setorvend,'')) as vendidoporem from sankhya_producao.sankhya.tgfcab as cab WITH (NOLOCK)  inner join sankhya_producao.sankhya.tgftpv as tpv WITH (NOLOCK)   on cab.codtipvenda  = tpv.codtipvenda   inner join sankhya_producao.sankhya.tgfven as ven WITH (NOLOCK)   on ven.codvend = cab.codvend  inner join sankhya_producao.sankhya.ad_modtransporte as modtrans WITH (NOLOCK)   on modtrans.idmod = cab.ad_idmod  where cab.nunota = :nunota]]>
+			</expression>
+			<metadata>
+				<field name="Transporte" label="Transporte" type="S" visible="true" useFooter="false"/>
+				<field name="Frete" label="Frete" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+				<field name="Total" label="Total" type="F" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+				<field name="descrtipvenda" label="descrtipvenda" type="S" visible="true" useFooter="false"/>
+				<field name="codaut" label="codaut" type="I" visible="true" useFooter="false"/>
+				<field name="postagem" label="postagem" type="S" visible="true" useFooter="false"/>
+				<field name="vendidoporem" label="vendidoporem" type="S" visible="true" useFooter="false"/>
+			</metadata>
+			<value-expression>
+				<![CDATA[<td>  <table> <table style="background-color: #e9e9e9;border:3px solid #fff; width: 450px; height: 165px;" border="1" solid #fff><caption>&nbsp;</caption> <tbody> <tr> <td>&nbsp;Modalidade de Transporte:</td> <td>&nbsp;$Transporte&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </td> </tr> <tr> <td>&nbsp;Frete: </td> <td>&nbsp;$Frete&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </td> </tr> <tr> <td>&nbsp;Valor Total:</td> <td>&nbsp;$Total&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </td> </tr> <tr> <td>&nbsp;Forma de Pagamento:</td> <td>&nbsp;$descrtipvenda&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </td> </tr> <tr> <td>&nbsp;Codigo de Autorizacao:</td> <td>&nbsp;$codaut</td> </tr> <tr> <td>&nbsp;Código de Rastreio:</td> <td>&nbsp;<a href=http://websro.correios.com.br/sro_bin/txect01$.QueryList?P_LINGUA=001&P_TIPO=001&P_COD_UNI=$postagem target="_blank">$postagem</a> </td> </tr> <tr> <td>&nbsp;Pedido Original:</td> <td>&nbsp;:pedido</td> </tr> <tr> <td>&nbsp;Vendido Por/Em: </td> <td>&nbsp;$vendidoporem</td> </tr> </tbody> </table> </table>  </td>  </tr>  </table>]]>
+			</value-expression>
+		</simple-value>
+	</level>
+</gadget>

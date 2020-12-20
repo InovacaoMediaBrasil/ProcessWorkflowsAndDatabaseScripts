@@ -1,0 +1,21 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATAINI" description="1.Data Inicial: " metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATAFIM" description="2. Data Final: " metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_ajqwy00" description="Principal">
+		<grid id="grd_ajqwy01">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT cab.NUNOTA as Nunota, AD_PEDORIGINAL as Pedido,statusnfe as StatusNota, CODPARC as Parceiro, OCORRENCIAS as Rejeicao, cab.DTNEG as data  from sankhya.TGFCAB CAB   LEFT JOIN sankhya.TGFACT act on act.nunota = cab.NUNOTA   where cab.dtneg between :DATAINI and :DATAFIM and cab.codtipoper in (550, 556, 600) and (cab.statusnfe <> 'A' and cab.statusnfe is not null)  and act.dhocor = (select max(dhocor) from sankhya.TGFACT act2 where act2.nunota = cab.nunota) and act.hract = (select max(hract) FROM sankhya.TGFACT act3 where act3.nunota = cab.nunota and act3.DHOCOR = act.dhocor)  ]]>
+			</expression>
+			<metadata>
+				<field name="Nunota" label="Nunota" type="I" visible="true" useFooter="false"/>
+				<field name="Pedido" label="Pedido" type="I" visible="true" useFooter="false"/>
+				<field name="StatusNota" label="StatusNota" type="S" visible="true" useFooter="false"/>
+				<field name="Parceiro" label="Parceiro" type="I" visible="true" useFooter="false"/>
+				<field name="Rejeicao" label="Rejeicao" type="S" visible="true" useFooter="false"/>
+				<field name="data" label="data" type="D" visible="true" useFooter="false"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

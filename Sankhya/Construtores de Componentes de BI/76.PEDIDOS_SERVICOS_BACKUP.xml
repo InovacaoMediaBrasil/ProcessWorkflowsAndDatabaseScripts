@@ -1,0 +1,58 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA1" description="1.Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATA2" description="2.Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_lqfmd2" description="Principal">
+		<grid id="grd_lqfmd3">
+			<title>
+				<![CDATA[Pedidos de Patrocinio - backup1]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT CAB.NUNOTA as Pedido, DTVENC as 'Vencimento', NOMEPARC as Parceiro, AD_DATAENTR as 'Referencia', DESCRPROD AS DESCRICAO, CASE AD_PROGRAMA    when '1' then('Arte Brasil')    when '2' then('Vitrine do Artesanato')    when '3' then ('Vitrine do Artesanato na TV')    else AD_PROGRAMA    END   as Programa,  VLRDESDOB as 'ValorParcela'   FROM SANKHYA_PRODUCAO.sankhya.TGFFIN as FIN  INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFCAB as CAB on (fin.nunota = cab.nunota) INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFPAR as PAR ON (cab.codparc = par.codparc) INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFITE as ITE on (cab.nunota = ite.nunota) INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFPRO as PRO on (ITE.codprod = pro.codprod)  where DTVENC between :DATA1 and :DATA2 and CAB.CODTIPOPER = 506  ORDER BY DTVENC ]]>
+			</expression>
+			<metadata>
+				<field name="Pedido" label="Pedido" type="I" visible="true" useFooter="false"/>
+				<field name="Vencimento" label="Vencimento" type="D" visible="true" useFooter="false"/>
+				<field name="Parceiro" label="Parceiro" type="S" visible="true" useFooter="false"/>
+				<field name="Referencia" label="Referencia" type="D" visible="true" useFooter="false"/>
+				<field name="DESCRICAO" label="DESCRICAO" type="S" visible="true" useFooter="false"/>
+				<field name="Programa" label="Programa" type="S" visible="true" useFooter="false"/>
+				<field name="ValorParcela" label="ValorParcela" type="F" visible="true" useFooter="false"/>
+			</metadata>
+		</grid>
+		<grid id="grd_qd6ufn">
+			<title>
+				<![CDATA[pedidos de serviços - backup2]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT FIN.DTVENC as Vencimento, CAB.NUMNOTA as Contrato, PAR.NOMEPARC as Cliente,  ITE.AD_PROGRAMA as Depto, PRO.DESCRPROD as Produto, ITE.AD_REFERENCIAFORN as Exibicao, fin.vlrdesdob as Valor  from sankhya.TGFCAB as CAB, sankhya.TGFFIN as FIN, sankhya.TGFITE as ITE, sankhya.TGFPAR as PAR, sankhya.TGFPRO as PRO  where  ( (cab.nunota = fin.nunota) and (cab.nunota = ite.nunota) and (cab.codparc = par.codparc) and (ite.codprod = pro.codprod) )  and  DTVENC between :DATA1 and :DATA2 and CAB.CODTIPOPER = 506 and cab.STATUSNOTA = 'L'   order by cab.numnota, fin.dtvenc  ]]>
+			</expression>
+			<metadata>
+				<field name="Vencimento" label="Vencimento" type="D" visible="true" useFooter="false"/>
+				<field name="Contrato" label="Contrato" type="I" visible="true" useFooter="false"/>
+				<field name="Cliente" label="Cliente" type="S" visible="true" useFooter="false"/>
+				<field name="Depto" label="Depto" type="S" visible="true" useFooter="false"/>
+				<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+				<field name="Exibicao" label="Exibicao" type="S" visible="true" useFooter="false"/>
+				<field name="Valor" label="Valor" type="F" visible="true" useFooter="false"/>
+			</metadata>
+		</grid>
+		<grid id="grd_vnm051">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[ SELECT CAB.NUNOTA as Pedido,  DTVENC as 'Vencimento',  NOMEPARC as Parceiro,  AD_DATAENTR as 'Referencia',  DESCRPROD AS DESCRICAO,  CASE AD_PROGRAMA    when '1' then('Arte Brasil')    when '2' then('Vitrine do Artesanato')    when '3' then ('Vitrine do Artesanato na TV')    else AD_PROGRAMA    END   as Programa,  VLRDESDOB as 'ValorTotalBoleto' , --(ITE.VLRTOT / MAX(case when (cast(DESDOBRAMENTO as int)) = 0 then 1 else (cast(DESDOBRAMENTO as int))+1 end)) AS VLRUNIT ITE.VLRTOT /(SELECT COUNT(NUFIN) FROM SANKHYA_PRODUCAO.sankhya.TGFFIN fina where fina.NUNOTA = CAB.NUNOTA) as VlrProduto FROM SANKHYA_PRODUCAO.sankhya.TGFFIN as FIN  INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFCAB as CAB on (fin.nunota = cab.nunota) INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFPAR as PAR ON (cab.codparc = par.codparc) INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFITE as ITE on (cab.nunota = ite.nunota) INNER JOIN SANKHYA_PRODUCAO.sankhya.TGFPRO as PRO on (ITE.codprod = pro.codprod)  where DTVENC between :DATA1 and :DATA2 and CAB.CODTIPOPER = 506 and cab.STATUSNOTA = 'L'  GROUP BY cab.NUNOTA, nomeparc, fin.DTVENC,  ad_programa,AD_DATAENTR, DESCRPROD, VLRDESDOB, vlrtot  ORDER BY cab.nunota, DTVENC, NOMEPARC ]]>
+			</expression>
+			<metadata>
+				<field name="Pedido" label="Pedido" type="I" visible="true" useFooter="false"/>
+				<field name="Vencimento" label="Vencimento" type="D" visible="true" useFooter="false"/>
+				<field name="Parceiro" label="Parceiro" type="S" visible="true" useFooter="false"/>
+				<field name="Referencia" label="Referencia" type="D" visible="true" useFooter="false"/>
+				<field name="DESCRICAO" label="DESCRICAO" type="S" visible="true" useFooter="false"/>
+				<field name="Programa" label="Programa" type="S" visible="true" useFooter="false"/>
+				<field name="ValorTotalBoleto" label="ValorTotalBoleto" type="F" visible="true" useFooter="false"/>
+				<field name="VlrProduto" label="VlrProduto" type="F" visible="true" useFooter="false"/>
+			</metadata>
+		</grid>
+	</level>
+	<level id="lvl_an31x2" description="Detalhado"/>
+</gadget>

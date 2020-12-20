@@ -1,0 +1,70 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="Data Inicial" metadata="date" required="true" keep-last="false" keep-date="false" order="0"/>
+		<parameter id="DTFIM" description="Data Final" metadata="date" required="true" keep-last="false" keep-date="false" order="1"/>
+	</prompt-parameters>
+	<level id="lvl_2ximwb" description="Nível 1">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_2ximwc">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT  MARCA, CODVOL, SUM(VLR_VENDIDO) AS VLR_VENDIDO, SUM(QTD_VENDIDA) AS QTD_VENDIDA, SUM(TICKET_MEDIO) AS TICKET_MEDIO, SUM(VLR_COMPRA) AS VLR_COMPRA, SUM(QTD_COMPRA) AS QTD_COMPRA, SUM(TICKET_MEDIO_COMPRA) AS TICKET_MEDIO_COMPRA, SUM(VLR_VENDIDO)-SUM(VLR_COMPRA) AS VLR_MARGEM_COMPRA, CASE WHEN SUM(VLR_COMPRA) = 0 THEN 0 ELSE ROUND(SUM(VLR_VENDIDO)/SUM(VLR_COMPRA),2) END AS MARKUP_COMPRA, CASE WHEN SUM(VLR_VENDIDO) = 0 THEN 0 ELSE ROUND(((SUM(VLR_VENDIDO)-SUM(VLR_COMPRA))/SUM(VLR_VENDIDO))*100,2) END AS PERC_MARGEM_COMPRA, SUM(CMV) AS CMV, ROUND(SUM(VLR_VENDIDO)-SUM(CMV),2) AS MARGEM_CMV, CASE WHEN SUM(CMV) = 0 THEN 0 ELSE ROUND(SUM(VLR_VENDIDO)/SUM(CMV),2) END AS MARKUP_CMV, CASE WHEN SUM(VLR_VENDIDO) = 0 THEN 0 ELSE ROUND(((SUM(VLR_VENDIDO)-SUM(CMV))/SUM(VLR_VENDIDO))*100,2) END AS PERC_MARGEM_CMV   FROM (  SELECT PRO.MARCA, ITE.CODVOL, ROUND(SUM(ITE.VLRTOT-ITE.VLRDESC),2) AS VLR_VENDIDO, SUM(QTDNEG) AS QTD_VENDIDA, ROUND(ROUND(SUM(ITE.VLRTOT-ITE.VLRDESC),2) / SUM(QTDNEG),2)  AS TICKET_MEDIO,  0 AS VLR_COMPRA, 0 AS QTD_COMPRA, 0 AS TICKET_MEDIO_COMPRA, ROUND(sum(sankhya.PRECODECUSTO(ITE.CODPROD,ITE.CODVOL)*ITE.QTDNEG),2) AS CMV  from sankhya.TGFCAB CAB WITH(NOLOCK)  INNER JOIN sankhya.TGFITE ITE WITH(NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA  INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON ITE.CODPROD = PRO.CODPROD  WHERE   CAB.DTNEG BETWEEN :DTINI AND :DTFIM   AND CAB.CODTIPOPER IN (500,501,502,503,515)  AND CAB.AD_STATUSPGTO = 'E'  AND ITE.CODVOL != 'KT'  GROUP BY PRO.MARCA, ITE.CODVOL   UNION    select PRO.MARCA,ITE.CODVOL, 0 AS VLR_VENDIDO, 0 AS QTD_VENDIDA,0  AS TICKET_MEDIO, ROUND(SUM(ITE.VLRTOT-ITE.VLRDESC),2) AS VLR_COMPRA, SUM(QTDNEG) AS QTD_COMPRA,  ROUND(ROUND(SUM(ITE.VLRTOT-ITE.VLRDESC),2) / SUM(QTDNEG),2) AS TICKET_MEDIO_COMPRA, 0 AS CMV  from sankhya.TGFCAB CAB WITH(NOLOCK)  INNER JOIN sankhya.TGFITE ITE WITH(NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA  INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON ITE.CODPROD = PRO.CODPROD  WHERE   CAB.DTNEG BETWEEN :DTINI AND :DTFIM    AND CAB.CODTIPOPER BETWEEN 100 AND 111   AND CAB.STATUSNOTA = 'L'  AND ITE.CODVOL != 'KT'  GROUP BY PRO.MARCA, ITE.CODVOL  ) COMPRA_VENDA GROUP BY MARCA, CODVOL ORDER BY VLR_VENDIDO DESC]]>
+				</expression>
+				<metadata>
+					<field name="MARCA" label="Marca" type="S" visible="true" useFooter="false"/>
+					<field name="CODVOL" label="Unidade" type="S" visible="true" useFooter="false"/>
+					<field name="VLR_VENDIDO" label="Valor Vendido" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="QTD_VENDIDA" label="Quantidade Vendida" type="I" visible="true" useFooter="true" mask="#.##0,00"/>
+					<field name="TICKET_MEDIO" label="Ticket Médio Vendido" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="VLR_COMPRA" label="Valor Comprado" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="QTD_COMPRA" label="Quantidade Comprada" type="I" visible="true" useFooter="true" mask="#.##0,00"/>
+					<field name="TICKET_MEDIO_COMPRA" label="Ticket Médio Comprado" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="VLR_MARGEM_COMPRA" label="Margem (Compra)" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="MARKUP_COMPRA" label="Markup (compra)" type="I" visible="true" useFooter="false" mask="###0,0"/>
+					<field name="PERC_MARGEM_COMPRA" label="% Margem (Compra)" type="I" visible="true" useFooter="false" mask="#.##0,00 %"/>
+					<field name="CMV" label="CMV" type="I" visible="true" useFooter="true" mask="#.##0,00"/>
+					<field name="MARGEM_CMV" label="Margem (CMV)" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="MARKUP_CMV" label="Markup (CMV)" type="I" visible="true" useFooter="false" mask="###0,00"/>
+					<field name="PERC_MARGEM_CMV" label="PERC_MARGEM_CMV" type="I" visible="true" useFooter="false" mask="#.##0,00 %"/>
+				</metadata>
+				<on-click navigate-to="lvl_2ximwf">
+					<param id="MARCA">$MARCA</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_2ximwf" description="Nível 2">
+		<args>
+			<arg id="MARCA" type="text"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_2ximwg">
+				<title>
+					<![CDATA[PRODUTOS VENDIDOS NO PERÍODO :DTINI A :DTFIM DA MARCA :MARCA]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT  MARCA, CODPROD, DESCRPROD, COMPLDESC, CODVOL, SUM(VLR_VENDIDO) AS VLR_VENDIDO, SUM(QTD_VENDIDA) AS QTD_VENDIDA, SUM(TICKET_MEDIO) AS TICKET_MEDIO, SUM(VLR_COMPRA) AS VLR_COMPRA, SUM(QTD_COMPRA) AS QTD_COMPRA, SUM(TICKET_MEDIO_COMPRA) AS TICKET_MEDIO_COMPRA, SUM(VLR_VENDIDO)-SUM(VLR_COMPRA) AS VLR_MARGEM_COMPRA, CASE WHEN SUM(VLR_COMPRA) = 0 THEN 0 ELSE ROUND(SUM(VLR_VENDIDO)/SUM(VLR_COMPRA),2) END AS MARKUP_COMPRA, CASE WHEN SUM(VLR_VENDIDO) = 0 THEN 0 ELSE ROUND(((SUM(VLR_VENDIDO)-SUM(VLR_COMPRA))/SUM(VLR_VENDIDO))*100,2) END AS PERC_MARGEM_COMPRA, SUM(CMV) AS CMV, ROUND(SUM(VLR_VENDIDO)-SUM(CMV),2) AS MARGEM_CMV, CASE WHEN SUM(CMV) = 0 THEN 0 ELSE ROUND(SUM(VLR_VENDIDO)/SUM(CMV),2) END AS MARKUP_CMV, CASE WHEN SUM(VLR_VENDIDO) = 0 THEN 0 ELSE ROUND(((SUM(VLR_VENDIDO)-SUM(CMV))/SUM(VLR_VENDIDO))*100,2) END AS PERC_MARGEM_Cmv   FROM (  SELECT PRO.MARCA, PRO.CODPROD, PRO.DESCRPROD, PRO.COMPLDESC, ITE.CODVOL,  ROUND(SUM(ITE.VLRTOT-ITE.VLRDESC),2) AS VLR_VENDIDO, SUM(QTDNEG) AS QTD_VENDIDA, ROUND(ROUND(SUM(ITE.VLRTOT-ITE.VLRDESC),2) / SUM(QTDNEG),2)  AS TICKET_MEDIO,  0 AS VLR_COMPRA, 0 AS QTD_COMPRA, 0 AS TICKET_MEDIO_COMPRA, ROUND(sum(sankhya.PRECODECUSTO(ITE.CODPROD,ITE.CODVOL)*ITE.QTDNEG),2) AS CMV  from sankhya.TGFCAB CAB WITH(NOLOCK)  INNER JOIN sankhya.TGFITE ITE WITH(NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA  INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON ITE.CODPROD = PRO.CODPROD  WHERE  CAB.DTNEG BETWEEN :DTINI AND :DTFIM  AND PRO.MARCA = :MARCA  AND CAB.CODTIPOPER IN (500,501,502,503,515)  AND CAB.AD_STATUSPGTO = 'E'  AND ITE.CODVOL != 'KT'  GROUP BY PRO.MARCA, PRO.CODPROD, PRO.DESCRPROD, PRO.COMPLDESC, ITE.CODVOL   UNION    select PRO.MARCA,PRO.CODPROD, PRO.DESCRPROD, PRO.COMPLDESC, ITE.CODVOL,  0 AS VLR_VENDIDO, 0 AS QTD_VENDIDA,0  AS TICKET_MEDIO, ROUND(SUM(ITE.VLRTOT-ITE.VLRDESC),2) AS VLR_COMPRA, SUM(QTDNEG) AS QTD_COMPRA,  ROUND(ROUND(SUM(ITE.VLRTOT-ITE.VLRDESC),2) / SUM(QTDNEG),2) AS TICKET_MEDIO_COMPRA, 0 AS CMV  from sankhya.TGFCAB CAB WITH(NOLOCK)  INNER JOIN sankhya.TGFITE ITE WITH(NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA  INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON ITE.CODPROD = PRO.CODPROD  WHERE  CAB.DTNEG BETWEEN :DTINI AND :DTFIM  AND PRO.MARCA = :MARCA   AND CAB.CODTIPOPER BETWEEN 100 AND 111   AND CAB.STATUSNOTA = 'L'  AND ITE.CODVOL != 'KT'  GROUP BY PRO.MARCA, PRO.CODPROD, PRO.DESCRPROD, PRO.COMPLDESC, ITE.CODVOL  ) COMPRA_VENDA GROUP BY MARCA, CODPROD, DESCRPROD, COMPLDESC, CODVOL ORDER BY VLR_VENDIDO DESC]]>
+				</expression>
+				<metadata>
+					<field name="MARCA" label="MARCA" type="S" visible="true" useFooter="false"/>
+					<field name="CODPROD" label="CODPROD" type="I" visible="true" useFooter="false"/>
+					<field name="DESCRPROD" label="Descrição do Produto" type="S" visible="true" useFooter="false"/>
+					<field name="COMPLDESC" label="Complemento da Descrição" type="S" visible="true" useFooter="false"/>
+					<field name="CODVOL" label="CODVOL" type="S" visible="true" useFooter="false"/>
+					<field name="VLR_VENDIDO" label="Valor Vendido" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="QTD_VENDIDA" label="Quantidade Vendida" type="I" visible="true" useFooter="true" mask="#.##0,00"/>
+					<field name="TICKET_MEDIO" label="Ticket Médio" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="VLR_COMPRA" label="Valor Comprado" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="QTD_COMPRA" label="Quantidade Comprada" type="I" visible="true" useFooter="true" mask="#.##0,00"/>
+					<field name="TICKET_MEDIO_COMPRA" label="Ticket Médio Comprado" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					<field name="VLR_MARGEM_COMPRA" label="VLR_MARGEM_COMPRA" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="MARKUP_COMPRA" label="MARKUP_COMPRA" type="I" visible="true" useFooter="false" mask="###0,0"/>
+					<field name="PERC_MARGEM_COMPRA" label="PERC_MARGEM_COMPRA" type="I" visible="true" useFooter="false" mask="#.##0,00 %"/>
+					<field name="CMV" label="CMV" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="MARGEM_CMV" label="MARGEM_CMV" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="MARKUP_CMV" label="MARKUP_CMV" type="I" visible="true" useFooter="false" mask="###0,0"/>
+					<field name="PERC_MARGEM_Cmv" label="PERC_MARGEM_Cmv" type="I" visible="true" useFooter="false" mask="#.##0,00 %"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

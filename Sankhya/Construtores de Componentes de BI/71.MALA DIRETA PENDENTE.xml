@@ -1,0 +1,37 @@
+<gadget>
+	<level id="lvl_awruzdv" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_awruzdw">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT PRO.CODPROD AS PRODUTO,   (RTRIM(PRO.DESCRPROD) + ' - ' + RTRIM(PRO.COMPLDESC)) AS DESCRICAO,   COUNT(CAB.NUNOTA) AS QUANTIDADE FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFITE ITE WITH (NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   INNER JOIN sankhya.TGFPRO PRO WITH (NOLOCK) ON PRO.CODPROD = ITE.CODPROD WHERE CAB.CODTIPOPER = 508   AND ITE.QTDENTREGUE < ITE.QTDNEG   AND (PRO.CODGRUPOPROD >= 500000 AND PRO.CODGRUPOPROD <= 600000)   AND (YEAR(GETDATE()) > YEAR(PRO.AD_DTENTREGA)    OR (YEAR(GETDATE()) = YEAR(PRO.AD_DTENTREGA) AND MONTH(PRO.AD_DTENTREGA) <= MONTH(GETDATE()) )    )   AND CAB.CODPARC <> 38227 GROUP BY PRO.CODPROD, PRO.DESCRPROD, PRO.COMPLDESC]]>
+				</expression>
+				<metadata>
+					<field name="PRODUTO" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="DESCRICAO" label="DESCRICAO" type="S" visible="true" useFooter="false"/>
+					<field name="QUANTIDADE" label="QUANTIDADE" type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click navigate-to="lvl_azbg6v3">
+					<param id="CODPROD">$PRODUTO</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_azbg6v3" description="Pedidos por produto">
+		<args>
+			<arg id="CODPROD" type="integer"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_azbg6v4">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CAB.NUNOTA AS NUNOTA,   AD_PEDORIGINAL AS PEDIDO,   CAST(CAB.CODPARC AS VARCHAR) + ' - ' + PAR.NOMEPARC AS PARCEIRO,   CAB.DTNEG FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFITE ITE WITH (NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   INNER JOIN sankhya.TGFPRO PRO WITH (NOLOCK) ON PRO.CODPROD = ITE.CODPROD   INNER JOIN SANKHYA.TGFPAR PAR WITH (NOLOCK) ON PAR.CODPARC = CAB.CODPARC WHERE CAB.CODTIPOPER = 508   AND PRO.CODPROD = :CODPROD   AND ITE.QTDENTREGUE < ITE.QTDNEG   AND (PRO.CODGRUPOPROD >= 500000 AND PRO.CODGRUPOPROD <= 600000)   AND (YEAR(GETDATE()) > YEAR(PRO.AD_DTENTREGA)    OR (YEAR(GETDATE()) = YEAR(PRO.AD_DTENTREGA) AND MONTH(PRO.AD_DTENTREGA) <= MONTH(GETDATE()) )    )   AND CAB.CODPARC <> 38227]]>
+				</expression>
+				<metadata>
+					<field name="NUNOTA" label="NUNOTA" type="I" visible="true" useFooter="false"/>
+					<field name="PEDIDO" label="PEDIDO" type="I" visible="true" useFooter="false"/>
+					<field name="PARCEIRO" label="PARCEIRO" type="S" visible="true" useFooter="false"/>
+					<field name="DTNEG" label="DTNEG" type="D" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

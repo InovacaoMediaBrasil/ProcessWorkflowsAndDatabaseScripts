@@ -1,0 +1,31 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODPROD" description="1. Código do Produto" metadata="integer" required="true" keep-last="true"/>
+		<parameter id="DTINI" description="2. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="3. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_avh7ckf" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_avh7ckg">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CAB.NUNOTA,   CAB.DTNEG,   PAR.NOMEPARC,   PAR.TELEFONE,   PAR.FAX AS TELEFONE2,   PAR.EMAIL,   PAR.CEP,   LTRIM(ISNULL(EN.TIPO,'') + ' ' + EN.NOMEEND) AS ENDERECO,   PAR.NUMEND,   ISNULL(PAR.COMPLEMENTO,'') AS COMPLEMENTO,   BAI.NOMEBAI,   CID.NOMECID,   UF.DESCRICAO AS UF FROM sankhya.TGFCAB CAB WITH (NOLOCK)   INNER JOIN sankhya.TGFITE ITE WITH (NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA AND ITE.CODPROD = :CODPROD   INNER JOIN sankhya.TGFPAR PAR WITH (NOLOCK) ON CAB.CODPARC = PAR.CODPARC   INNER JOIN sankhya.TSIEND EN WITH (NOLOCK) ON EN.CODEND = PAR.CODEND   INNER JOIN sankhya.TSIBAI BAI WITH (NOLOCK) ON BAI.CODBAI = PAR.CODBAI   INNER JOIN sankhya.TSICID CID WITH (NOLOCK) ON CID.CODCID = PAR.CODCID   INNER JOIN sankhya.TSIUFS UF WITH (NOLOCK) ON UF.CODUF = CID.UF WHERE ITE.CODPROD = :CODPROD   AND CAB.AD_STATUSPGTO = 'E'   AND CAB.DTNEG BETWEEN :DTINI AND :DTFIM   AND CAB.CODTIPOPER = 550]]>
+				</expression>
+				<metadata>
+					<field name="NUNOTA" label="NUMERO UNICO DE PEDIDOS" type="I" visible="true" useFooter="false"/>
+					<field name="DTNEG" label="DTNEG" type="D" visible="true" useFooter="false"/>
+					<field name="NOMEPARC" label="NOME CLIENTE" type="S" visible="true" useFooter="false"/>
+					<field name="TELEFONE" label="TELEFONE" type="S" visible="true" useFooter="false"/>
+					<field name="TELEFONE2" label="TELEFONE2" type="S" visible="true" useFooter="false"/>
+					<field name="EMAIL" label="EMAIL" type="S" visible="true" useFooter="false"/>
+					<field name="CEP" label="CEP" type="S" visible="true" useFooter="false"/>
+					<field name="ENDERECO" label="ENDERECO" type="S" visible="true" useFooter="false"/>
+					<field name="NUMEND" label="NUMERO ENDERECO" type="S" visible="true" useFooter="false"/>
+					<field name="COMPLEMENTO" label="COMPLEMENTO" type="S" visible="true" useFooter="false"/>
+					<field name="NOMEBAI" label="BAIRRO" type="S" visible="true" useFooter="false"/>
+					<field name="NOMECID" label="CIDADE" type="S" visible="true" useFooter="false"/>
+					<field name="UF" label="UF" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

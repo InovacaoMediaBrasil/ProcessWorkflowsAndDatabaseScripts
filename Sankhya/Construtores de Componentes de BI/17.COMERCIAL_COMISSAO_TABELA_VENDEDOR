@@ -1,0 +1,31 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_FINAL" description="3. Data Final" metadata="date" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="DATA_INICIAL" description="2. Data Inicial" metadata="date" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="VENDEDOR" description="1. Vendedor" metadata="entity:Vendedor@CODVEND" required="true" keep-last="true" keep-date="false"/>
+		<parameter id="TIPO" description="Tipo de Relatório" metadata="singleList:Text" listType="text" required="true" keep-last="true" keep-date="false">
+			<item value="F" label="FINANCEIRO"/>
+			<item value="P" label="PEDIDOS"/>
+		</parameter>
+	</prompt-parameters>
+	<level id="lvl_52zaf4" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_52zaf5">
+				<title>
+					<![CDATA[COMISSAO POR VENDEDOR]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[ SELECT DISTINCT CAB.AD_PEDORIGINAL AS PEDIDO,   PAR.NOMEPARC AS CLIENTE,   CASE WHEN :TIPO = 'F' THEN TIT.DESCRTIPTIT ELSE '<PEDIDO>' END AS PAGAMENTO,   CASE WHEN :TIPO = 'F' THEN FIN.DHBAIXA ELSE CAB.DTNEG END AS DATA,   CASE WHEN :TIPO = 'F' THEN FIN.VLRDESDOB ELSE ROUND(CAB.VLRNOTA-CAB.VLRFRETE,2) END AS VLRFATURADO,   CASE WHEN :TIPO = 'F' THEN ROUND((FIN.VLRDESDOB - (CAB.VLRFRETE/(CAB.VLRNOTA/FIN.VLRDESDOB)))/100,2)   ELSE ROUND((CAB.VLRNOTA-CAB.VLRFRETE)/100,2) END as VLRCOMISSAO FROM  TGFCAB CAB WITH (NOLOCK)   JOIN TGFVEN VEN WITH (NOLOCK) ON (CAB.CODVEND = VEN.CODVEND)   JOIN TGFPAR PAR WITH (NOLOCK) ON (CAB.CODPARC = PAR.CODPARC)   LEFT JOIN TGFFIN FIN WITH (NOLOCK) ON (FIN.NUNOTA = CAB.NUNOTA AND :TIPO = 'F')   LEFT JOIN TGFTIT TIT WITH (NOLOCK) ON (FIN.CODTIPTIT = TIT.CODTIPTIT AND :TIPO = 'F')  WHERE  ((:TIPO = 'F' AND FIN.DHBAIXA >= :DATA_INICIAL AND FIN.DHBAIXA <= :DATA_FINAL AND CAB.DTNEG < '01/04/2017') OR (:TIPO = 'P' AND CAB.DTNEG >= :DATA_INICIAL AND CAB.DTNEG <= :DATA_FINAL AND CAB.AD_STATUSPGTO ='E' ))  AND VEN.CODVEND = :VENDEDOR AND CAB.CODTIPOPER IN (500,501,502,503,515)    ORDER BY CAB.AD_PEDORIGINAL]]>
+				</expression>
+				<metadata>
+					<field name="PEDIDO" label="PEDIDO" type="I" visible="true" useFooter="false"/>
+					<field name="CLIENTE" label="CLIENTE" type="S" visible="true" useFooter="false"/>
+					<field name="PAGAMENTO" label="PAGAMENTO" type="S" visible="true" useFooter="false"/>
+					<field name="DATA" label="DATA" type="D" visible="true" useFooter="false"/>
+					<field name="VLRFATURADO" label="VLRFATURADO" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="VLRCOMISSAO" label="VLRCOMISSAO" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

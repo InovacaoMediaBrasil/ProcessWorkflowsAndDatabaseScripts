@@ -1,0 +1,17 @@
+<gadget>
+	<level id="lvl_1cvayl" description="Principal">
+		<grid id="grd_1cvaym">
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[select pro.CODPROD as 'Código', DESCRPROD AS 'Descrição', COMPLDESC as 'Complemento', CODVOL as 'Unidade', MARCA As Marca, ESTOQUE  as EstoqueFisico from sankhya.tgfpro PRO INNER JOIN sankhya.TGFEST EST ON EST.CODPROD = PRO.CODPROD  where pro.ativo = 's' and DESCRPROD like 'D.%' and dbo.FN_CALCULA_RESERVADO(pro.codprod) = 0]]>
+			</expression>
+			<metadata>
+				<field name="Código" label="Código" type="I" visible="true" useFooter="false"/>
+				<field name="Descrição" label="Descrição" type="S" visible="true" useFooter="false"/>
+				<field name="Complemento" label="Complemento" type="S" visible="true" useFooter="false"/>
+				<field name="Unidade" label="Unidade" type="S" visible="true" useFooter="false"/>
+				<field name="Marca" label="Marca" type="S" visible="true" useFooter="false"/>
+				<field name="EstoqueFisico" label="EstoqueFisico" type="I" visible="true" useFooter="false"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

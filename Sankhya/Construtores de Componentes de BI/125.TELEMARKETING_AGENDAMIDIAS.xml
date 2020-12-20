@@ -1,0 +1,29 @@
+<gadget>
+	<local-vars>
+		<var id="DataAtual">
+			<expression type="sql">
+				<![CDATA[ select CONVERT(varchar(20), getdate(), 103)]]>
+			</expression>
+		</var>
+	</local-vars>
+	<level id="lvl_ahdmile" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_ahdmilf" tamTexto="12">
+				<title>
+					<![CDATA[Agendamentos de Mídia para $DataAtual]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CASE Agenda.AOVIVO    WHEN 'S' THEN Opcoes.OPCAO + '-' + 'AO VIVO'    ELSE Opcoes.OPCAO   END as Midia,   CONVERT(VARCHAR(5),AGENDA.DATA,114) AS Inicio,   PARCEIRO.RAZAOSOCIAL AS Artesao,   PRODUTO.CODPROD AS CodigoProd,   PRODUTO.DESCRPROD + ISNULL(' - ' + Produto.COMPLDESC, '') AS Produto,   AGENDA.OBSERVACAO   FROM sankhya.AD_AGENDAMIDIAS AGENDA WITH (NOLOCK)   INNER JOIN sankhya.TGFPAR PARCEIRO WITH (NOLOCK) ON PARCEIRO.CODPARC = AGENDA.CODPARC   INNER JOIN sankhya.TGFPRO PRODUTO WITH (NOLOCK) ON PRODUTO.CODPROD = AGENDA.CODPROD   INNER JOIN sankhya.TDDOPC OPCOES WITH (NOLOCK) ON OPCOES.VALOR = Agenda.MIDIA AND OPCOES.NUCAMPO = 9999990006 WHERE CAST(AGENDA.DATA AS DATE) = CAST(GETDATE() AS DATE)   AND AGENDA.STATUS <> 'Cancelada' ORDER BY INICIO]]>
+				</expression>
+				<metadata>
+					<field name="Midia" label="Midia" type="S" visible="true" useFooter="false"/>
+					<field name="Inicio" label="Inicio" type="S" visible="true" useFooter="false"/>
+					<field name="Artesao" label="Artesão" type="S" visible="true" useFooter="false"/>
+					<field name="CodigoProd" label="Código do Produto" type="I" visible="true" useFooter="false"/>
+					<field name="Produto" label="Produto" type="S" visible="true" useFooter="false"/>
+					<field name="OBSERVACAO" label="Observação" type="S" visible="true" useFooter="false"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

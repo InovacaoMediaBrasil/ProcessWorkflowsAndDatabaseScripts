@@ -1,0 +1,32 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_ubwzmc" description="Principal">
+		<chart id="cht_ubwzmd" type="bar">
+			<title>
+				<![CDATA[TAREFAS CRIADAS ENTRE :DTINI E :DTFIM]]>
+			</title>
+			<expression type="sql">
+				<![CDATA[SELECT T.RESPONSAVEL, COUNT(T.IDTAREFASTI) AS QTD FROM sankhya.AD_TAREFASTI T WHERE T.ENTREGUEEM BETWEEN :DTINI AND :DTFIM GROUP BY T.RESPONSAVEL]]>
+			</expression>
+			<metadata>
+				<field name="RESPONSAVEL" label="RESPONSAVEL" type="S" visible="true" useFooter="false"/>
+				<field name="QTD" label="QTD" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<horizontal-axis>
+				<linear>
+					<mask/>
+				</linear>
+			</horizontal-axis>
+			<series>
+				<serie type="bar">
+					<xField>$QTD</xField>
+					<yField>$RESPONSAVEL</yField>
+					<display>ENTREGAS POR RESPONSAVEL</display>
+				</serie>
+			</series>
+		</chart>
+	</level>
+</gadget>

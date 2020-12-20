@@ -1,0 +1,56 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_b5uenj" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<simple-value id="svl_b5uenk" tamTexto="30">
+				<title>
+					<![CDATA[Quantidade de romaneios impressos]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT COUNT(CAB.NUNOTA) AS 'Romaneios_Impressos' FROM TGFCAB CAB WITH (NOLOCK) WHERE CODTIPOPER = 505   AND DTNEG >= :DTINI   AND DTNEG <= :DTFIM]]>
+				</expression>
+				<metadata>
+					<field name="Romaneios_Impressos" label="Romaneios_Impressos" type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<value-expression>
+					<![CDATA[$Romaneios_Impressos]]>
+				</value-expression>
+				<on-click navigate-to="lvl_geomy0"/>
+			</simple-value>
+		</container>
+	</level>
+	<level id="lvl_geomy0" description="2 Nivel">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_geomy1" type="column">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT COUNT(CAB.NUNOTA) as 'Romaneios_Impressos', DTNEG as DATA  FROM TGFCAB CAB  WHERE CODTIPOPER = 505 AND DTNEG >= :DTINI AND DTNEG <= :DTFIM  GROUP BY DTNEG ORDER BY DTNEG]]>
+				</expression>
+				<metadata>
+					<field name="Romaneios_Impressos" label="Romaneios_Impressos" type="I" visible="true" useFooter="false"/>
+					<field name="DATA" label="DATA" type="D" visible="true" useFooter="false"/>
+				</metadata>
+				<horizontal-axis>
+					<category field="$DATA" rotation="-45" dropLabel="false">
+						<title>Data de Negociacao</title>
+					</category>
+				</horizontal-axis>
+				<vertical-axis>
+					<linear>
+						<mask>###0</mask>
+						<title>Romaneios impressos</title>
+					</linear>
+				</vertical-axis>
+				<series>
+					<serie type="column">
+						<xField>$DATA</xField>
+						<yField>$Romaneios_Impressos</yField>
+						<display>Romaneios Impressos</display>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

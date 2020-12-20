@@ -1,0 +1,7 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATACONT" description="Data da Contagem" metadata="entity:ESTHIST@CODPROD,DATACONT" required="true" keep-last="false"/>
+		<parameter id="CODPROD" description="Produto" metadata="entity:Produto@CODPROD" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_abr4ffb" description="Principal"/>
+</gadget>

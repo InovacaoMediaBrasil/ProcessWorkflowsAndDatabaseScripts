@@ -1,0 +1,36 @@
+<gadget refresh-time="60000">
+	<level id="lvl_mneydw" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="150">
+				<simple-value id="svl_nk3960" tamTexto="18">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT SUM(QTD_FATURAMENTO)-SUM(QTD_ROMANEIOS) AS DIFERENCA,   CASE WHEN SUM(QTD_FATURAMENTO)-SUM(QTD_ROMANEIOS) < 0 THEN '#FF0000'     WHEN SUM(QTD_FATURAMENTO)-SUM(QTD_ROMANEIOS) BETWEEN 0 AND 15 THEN '#FF7300'   ELSE '#00FF04'   END AS COR  FROM (  SELECT DISTINCT CAB.NUNOTA, CASE WHEN OCORRENCIA = 'I' THEN 1 ELSE 0 END AS QTD_ROMANEIOS, CASE WHEN OCORRENCIA = 'V' THEN 1 ELSE 0 END AS QTD_FATURAMENTO FROM sankhya.AD_PEDIDOVTEXSCFLUXO P WITH(NOLOCK) INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = P.NUNOTA WHERE CAST(DATA AS DATE) = CAST(GETDATE() AS DATE) AND OCORRENCIA IN ('I','V')  union SELECT DISTINCT CAB.NUNOTA, CASE WHEN OCORRENCIA = 'I' THEN 1 ELSE 0 END AS QTD_ROMANEIOS, CASE WHEN OCORRENCIA = 'V' THEN 1 ELSE 0 END AS QTD_FATURAMENTO FROM sankhya.AD_PEDIDOVTEXSCREENVIOFLUXO P WITH(NOLOCK) INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = P.NUNOTA and cab.AD_BONIFICADO = 'S' WHERE CAST(DATA AS DATE) = CAST(GETDATE() AS DATE) AND OCORRENCIA IN ('I','V') ) P]]>
+					</expression>
+					<metadata>
+						<field name="DIFERENCA" label="DIFERENCA" type="I" visible="true" useFooter="false"/>
+						<field name="COR" label="COR" type="S" visible="true" useFooter="false"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<style type='text/css'> .tg  {border-collapse:collapse;border-spacing:0;} .tg td{font-family:Arial, sans-serif;font-size:12px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;} .tg th{font-family:Arial, sans-serif;font-size:12px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;} .tg .tg-a1dc{font-size:36px;background-color:$COR;color:#ffffff;text-align:center;vertical-align:top;} @media screen and (max-width: 767px) {.tg {width: auto !important;}.tg col {width: auto !important;}.tg-wrap {overflow-x: auto;-webkit-overflow-scrolling: touch;}}</style> <div class="tg-wrap"><table class="tg" style="undefined;table-layout: fixed; width: 300px"> <colgroup> <col style="width: 200px"> <col style="width: 100px"> </colgroup>   <tr>     <th><span style='font-size: 18px;'>FATURADOS menos IMPRESSOS:</span></th>     <th class="tg-a1dc"><div style='text-align: center;'><span style='font-size: 48px; text-align:center;'>$diferenca</span></div></th>   </tr> </table></div>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="204">
+				<simple-value id="svl_mneyfg" tamTexto="25">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[ SELECT SUM(PROD_HOJE)   AS HOJE,   SUM(PROD_7DIAS)  AS '7DIAS',   AVG(PROD_7DIAS)  AS MEDIA_7DIAS,   (SUM(CAST(PROD_HOJE AS DECIMAL(10,2)))/AVG(CAST(PROD_7DIAS AS DECIMAL(10,2)))-1) AS perc_SOB7DIAS FROM (    SELECT   D, SUM(PROD_HOJE) AS PROD_HOJE, SUM(PROD_7DIAS) AS PROD_7DIAS FROM ( SELECT  CAST(DATA AS DATE) AS D, CASE WHEN CAST(DATA AS DATE) = CAST(GETDATE() AS DATE) THEN COUNT(P.NUNOTA) END AS PROD_HOJE, CASE WHEN CAST(DATA AS DATE) >= DATEADD(DAY,-8,GETDATE()) AND CAST(DATA AS DATE) < CAST(GETDATE() AS DATE) THEN COUNT(P.NUNOTA) END AS PROD_7DIAS  FROM sankhya.AD_PEDIDOVTEXSCFLUXO P WITH(NOLOCK) INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = P.NUNOTA WHERE CAST(DATA AS DATE) >= DATEADD(DAY,-8,GETDATE())   AND OCORRENCIA IN ('V') GROUP BY CAST(DATA AS DATE)  UNION SELECT  CAST(DATA AS DATE) AS D, CASE WHEN CAST(DATA AS DATE) = CAST(GETDATE() AS DATE) THEN COUNT(P.NUNOTA) END AS PROD_HOJE, CASE WHEN CAST(DATA AS DATE) >= DATEADD(DAY,-8,GETDATE()) AND CAST(DATA AS DATE) < CAST(GETDATE() AS DATE) THEN COUNT(P.NUNOTA) END AS PROD_7DIAS  FROM sankhya.AD_PEDIDOVTEXSCREENVIOFLUXO P WITH(NOLOCK) INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = P.NUNOTA AND CAB.AD_BONIFICADO = 'S'  WHERE CAST(DATA AS DATE) >= DATEADD(DAY,-8,GETDATE())   AND OCORRENCIA IN ('V') GROUP BY CAST(DATA AS DATE)  ) A GROUP BY D) DATA]]>
+					</expression>
+					<metadata>
+						<field name="HOJE" label="HOJE" type="I" visible="true" useFooter="false"/>
+						<field name="7DIAS" label="7DIAS" type="I" visible="true" useFooter="false"/>
+						<field name="MEDIA_7DIAS" label="MEDIA_7DIAS" type="I" visible="true" useFooter="false"/>
+						<field name="perc_SOB7DIAS" label="perc_SOB7DIAS" type="F" visible="true" useFooter="false" mask="#.##0,0 %"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<span style='font-size: 17px;'>Produção do dia: <b>$HOJE</b> Média 7 dias anteriores: <b>$MEDIA_7DIAS</b> ($perc_SOB7DIAS)</span]]>
+					</value-expression>
+				</simple-value>
+			</container>
+		</container>
+	</level>
+</gadget>

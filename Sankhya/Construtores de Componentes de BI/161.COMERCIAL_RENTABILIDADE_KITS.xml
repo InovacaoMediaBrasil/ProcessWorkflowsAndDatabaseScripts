@@ -1,0 +1,49 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODPROD" description="1. Código do Kit" metadata="integer" required="true" keep-last="true" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_akm4t7q" description="Principal">
+		<chart id="cht_akm4t7r" type="analise-rentabilidade">
+			<title>
+				<![CDATA[RENTABILIDADE DO KIT]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT SUM(ISNULL(ICP.AD_VLRVENDA,0)) AS VLRVENDA, SUM(CASE WHEN ITEM.GRUPOICMS IN (1,2) THEN 0 ELSE ROUND(ISNULL(AD_VLRVENDA,0)*0.18,2) END) AS VLRICMS, SUM(CASE WHEN ITEM.GRUPOPIS = 'ISENTO' THEN 0 ELSE ROUND(ISNULL(AD_VLRVENDA,0)*0.0065,2) END) AS VLRPIS, SUM(CASE WHEN ITEM.GRUPOCOFINS = 'ISENTO' THEN 0 ELSE ROUND(ISNULL(AD_VLRVENDA,0)*0.03,2) END) AS VLRCOFINS, SUM(ROUND(ISNULL(AD_VLRVENDA,0)*0.15,2)) AS DEDUCOES, SUM(round(sankhya.PRECODECUSTO(icp.codmatprima, icp.codvol),2)) as CUSTO FROM sankhya.TGFICP ICP INNER JOIN sankhya.TGFPRO ITEM ON ITEM.CODPROD = ICP.CODMATPRIMA WHERE ICP.CODPROD = :CODPROD ]]>
+			</expression>
+			<metadata>
+				<field name="VLRVENDA" label="VLRVENDA" type="I" visible="true" useFooter="false"/>
+				<field name="VLRICMS" label="VLRICMS" type="I" visible="true" useFooter="false"/>
+				<field name="VLRPIS" label="VLRPIS" type="I" visible="true" useFooter="false"/>
+				<field name="VLRCOFINS" label="VLRCOFINS" type="I" visible="true" useFooter="false"/>
+				<field name="DEDUCOES" label="DEDUCOES" type="I" visible="true" useFooter="false"/>
+				<field name="CUSTO" label="CUSTO" type="F" visible="true" useFooter="false"/>
+			</metadata>
+			<legend/>
+			<fat>
+				<expression type="sql">
+					<![CDATA[SELECT SUM(ISNULL(ICP.AD_VLRVENDA,0)) AS VLRVENDA FROM sankhya.TGFICP ICP INNER JOIN sankhya.TGFPRO ITEM ON ITEM.CODPROD = ICP.CODMATPRIMA WHERE ICP.CODPROD = :CODPROD ]]>
+				</expression>
+			</fat>
+			<cmv>
+				<expression type="sql">
+					<![CDATA[SELECT SUM(round(sankhya.PRECODECUSTO(icp.codmatprima, icp.codvol),2)) as CUSTO FROM sankhya.TGFICP ICP INNER JOIN sankhya.TGFPRO ITEM ON ITEM.CODPROD = ICP.CODMATPRIMA WHERE ICP.CODPROD = :CODPROD  ]]>
+				</expression>
+			</cmv>
+			<gv>
+				<expression type="sql">
+					<![CDATA[SELECT ROUND(SUM(CASE WHEN ITEM.GRUPOICMS IN (1,2) THEN 0 ELSE ROUND(ISNULL(AD_VLRVENDA,0)*0.18,2) END + CASE WHEN ITEM.GRUPOPIS = 'ISENTO' THEN 0 ELSE ROUND(ISNULL(AD_VLRVENDA,0)*0.0065,2) END + CASE WHEN ITEM.GRUPOCOFINS = 'ISENTO' THEN 0 ELSE ROUND(ISNULL(AD_VLRVENDA,0)*0.03,2) END),2) AS IMPOSTOS FROM sankhya.TGFICP ICP INNER JOIN sankhya.TGFPRO ITEM ON ITEM.CODPROD = ICP.CODMATPRIMA WHERE ICP.CODPROD = :codprod ]]>
+				</expression>
+			</gv>
+			<gf>
+				<expression type="sql">
+					<![CDATA[SELECT SUM(ROUND(ISNULL(AD_VLRVENDA,0)*0.15,2)) AS DEDUCOES FROM sankhya.TGFICP ICP INNER JOIN sankhya.TGFPRO ITEM ON ITEM.CODPROD = ICP.CODMATPRIMA WHERE ICP.CODPROD = :CODPROD ]]>
+				</expression>
+			</gf>
+			<resultado>
+				<expression type="sql">
+					<![CDATA[SELECT  SUM(  ISNULL(ICP.AD_VLRVENDA,0) - CASE WHEN ITEM.GRUPOICMS IN (1,2) THEN 0 ELSE ROUND(ISNULL(AD_VLRVENDA,0)*0.18,2) END - CASE WHEN ITEM.GRUPOPIS = 'ISENTO' THEN 0 ELSE ROUND(ISNULL(AD_VLRVENDA,0)*0.0065,2) END - CASE WHEN ITEM.GRUPOCOFINS = 'ISENTO' THEN 0 ELSE ROUND(ISNULL(AD_VLRVENDA,0)*0.03,2) END - ROUND(ISNULL(AD_VLRVENDA,0)*0.15,2)) - round(sankhya.PRECODECUSTO(icp.codmatprima, icp.codvol),2))) FROM sankhya.TGFICP ICP INNER JOIN sankhya.TGFPRO ITEM ON ITEM.CODPROD = ICP.CODMATPRIMA WHERE ICP.CODPROD = :CODPROD  ]]>
+				</expression>
+			</resultado>
+		</chart>
+	</level>
+</gadget>

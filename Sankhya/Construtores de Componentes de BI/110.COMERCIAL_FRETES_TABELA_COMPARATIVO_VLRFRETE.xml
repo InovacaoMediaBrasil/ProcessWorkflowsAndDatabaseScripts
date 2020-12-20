@@ -1,0 +1,27 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATA_FIM" description="2, Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_n5jld3" description="Principal">
+		<grid id="grd_n5jld4">
+			<title>
+				<![CDATA[Comparativo de Fretes em :DATA_INI - :DATA_FIM]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[select F.DATA as DataPostagem, c.PEDORIGINAL as NumeroDoPedido, ite.peso as PesoSankhya, cab.VLRFRETE as ValorFreteSankhya, c.PESO as PesoCorreios, c.VLRFRETE as ValorFreteCorreios, c.CUBAGEM as CubagemCorreios, (cab.VLRFRETE - c.VLRFRETE) as Diferenca, CASE WHEN cab.VLRFRETE < C.VLRFRETE THEN '#FAC8CD' else '#C8FAF5' end as BKCOLOR from sankhya.AD_PEDIDOVTEXSC C inner join sankhya.TGFCAB cab on cab.AD_PEDORIGINAL = c.PEDORIGINAL inner join  (select nunota, sum(PRO.PESOBRUTO) as peso from sankhya.TGFITE ITE inner join  sankhya.TGFPRO PRO ON ITE.CODPROD = pro.CODPROD where ITE.USOPROD = 'R' group by NUNOTA) ite on ite.NUNOTA = cab.NUNOTA inner join sankhya.AD_PEDIDOVTEXSCFLUXO f on f.OCORRENCIA = 'T' and f.PEDORIGINAL = c.PEDORIGINAL WHERE c.VLRFRETE is not null and cab.CODTIPOPER in (500,501,502,503,515) and f.DATA between :DATA_INI and :DATA_FIM]]>
+			</expression>
+			<metadata>
+				<field name="DataPostagem" label="DataPostagem" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+				<field name="NumeroDoPedido" label="NumeroDoPedido" type="I" visible="true" useFooter="false" mask="#.##0"/>
+				<field name="PesoSankhya" label="PesoSankhya" type="F" visible="true" useFooter="true" mask="#.##0;-n"/>
+				<field name="ValorFreteSankhya" label="ValorFreteSankhya" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				<field name="PesoCorreios" label="PesoCorreios" type="I" visible="true" useFooter="true" mask="#.##0;-n"/>
+				<field name="ValorFreteCorreios" label="ValorFreteCorreios" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				<field name="CubagemCorreios" label="CubagemCorreios" type="I" visible="true" useFooter="true" mask="#.##0;-n"/>
+				<field name="Diferenca" label="Diferenca" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				<field name="BKCOLOR" label="BKCOLOR" type="S" visible="false" useFooter="false"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

@@ -1,0 +1,64 @@
+	<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_395lgg" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_395lgh" type="column">
+				<title>
+					<![CDATA[Quantidade de itens contados de :DTINI até :DTFIM]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT COUNT(est.CODPROD) AS QTD,   (CAST(DAY(EST.DATACONT) AS VARCHAR)+'/'+CAST(MONTH(EST.DATACONT) AS VARCHAR)+'/'+CAST(YEAR(est.DATACONT) AS VARCHAR)) AS DATA FROM sankhya.AD_ESTHIST EST WITH (NOLOCK)   INNER JOIN sankhya.TGFPRO PRO WITH (NOLOCK) ON PRO.CODPROD = EST.CODPROD WHERE DATACONT IS NOT NULL   AND PRO.ATIVO = 'S'   AND PRO.CODVOL <> 'KT'   AND PRO.CODGRUPOPROD >= 100000   AND PRO.CODGRUPOPROD <= 199999   AND PRO.USOPROD <> 'S'   AND CAST(DATACONT AS DATE) BETWEEN :DTINI AND :DTFIM   AND DATACONT = (SELECT MAX(DATACONT)       FROM sankhya.AD_ESTHIST       WHERE CODPROD = EST.CODPROD         AND CAST(DATACONT AS DATE) BETWEEN :DTINI AND :DTFIM) GROUP BY YEAR(EST.DATACONT),          MONTH(EST.DATACONT),          DAY(EST.DATACONT) ORDER BY YEAR(EST.DATACONT),          MONTH(EST.DATACONT),          DAY(EST.DATACONT)]]>
+				</expression>
+				<metadata>
+					<field name="QTD" label="QTD" type="I" visible="true" useFooter="false"/>
+					<field name="DATA" label="DATA" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<horizontal-axis>
+					<category field="" rotation="0" dropLabel="false">
+						<title>Data</title>
+					</category>
+				</horizontal-axis>
+				<vertical-axis>
+					<linear>
+						<mask/>
+						<title>Quantidade</title>
+					</linear>
+				</vertical-axis>
+				<series>
+					<serie type="line" circle-intersection="true">
+						<xField>$data</xField>
+						<yField>$qtd</yField>
+						<display>Data de contagem dos itens</display>
+						<color>0x663333</color>
+						<on-click navigate-to="lvl_395lgk">
+							<param id="DTULTCONT">$data</param>
+						</on-click>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+	<level id="lvl_395lgk" description="2o nivel">
+		<args>
+			<arg id="DTULTCONT" type="date"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_395lgl">
+				<title>
+					<![CDATA[Visualizando produtos contados em: $datacontagem]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT EST.CODPROD AS CODIGO,        (RTRIM(PRO.DESCRPROD) + CASE WHEN pro.COMPLDESC IS NULL THEN ''          ELSE ' ' + RTRIM(COMPLDESC) END) AS NOMEPRODUTO,        CAST(EST.DATACONT AS DATE) AS DATACONTAGEM FROM sankhya.AD_ESTHIST EST WITH (nolock)   INNER JOIN sankhya.TGFPRO PRO ON (PRO.CODPROD = EST.CODPROD AND est.datacont = (SELECT MAX(DATACONT)                       FROM ad_esthist                       WHERE CODPROD = EST.CODPROD)) WHERE CAST(DATACONT AS DATE) = CAST(:DTULTCONT AS DATE)   AND PRO.ATIVO = 'S'   AND PRO.CODVOL <> 'KT'   AND PRO.CODGRUPOPROD <= 199999   AND PRO.USOPROD <> 'S' ORDER BY CAST(EST.DATACONT AS DATE)]]>
+				</expression>
+				<metadata>
+					<field name="CODIGO" label="CODIGO" type="I" visible="true" useFooter="false"/>
+					<field name="NOMEPRODUTO" label="NOMEPRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="DATACONTAGEM" label="DATACONTAGEM" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY H.NN A"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

@@ -1,0 +1,19 @@
+<gadget refresh-time="60000">
+	<level id="lvl_mneydw" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_mneyen">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT TOP 10 AD_PEDORIGINAL,   NUNOTA,   DTNEG FROM sankhya.TGFCAB WITH (NOLOCK) WHERE AD_PEDORIGINAL IN (SELECT PEDORIGINAL        FROM sankhya.AD_PEDIDOVTEXSCFLUXO WITH (NOLOCK)        WHERE OCORRENCIA = 'I')   AND AD_PEDORIGINAL NOT IN (SELECT PEDORIGINAL          FROM sankhya.AD_PEDIDOVTEXSCFLUXO WITH (NOLOCK)          WHERE OCORRENCIA IN ('N', 'C', 'R','T'))   AND CODTIPOPER = 505 AND DTNEG >= dateadd(day,-40,getdate()) ORDER BY DTNEG]]>
+				</expression>
+				<metadata>
+					<field name="AD_PEDORIGINAL" label="Pedido Original" type="I" visible="true" useFooter="false"/>
+					<field name="NUNOTA" label="Expedição" type="I" visible="true" useFooter="false"/>
+					<field name="DTNEG" label="Data do Romaneio" type="D" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click-launcher resource-id="br.com.sankhya.com.mov.CentralNotas">
+					<NUNOTA>$NUNOTA</NUNOTA>
+				</on-click-launcher>
+			</grid>
+		</container>
+	</level>
+</gadget>

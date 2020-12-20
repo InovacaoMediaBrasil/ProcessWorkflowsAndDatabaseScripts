@@ -1,0 +1,82 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="false" keep-date="false"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="false" keep-date="false"/>
+		<parameter id="PAGOS" description="3. Somente pedidos pagos?" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false"/>
+	</prompt-parameters>
+	<level id="lvl_9omq5m" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_9omq5o">
+				<title>
+					<![CDATA[Relatório de origem das receitas da loja virtual por período]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT ORIGEM,   COUNT(CAB.NUNOTA) AS QTD_PEDIDOS,   SUM(VLRNOTA-CAB.VLRFRETE) AS VALOR_PRODUTOS,   SUM(CAB.VLRFRETE) AS FRETE,   SUM(VLRNOTA) AS VALOR_TOTAL,   SUM(VLRNOTA)/COUNT(CAB.NUNOTA) as TICKET_MEDIO FROM sankhya.TGFCAB CAB WITH(NOLOCK)   INNER JOIN sankhya.AD_PEDIDOVTEXSC SC WITH(NOLOCK) ON SC.PEDORIGINAL = CAB.AD_PEDORIGINAL AND CAB.CODTIPOPER = 502 WHERE DTNEG BETWEEN :DTINI AND :DTFIM   AND ORIGEM is not null   AND ((:pagos = 'S' AND AD_STATUSPGTO = 'E') OR (:pagos = 'N')) GROUP BY SC.ORIGEM ORDER BY ORIGEM]]>
+				</expression>
+				<metadata>
+					<field name="ORIGEM" label="Origem" type="S" visible="true" useFooter="false"/>
+					<field name="QTD_PEDIDOS" label="Quant. Pedidos" type="I" visible="true" useFooter="true" mask="#.##0"/>
+					<field name="VALOR_PRODUTOS" label="Valor dos Produtos" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="FRETE" label="Valor do Frete" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="VALOR_TOTAL" label="Valor Total" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="TICKET_MEDIO" label="Ticket Médio" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click navigate-to="lvl_9omq5q">
+					<param id="ORIGEM">$ORIGEM</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_9omq5q" description="Detalhe">
+		<args>
+			<arg id="ORIGEM" type="text"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_9omq5r">
+				<title>
+					<![CDATA[Origem selecionada: :ORIGEM]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT SC.MIDIA,   SC.CAMPANHA,   COUNT(CAB.NUNOTA) AS QTD_PEDIDOS,   SUM(VLRNOTA-CAB.VLRFRETE) AS VALOR_PRODUTOS,   SUM(CAB.VLRFRETE) AS FRETE,   SUM(VLRNOTA) AS VALOR_TOTAL,   SUM(VLRNOTA)/COUNT(CAB.NUNOTA) AS TICKET_MEDIO FROM sankhya.TGFCAB CAB WITH(NOLOCK)   INNER JOIN sankhya.AD_PEDIDOVTEXSC SC WITH(NOLOCK) ON SC.PEDORIGINAL = CAB.AD_PEDORIGINAL AND CAB.CODTIPOPER = 502 WHERE DTNEG BETWEEN :DTINI   AND :DTFIM   AND ORIGEM IS NOT NULL   AND ((:pagos = 'S' AND AD_STATUSPGTO = 'E')    OR (:pagos = 'N'))   AND origem = :origem GROUP BY SC.MIDIA, SC.CAMPANHA ORDER BY SC.MIDIA, SC.CAMPANHA]]>
+				</expression>
+				<metadata>
+					<field name="MIDIA" label="Mídia" type="S" visible="true" useFooter="false"/>
+					<field name="CAMPANHA" label="Campanha" type="S" visible="true" useFooter="false"/>
+					<field name="QTD_PEDIDOS" label="Quant. Pedidos" type="I" visible="true" useFooter="true" mask="#.##0"/>
+					<field name="VALOR_PRODUTOS" label="Valor dos Produtos" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="FRETE" label="Valor do Frete" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="VALOR_TOTAL" label="Valor Total" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="TICKET_MEDIO" label="Ticket Médio" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				</metadata>
+				<on-click navigate-to="lvl_9omq55">
+					<param id="MIDIA">$MIDIA</param>
+					<param id="CAMPANHA">$CAMPANHA</param>
+					<param id="ORIGEM">:ORIGEM</param>
+				</on-click>
+			</grid>
+		</container>
+	</level>
+	<level id="lvl_9omq55" description="Produtos">
+		<args>
+			<arg id="MIDIA" type="text"/>
+			<arg id="CAMPANHA" type="text"/>
+			<arg id="ORIGEM" type="text"/>
+		</args>
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_9omq56">
+				<title>
+					<![CDATA[Visualizando: Origem: :ORIGEM - Mídia: :MIDIA - Campanha: :CAMPANHA]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT ITE.CODPROD AS CODIGO,   RTRIM(RTRIM(PRO.DESCRPROD) + ' ' + ISNULL(RTRIM(PRO.COMPLDESC),'')) AS PRODUTO,   SUM(VLRTOT-VLRDESC) AS VALOR_PRODUTOS,   SUM(QTDNEG) AS QTD_NEGOCIADA FROM sankhya.TGFCAB CAB WITH(NOLOCK)   INNER JOIN sankhya.AD_PEDIDOVTEXSC SC WITH(NOLOCK) ON SC.PEDORIGINAL = CAB.AD_PEDORIGINAL AND CAB.CODTIPOPER = 502   INNER JOIN sankhya.TGFITE ITE WITH(NOLOCK) ON ITE.NUNOTA = CAB.NUNOTA   INNER JOIN sankhya.TGFPRO PRO WITH(NOLOCK) ON PRO.CODPROD = ITE.CODPROD WHERE DTNEG BETWEEN :DTINI   AND :DTFIM   AND ORIGEM = :ORIGEM   AND ((MIDIA = :MIDIA) OR (MIDIA IS NULL)) AND ((CAMPANHA = :CAMPANHA) OR (CAMPANHA IS NULL))   AND ((:pagos = 'S' and AD_STATUSPGTO = 'E') or (:pagos = 'N')) and ite.usoprod = 'R' GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.COMPLDESC]]>
+				</expression>
+				<metadata>
+					<field name="CODIGO" label="CODIGO" type="I" visible="true" useFooter="false"/>
+					<field name="PRODUTO" label="PRODUTO" type="S" visible="true" useFooter="false"/>
+					<field name="VALOR_PRODUTOS" label="VALOR_PRODUTOS" type="I" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+					<field name="QTD_NEGOCIADA" label="QTD_NEGOCIADA" type="I" visible="true" useFooter="true" mask="#.##0,00"/>
+				</metadata>
+			</grid>
+		</container>
+	</level>
+</gadget>

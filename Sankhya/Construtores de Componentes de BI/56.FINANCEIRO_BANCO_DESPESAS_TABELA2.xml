@@ -1,0 +1,28 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATAF" description="Data Final:" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATA" description="Data Inicial:" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_f1xa7e" description="Principal">
+		<grid id="grd_f1xa7f">
+			<title>
+				<![CDATA[Despesas]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT NUNOTA, CODTIPOPER, DHBAIXA AS DATA, SUM(VlRCHEQUE) AS VALOR, CTA.DESCRICAO AS CONTA, tit.DESCRTIPTIT AS TIPO_TITULO, cus.DESCRCENCUS AS CENTRO_RESULTADO, ISNULL(fin.HISTORICO,'') AS HISTORICO, '#871003' AS FGCOLOR,'#FFECEC' as BKCOLOR  FROM sankhya.TGFFIN fin inner join sankhya.tgftit tit on (fin.CODTIPTIT = tit.CODTIPTIT) inner join sankhya.TSICTA cta on (fin.CODCTABCOINT = cta.CODCTABCOINT) inner join sankhya.TSICUS cus on (fin.CODCENCUS = cus.CODCENCUS) WHERE (DHBAIXA between :DATA and :DATAF) and fin.RECDESP = -1 and cta.CODCTABCOINT in (4,5,7,8,11,16) and (DHBAIXA IS NOT NULL) group by NUNOTA, CODTIPOPER, DHBAIXA, CTA.DESCRICAO, tit.DESCRTIPTIT, cus.DESCRCENCUS, fin.HISTORICO]]>
+			</expression>
+			<metadata>
+				<field name="NUNOTA" label="NUNOTA" type="I" visible="true" useFooter="false"/>
+				<field name="CODTIPOPER" label="CODTIPOPER" type="I" visible="true" useFooter="false"/>
+				<field name="DATA" label="DATA" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+				<field name="VALOR" label="VALOR" type="F" visible="true" useFooter="true" mask="R$ #.##0,00"/>
+				<field name="CONTA" label="CONTA" type="S" visible="true" useFooter="false"/>
+				<field name="TIPO_TITULO" label="TIPO_TITULO" type="S" visible="true" useFooter="false"/>
+				<field name="CENTRO_RESULTADO" label="CENTRO_RESULTADO" type="S" visible="true" useFooter="false"/>
+				<field name="HISTORICO" label="HISTORICO" type="S" visible="true" useFooter="false"/>
+				<field name="FGCOLOR" label="FGCOLOR" type="S" visible="false" useFooter="false"/>
+				<field name="BKCOLOR" label="BKCOLOR" type="S" visible="false" useFooter="false"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

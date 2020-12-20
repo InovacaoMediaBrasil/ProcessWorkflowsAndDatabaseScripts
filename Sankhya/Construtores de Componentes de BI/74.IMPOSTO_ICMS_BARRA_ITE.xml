@@ -1,0 +1,52 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_FINAL" description="DATA_FINAL" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DATA_INICIAL" description="DATA_INICIAL" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_yz10sl" description="Principal">
+		<chart id="cht_yz10so" type="column">
+			<title>
+				<![CDATA[Total de Impostos]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[ SELECT          (SELECT          SUM(Nota.VLRNOTA) FROM TGFCAB Nota  WHERE Nota.TPAMBNFE = 1          AND Nota.STATUSNFE = 'A'          AND Nota.CODTIPOPER = 550          AND Nota.DTNEG >= :DATA_INICIAL          AND Nota.DTNEG <= :DATA_FINAL) AS FATURAMENTO_TOTAL,          SUM(ITE.BASEICMS) AS TOTAL_BASEICMS,          SUM(ITE.VLRICMS) AS TOTAL_VALORICMS  FROM          TGFCAB CabecalhoNota     inner join TGFITE ITE on CabecalhoNota.NUNOTA = ITE.NUNOTA     WHERE CabecalhoNota.TPAMBNFE = 1          AND CabecalhoNota.STATUSNFE = 'A'          AND CabecalhoNota.CODTIPOPER = 550          AND CabecalhoNota.DTNEG >= :DATA_INICIAL          AND CabecalhoNota.DTNEG <= :DATA_FINAL     AND ITE.CODVOL != 'KT']]>
+			</expression>
+			<metadata>
+				<field name="FATURAMENTO_TOTAL" label="FATURAMENTO_TOTAL" type="F" visible="true" useFooter="true" mask="#.##0,00"/>
+				<field name="TOTAL_BASEICMS" label="TOTAL_BASEICMS" type="F" visible="true" useFooter="true" mask="#.##0,00"/>
+				<field name="TOTAL_VALORICMS" label="TOTAL_VALORICMS" type="F" visible="true" useFooter="true" mask="#.##0,00"/>
+			</metadata>
+			<horizontal-axis>
+				<category field="Total de Impostos" rotation="0" dropLabel="false">
+					<title>Total | Base ICMS | Valor ICMS</title>
+				</category>
+			</horizontal-axis>
+			<vertical-axis>
+				<linear>
+					<mask>#.##0,00</mask>
+					<title>Valor (R$)</title>
+				</linear>
+			</vertical-axis>
+			<series>
+				<serie type="column">
+					<xField>FATURAMENTO_TOTAL</xField>
+					<yField accumulated="true">FATURAMENTO_TOTAL</yField>
+					<display>Faturamento</display>
+					<color>0x9900</color>
+				</serie>
+				<serie type="column">
+					<xField>TOTAL_BASEICMS</xField>
+					<yField accumulated="true">TOTAL_BASEICMS</yField>
+					<display>Base ICMS</display>
+					<color>0xff3333</color>
+				</serie>
+				<serie type="column">
+					<xField>TOTAL_VALORICMS</xField>
+					<yField accumulated="true">TOTAL_VALORICMS</yField>
+					<display>Valor ICMS</display>
+					<color>0x990000</color>
+				</serie>
+			</series>
+		</chart>
+	</level>
+</gadget>

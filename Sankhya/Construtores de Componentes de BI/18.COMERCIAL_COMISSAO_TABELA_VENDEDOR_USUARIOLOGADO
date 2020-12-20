@@ -1,0 +1,24 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_52zagn" description="Principal">
+		<grid id="grd_52zago">
+			<title>
+				<![CDATA[Tabela de Comissão]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT  CAB.AD_PEDORIGINAL AS PEDIDO, PAR.NOMEPARC AS CLIENTE, TIT.DESCRTIPTIT AS FORMA_DE_PAGAMENTO, FIN.DHBAIXA AS DATA, FIN.VLRDESDOB AS VLRFATURADO, ROUND((FIN.VLRDESDOB - (CAB.VLRFRETE/(CAB.VLRNOTA/FIN.VLRDESDOB)))/100,2) as VLRCOMISSAO  FROM TGFFIN FIN JOIN TGFCAB CAB ON (FIN.NUNOTA = CAB.NUNOTA) JOIN TGFVEN VEN ON (CAB.CODVEND = VEN.CODVEND) JOIN TGFTIT TIT ON (FIN.CODTIPTIT = TIT.CODTIPTIT) JOIN TGFPAR PAR ON (CAB.CODPARC = PAR.CODPARC)   WHERE FIN.DHBAIXA >= :DATA_INICIAL AND FIN.DHBAIXA <= :DATA_FINAL AND VEN.CODVEND = :CODVEN_LOG  ORDER BY CAB.AD_PEDORIGINAL]]>
+			</expression>
+			<metadata>
+				<field name="PEDIDO" label="PEDIDO" type="I" visible="true"/>
+				<field name="CLIENTE" label="CLIENTE" type="S" visible="true"/>
+				<field name="FORMA_DE_PAGAMENTO" label="FORMA_DE_PAGAMENTO" type="S" visible="true"/>
+				<field name="DATA" label="DATA" type="D" visible="true"/>
+				<field name="VLRFATURADO" label="VLRFATURADO" type="F" visible="true"/>
+				<field name="VLRCOMISSAO" label="VLRCOMISSAO" type="F" visible="true"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

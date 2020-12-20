@@ -1,0 +1,27 @@
+<gadget refresh-time="300000">
+	<prompt-parameters>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="false"/>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_5g1sor" description="Principal">
+		<chart id="cht_5g1sos" type="pizza">
+			<title>
+				<![CDATA[Pedidos Pendentes?]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[/* Gerada pelo SankhyaW QueryBuilder */ SELECT          COUNT(CabecalhoNota.NUNOTA) AS PEDIDOS,          CabecalhoNota.PENDENTE  FROM          TGFCAB CabecalhoNota  WHERE CabecalhoNota.CODTIPOPER = 505          AND CabecalhoNota.DTNEG >= :DATA_INICIAL          AND CabecalhoNota.DTNEG <= :DATA_FINAL  GROUP BY          CabecalhoNota.PENDENTE]]>
+			</expression>
+			<metadata>
+				<field name="PEDIDOS" label="PEDIDOS" type="I" visible="true" useFooter="false"/>
+				<field name="PENDENTE" label="PENDENTE" type="S" visible="true" useFooter="false"/>
+			</metadata>
+			<series>
+				<serie type="pizza">
+					<field>PEDIDOS</field>
+					<nameField>$PENDENTE</nameField>
+				</serie>
+			</series>
+			<legend position="top" direction="v"/>
+		</chart>
+	</level>
+</gadget>

@@ -1,0 +1,47 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_b5uenj" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<simple-value id="svl_b5uenk" tamTexto="30">
+				<title>
+					<![CDATA[Quantidade de pedidos pendentes]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT COUNT(CAB.NUNOTA) AS 'Pendentes' FROM SANKHYA.TGFCAB CAB WHERE CODTIPOPER = 505   AND PENDENTE = 'S'   AND /*NOT EXISTS (SELECT NUNOTA FROM sankhya.TGFCAB c where c.AD_PEDORIGINAL = CAB.AD_PEDORIGINAL and c.DTNEG >= :DTINI AND c.DTNEG <= :DTFIM AND CODTIPOPER = 550) and*/   DTNEG >= :DTINI AND   DTNEG <= :DTFIM /* and cab.nunota NOT IN  (SELECT NUNOTA from AD_PEDPARADOS) */]]>
+				</expression>
+				<metadata>
+					<field name="Pendentes" label="Pendentes" type="I" visible="true" useFooter="false"/>
+				</metadata>
+				<value-expression>
+					<![CDATA[$Pendentes]]>
+				</value-expression>
+				<on-click navigate-to="lvl_b5ueoa"/>
+			</simple-value>
+		</container>
+	</level>
+	<level id="lvl_b5ueoa" description="2o Nivel">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_b5ueob" tamTexto="18">
+				<title>
+					<![CDATA[Expedições Pendentes]]>
+				</title>
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT cab.NUNOTA as NroUnico,   dtneg as DataExpedicao,   PENDENTE,   (CASE WHEN EXISTS (SELECT NUNOTA        FROM sankhya.TGFCAB WITH (NOLOCK)        WHERE CODTIPOPER = 550          AND AD_PEDORIGINAL = CAB.AD_PEDORIGINAL          AND AD_NUMETIQ = CAB.AD_NUMETIQ)          THEN 'SIM' ELSE 'NÃO' END) AS Possui_NF,   (SELECT TOP 1 PENDENTE   FROM sankhya.TGFITE WITH (NOLOCK)   WHERE NUNOTA = CAB.NUNOTA   GROUP BY PENDENTE   ORDER BY PENDENTE DESC) AS ItensPendentes FROM sankhya.TGFCAB CAB WITH (NOLOCK) WHERE DTNEG >= :DTINI   AND DTNEG <= :DTFIM   AND CODTIPOPER = 505   AND PENDENTE = 'S' /*AND cab.nunota NOT IN (SELECT NUNOTA from AD_PEDPARADOS)*/]]>
+				</expression>
+				<metadata>
+					<field name="NroUnico" label="NroUnico" type="I" visible="true" useFooter="false"/>
+					<field name="DataExpedicao" label="DataExpedicao" type="D" visible="true" useFooter="false"/>
+					<field name="PENDENTE" label="PENDENTE" type="S" visible="true" useFooter="false"/>
+					<field name="Possui_NF" label="Possui_NF" type="S" visible="true" useFooter="false"/>
+					<field name="ItensPendentes" label="ItensPendentes" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click-launcher resource-id="br.com.sankhya.com.mov.CentralNotas">
+					<NUNOTA>$NroUnico</NUNOTA>
+				</on-click-launcher>
+			</grid>
+		</container>
+	</level>
+</gadget>

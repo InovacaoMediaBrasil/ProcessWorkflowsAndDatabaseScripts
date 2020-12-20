@@ -1,0 +1,3 @@
+INSERT INTO [Statistics] (Date, TotalAdministrators, TotalAvaliations, TotalB2B, TotalCancelled, TotalClasses, TotalComments, TotalFrozen, TotalGifts, TotalIncomplete, TotalPartners, TotalPaying, TotalPendingPayment, TotalSellers, TotalSubscribers, TotalSuggestions, TotalSuspended, TotalTeachers, TotalVisualizations)
+SELECT '2017-01-02', TotalAdministrators, TotalAvaliations, TotalB2B, TotalCancelled, TotalClasses, TotalComments, TotalFrozen, TotalGifts, TotalIncomplete, TotalPartners, TotalPaying, TotalPendingPayment, TotalSellers, TotalSubscribers, TotalSuggestions, TotalSuspended, TotalTeachers, TotalVisualizations FROM [Statistics]
+WHERE [Date] = '2017-01-01'

@@ -1,0 +1,46 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="CODPROD" description="Código do Produto" metadata="entity:Produto@CODPROD" required="true" keep-last="false" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_0gfzdl" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="50">
+				<simple-value id="svl_0gfzgk">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT sankhya.PRECODECUSTO(CODPROD, CODVOL) AS custo,   sankhya.PRECODEVENDA(CODPROD,CODVOL) AS venda,   sankhya.PRECODEVENDA(CODPROD,CODVOL) / sankhya.PRECODECUSTO(CODPROD,CODVOL) AS markup,   sankhya.PRECODEVENDA(CODPROD,CODVOL) - sankhya.PRECODECUSTO(CODPROD,CODVOL) AS margem FROM sankhya.TGFPRO WITH (NOLOCK) WHERE CODPROD = :codprod]]>
+					</expression>
+					<metadata>
+						<field name="custo" label="custo" type="F" visible="true" useFooter="false"/>
+						<field name="venda" label="venda" type="F" visible="true" useFooter="false"/>
+						<field name="markup" label="markup" type="F" visible="true" useFooter="false"/>
+						<field name="margem" label="margem" type="F" visible="true" useFooter="false"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[ <table>   <tr>     <th style="width:100px" width="125"><div style='text-align: center;'><b>Preço de custo:</b><br>$custo</div></th>     <th style="width:100px" width="125"><div style='text-align: center;'><b>Preço de venda:</b><br>$venda</div></th>     <th style="width:100px" width="125"><div style='text-align: center;'><b>Markup:</b><br>$markup</div></th>     <th style="width:100px" width="125"><div style='text-align: center;'><b>Margem</b><br>$margem</div></th>   </tr> </table>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="50">
+				<grid id="grd_0gfzgy">
+					<title>
+						<![CDATA[DADOS DA ULTIMA NOTA DE COMPRA]]>
+					</title>
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT TOP 1 ite.nunota,   DTNEG,   VLRUNIT,   QTDNEG,   VLRDESC,   VLRTOT,   ITE.VLRICMS,   ITE.VLRIPI,   ITE.VLRSUBST FROM sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA WHERE CODPROD = :codprod   AND CODTIPOPER BETWEEN 100 AND 120   AND CAB.DTNEG >= DATEADD(DAY,-180,GETDATE())]]>
+					</expression>
+					<metadata>
+						<field name="nunota" label="Nro Único" type="I" visible="true" useFooter="false"/>
+						<field name="DTNEG" label="DTNEG" type="D" visible="true" useFooter="false"/>
+						<field name="VLRUNIT" label="VLRUNIT" type="I" visible="true" useFooter="false"/>
+						<field name="QTDNEG" label="QTDNEG" type="I" visible="true" useFooter="false"/>
+						<field name="VLRDESC" label="VLRDESC" type="I" visible="true" useFooter="false"/>
+						<field name="VLRTOT" label="VLRTOT" type="I" visible="true" useFooter="false"/>
+						<field name="VLRICMS" label="VLRICMS" type="I" visible="true" useFooter="false"/>
+						<field name="VLRIPI" label="VLRIPI" type="I" visible="true" useFooter="false"/>
+						<field name="VLRSUBST" label="ST" type="I" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+					</metadata>
+				</grid>
+			</container>
+		</container>
+	</level>
+</gadget>

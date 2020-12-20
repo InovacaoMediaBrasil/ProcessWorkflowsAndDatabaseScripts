@@ -1,0 +1,56 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DTFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_b5uenj" description="Principal">
+		<simple-value id="svl_b5uenk" tamTexto="30">
+			<title>
+				<![CDATA[Quantidade de NFe emitidas]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT DISTINCT COUNT(CAB.NUNOTA) as 'NFeEmitidas'  FROM SANKHYA.TGFCAB CAB WITH (NOLOCK)  WHERE CODTIPOPER = 505 AND EXISTS (SELECT NUNOTA FROM sankhya.TGFCAB c where c.AD_PEDORIGINAL = CAB.AD_PEDORIGINAL and c.AD_NUMETIQ = cab.AD_NUMETIQ and CODTIPOPER = 550) and DTNEG >= :DTINI AND DTNEG <= :DTFIM]]>
+			</expression>
+			<metadata>
+				<field name="NFeEmitidas" label="NFeEmitidas" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<value-expression>
+				<![CDATA[$NFeEmitidas]]>
+			</value-expression>
+			<on-click navigate-to="lvl_b5ueof"/>
+		</simple-value>
+	</level>
+	<level id="lvl_b5ueof" description="2o Nivel">
+		<chart id="cht_b5ueog" type="column">
+			<title>
+				<![CDATA[Datas de envio]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[SELECT DISTINCT c.DTNEG, COUNT(c.NUNOTA) as 'NFeEmitidas'  FROM sankhya.TGFCAB CAB WITH (NOLOCK) inner join (SELECT NUNOTA, DTNEG, AD_PEDORIGINAL, AD_NUMETIQ FROM sankhya.TGFCAB c where CODTIPOPER = 550) c on (c.AD_PEDORIGINAL = cab.AD_PEDORIGINAL and c.AD_NUMETIQ = cab.AD_NUMETIQ)  WHERE CODTIPOPER = 505 AND EXISTS (SELECT NUNOTA FROM sankhya.TGFCAB c where c.AD_PEDORIGINAL = CAB.AD_PEDORIGINAL and c.AD_NUMETIQ = cab.AD_NUMETIQ and CODTIPOPER = 550) and cab.DTNEG >= :DTINI AND cab.DTNEG <= :DTFIM  GROUP BY c.DTNEG ORDER BY c.DTNEG]]>
+			</expression>
+			<metadata>
+				<field name="DTNEG" label="Data" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+				<field name="NFeEmitidas" label="NFeEmitidas" type="I" visible="true" useFooter="false"/>
+			</metadata>
+			<horizontal-axis>
+				<category field="" rotation="-45" dropLabel="false">
+					<title>Data de envio</title>
+				</category>
+			</horizontal-axis>
+			<vertical-axis>
+				<linear>
+					<mask>#.##0;-n</mask>
+					<title>Quantidade</title>
+				</linear>
+			</vertical-axis>
+			<series>
+				<serie type="column">
+					<xField>$DTNEG</xField>
+					<yField>$NFeEmitidas</yField>
+					<display>Notas emitidas</display>
+					<color>0x9900</color>
+				</serie>
+			</series>
+		</chart>
+	</level>
+</gadget>

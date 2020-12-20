@@ -1,0 +1,26 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DTINI" description="1. Data" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_ols71u" description="Principal">
+		<grid id="grd_ols71v">
+			<title>
+				<![CDATA[PEDIDOS AGUARDANDO RETIRADA NOS CORREIOS - :CODVEND_LOG]]>
+			</title>
+			<expression type="sql" data-source="MGEDS">
+				<![CDATA[select  DATA, sc.PEDORIGINAL, SRO, par.NOMEPARC AS PARCEIRO, par.TELEFONE, par.FAX AS TELEFONE2, cid.nomecid, UNIDADE, MENSAGEM   from AD_PEDIDOVTEXSC sc inner join AD_PEDIDOVTEXSCMOVIMENTACAO m on m.ORDERID = sc.ORDERID inner join TGFCAB cab on cab.AD_PEDORIGINAL = sc.PEDORIGINAL and cab.CODTIPOPER in (500,501,502,503,515) inner join TGFPAR par on par.CODPARC = cab.CODPARC inner join TGFVEN ven on ven.codvend = cab.codvend INNER JOIN TSICID CID ON CID.CODCID = PAR.CODCID  where data between :DTINI and DATEADD(DAY,1,:DTINI) and STATUS = 'w' AND VEN.CODVEND = :CODVEN_LOG and NOT exists(select 1 from SANKHYA_PRODUCAO.sankhya.AD_PEDIDOVTEXSCMOVIMENTACAO where ORDERID = sc.ORDERID and STATUS IN ('B','K','L','R'))]]>
+			</expression>
+			<metadata>
+				<field name="DATA" label="DATA" type="D" visible="true" useFooter="false" mask="DD/MM/YYYY"/>
+				<field name="PEDORIGINAL" label="PEDORIGINAL" type="I" visible="true" useFooter="false"/>
+				<field name="SRO" label="SRO" type="S" visible="true" useFooter="false"/>
+				<field name="PARCEIRO" label="PARCEIRO" type="S" visible="true" useFooter="false"/>
+				<field name="TELEFONE" label="TELEFONE" type="S" visible="true" useFooter="false"/>
+				<field name="TELEFONE2" label="TELEFONE2" type="S" visible="true" useFooter="false"/>
+				<field name="nomecid" label="nomecid" type="S" visible="true" useFooter="false"/>
+				<field name="UNIDADE" label="UNIDADE" type="S" visible="true" useFooter="false"/>
+				<field name="MENSAGEM" label="MENSAGEM" type="S" visible="true" useFooter="false"/>
+			</metadata>
+		</grid>
+	</level>
+</gadget>

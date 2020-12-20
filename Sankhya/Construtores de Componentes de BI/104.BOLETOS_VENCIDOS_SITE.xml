@@ -1,0 +1,26 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATAVENC" description="Data de Vencimento" metadata="date" required="true" keep-last="false"/>
+	</prompt-parameters>
+	<level id="lvl_a36s4p0" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_a36s4p1">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT CAB.NUNOTA  AS NroUnico,   AD_PEDORIGINAL AS Pedido,   LOJAS.NOMELOJA AS Multiloja,   NOMEPARC  AS Parceiro,EMAIL,   DTVENC   AS DataDeVencimento,   TELEFONE FROM  SANKHYA.TGFCAB CAB WITH (NOLOCK)      INNER JOIN SANKHYA.TGFFIN FIN WITH (NOLOCK) ON FIN.NUNOTA = CAB.NUNOTA      INNER JOIN SANKHYA.TGFPAR PAR WITH (NOLOCK) ON PAR.CODPARC = CAB.CODPARC      INNER JOIN SANKHYA.AD_PEDIDOVTEXSC PEDIDOVTEXSC WITH (NOLOCK) ON PEDIDOVTEXSC.PEDORIGINAL = CAB.AD_PEDORIGINAL      INNER JOIN SANKHYA.AD_LOJA LOJAS WITH (NOLOCK) ON LOJAS.CODLOJA = PEDIDOVTEXSC.CODLOJA WHERE CAB.CODTIPVENDA = 33   AND FIN.DTVENC = :DATAVENC   AND FIN.DHBAIXA IS NULL   AND CAB.CODTIPOPER = 502 ORDER BY AD_PEDORIGINAL]]>
+				</expression>
+				<metadata>
+					<field name="NroUnico" label="Numero Único" type="I" visible="true" useFooter="false"/>
+					<field name="Pedido" label="Pedido" type="I" visible="true" useFooter="false"/>
+					<field name="Multiloja" label="Multiloja" type="S" visible="true" useFooter="false"/>
+					<field name="Parceiro" label="Parceiro" type="S" visible="true" useFooter="false"/>
+					<field name="EMAIL" label="EMAIL" type="S" visible="true" useFooter="false"/>
+					<field name="DataDeVencimento" label="Data De Vencimento" type="D" visible="true" useFooter="false"/>
+					<field name="TELEFONE" label="TELEFONE" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click-launcher resource-id="br.com.sankhya.com.mov.CentralNotas">
+					<NUNOTA>$NroUnico</NUNOTA>
+				</on-click-launcher>
+			</grid>
+		</container>
+	</level>
+</gadget>

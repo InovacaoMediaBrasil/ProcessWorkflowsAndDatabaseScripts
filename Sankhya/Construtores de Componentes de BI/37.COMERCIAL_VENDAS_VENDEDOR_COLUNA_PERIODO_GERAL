@@ -1,0 +1,40 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATA_FINAL" description="Data Final" metadata="date" required="true" keep-last="false" order="1"/>
+		<parameter id="DATA_INICIAL" description="Data Inicial" metadata="date" required="true" keep-last="false" order="0"/>
+		<parameter id="PAGO" description="Pagamento Efetuado" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false"/>
+		<parameter id="NPAGO" description="Pagamento Pendente" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false"/>
+	</prompt-parameters>
+	<level id="lvl_yz10vt" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<chart id="cht_ae9uxg5" type="column">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT RTRIM(Vendedor.APELIDO) + ' [' + Vendedor.AD_SETORVEND + ']' AS APELIDO,   SUM(CabecalhoNota.VLRNOTA) AS VALOR_NOTA FROM sankhya.TGFCAB CabecalhoNota WITH (NOLOCK)         JOIN sankhya.TGFVEN Vendedor WITH (NOLOCK) ON (CabecalhoNota.CODVEND = Vendedor.CODVEND) WHERE CabecalhoNota.DTNEG >= :DATA_INICIAL   AND CabecalhoNota.DTNEG <= :DATA_FINAL   AND CabecalhoNota.CODTIPOPER IN (500,501,502,503,515)   AND Vendedor.CODVEND != 22   AND (((:PAGO = 'S' AND :NPAGO = 'N' AND AD_STATUSPGTO = 'E')    OR (:PAGO = 'N' AND :NPAGO = 'S' AND AD_STATUSPGTO = 'P'))    OR ((:PAGO = 'S' AND :NPAGO = 'S' AND AD_STATUSPGTO IN ('E','P'))    OR (:PAGO = 'N' AND :NPAGO = 'N' AND AD_STATUSPGTO IS NULL))) GROUP BY RTRIM(Vendedor.APELIDO) + ' [' + Vendedor.AD_SETORVEND + ']' ORDER BY VALOR_NOTA DESC]]>
+				</expression>
+				<metadata>
+					<field name="APELIDO" label="Vendedor" type="S" visible="true" useFooter="false"/>
+					<field name="VALOR_NOTA" label="Valor Vendido" type="C" visible="true" useFooter="false" mask="R$ #.##0,00"/>
+				</metadata>
+				<horizontal-axis>
+					<category field="" rotation="-45" dropLabel="false">
+						<title>Vendas</title>
+					</category>
+				</horizontal-axis>
+				<vertical-axis>
+					<linear>
+						<mask>#.##0,00</mask>
+						<title>Vendedor</title>
+					</linear>
+				</vertical-axis>
+				<series>
+					<serie type="column">
+						<xField>$APELIDO</xField>
+						<yField>$VALOR_NOTA</yField>
+						<display>Vendas</display>
+						<color>0xff3300</color>
+					</serie>
+				</series>
+			</chart>
+		</container>
+	</level>
+</gadget>

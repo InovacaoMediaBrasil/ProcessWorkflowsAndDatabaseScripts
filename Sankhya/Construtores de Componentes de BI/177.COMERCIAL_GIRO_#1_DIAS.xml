@@ -1,0 +1,142 @@
+ <gadget>
+	<prompt-parameters>
+		<parameter id="CODPROD" description="Código do Produto" metadata="entity:Produto@CODPROD" required="true" keep-last="false" keep-date="false"/>
+	</prompt-parameters>
+	<level id="lvl_n3l3os" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<container orientacao="V" tamanhoRelativo="10">
+				<simple-value id="svl_0gfzhx">
+					<value-expression>
+						<![CDATA[Quantidade de Saída de Mercadorias por período (acumulado)]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="10">
+				<simple-value id="svl_n3l3ot">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)*-1 AS SOMA, (ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)/7)*-1 AS MEDIA FROM sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   LEFT JOIN sankhya.TGFVOA VOA WITH(NOLOCK) ON VOA.CODVOL = ITE.CODVOL AND ITE.CODPROD = VOA.CODPROD WHERE ITE.CODPROD = :CODPROD   AND CAB.DTNEG >= DATEADD(DAY,-7,GETDATE())   AND RESERVA = 'N'   AND ATUALESTOQUE IN (-1)]]>
+					</expression>
+					<metadata>
+						<field name="SOMA" label="SOMA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+						<field name="MEDIA" label="MEDIA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<table style="table-layout: fixed; width: 200px;border: 1px solid #AAA">   <tr>     <th style="background-color: #444; color: #FFF;"><span style='font-size: 30px;'><div style='text-align: center;'>7 DIAS</div></span></th>   </tr>   <tr>     <td><span style='font-size: 30px;'><b><div style='text-align: center;'>$SOMA</div></b></span></td>   </tr>   <tr>     <td><div style='text-align: center;'>média/dia: <span style='font-size: 22px;'>$MEDIA</span></div></td>   </tr> </table>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="10">
+				<simple-value id="svl_n3l3pg">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)*-1 AS SOMA, (ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)/15)*-1 AS MEDIA FROM sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   LEFT JOIN sankhya.TGFVOA VOA WITH(NOLOCK) ON VOA.CODVOL = ITE.CODVOL AND ITE.CODPROD = VOA.CODPROD WHERE ITE.CODPROD = :CODPROD   AND CAB.DTNEG >= DATEADD(DAY,-15,GETDATE())   AND RESERVA = 'N'   AND ATUALESTOQUE IN (-1) ]]>
+					</expression>
+					<metadata>
+						<field name="SOMA" label="SOMA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+						<field name="MEDIA" label="MEDIA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<table style="table-layout: fixed; width: 200px;border: 1px solid #AAA">   <tr>     <th style="background-color: #444; color: #FFF;"><span style='font-size: 30px;'><div style='text-align: center;'>15 DIAS</div></span></th>   </tr>   <tr>     <td><span style='font-size: 30px;'><b><div style='text-align: center;'>$SOMA</div></b></span></td>   </tr>   <tr>     <td><div style='text-align: center;'>média/dia: <span style='font-size: 22px;'>$MEDIA</span></div></td>   </tr> </table>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="10">
+				<simple-value id="svl_n3l3pk">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)*-1 AS SOMA, (ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)/30)*-1 AS MEDIA FROM sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   LEFT JOIN sankhya.TGFVOA VOA WITH(NOLOCK) ON VOA.CODVOL = ITE.CODVOL AND ITE.CODPROD = VOA.CODPROD WHERE ITE.CODPROD = :CODPROD   AND CAB.DTNEG >= DATEADD(DAY,-30,GETDATE())   AND RESERVA = 'N'   AND ATUALESTOQUE IN (-1)]]>
+					</expression>
+					<metadata>
+						<field name="SOMA" label="SOMA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+						<field name="MEDIA" label="MEDIA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<table style="table-layout: fixed; width: 200px;border: 1px solid #AAA">   <tr>     <th style="background-color: #444; color: #FFF;"><span style='font-size: 30px;'><div style='text-align: center;'>30 DIAS</div></span></th>   </tr>   <tr>     <td><span style='font-size: 30px;'><b><div style='text-align: center;'>$SOMA</div></b></span></td>   </tr>   <tr>     <td><div style='text-align: center;'>média/dia: <span style='font-size: 22px;'>$MEDIA</span></div></td>   </tr> </table>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="10">
+				<simple-value id="svl_n3l3pp">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)*-1 AS SOMA, (ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)/45)*-1 AS MEDIA FROM sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   LEFT JOIN sankhya.TGFVOA VOA WITH(NOLOCK) ON VOA.CODVOL = ITE.CODVOL AND ITE.CODPROD = VOA.CODPROD WHERE ITE.CODPROD = :CODPROD   AND CAB.DTNEG >= DATEADD(DAY,-45,GETDATE())   AND RESERVA = 'N'   AND ATUALESTOQUE IN (-1)]]>
+					</expression>
+					<metadata>
+						<field name="SOMA" label="SOMA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+						<field name="MEDIA" label="MEDIA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<table style="table-layout: fixed; width: 200px;border: 1px solid #AAA">   <tr>     <th style="background-color: #444; color: #FFF;"><span style='font-size: 30px;'><div style='text-align: center;'>45 DIAS</div></span></th>   </tr>   <tr>     <td><span style='font-size: 30px;'><b><div style='text-align: center;'>$SOMA</div></b></span></td>   </tr>   <tr>     <td><div style='text-align: center;'>média/dia: <span style='font-size: 22px;'>$MEDIA</span></div></td>   </tr> </table>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="10">
+				<simple-value id="svl_n3l3pv">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)*-1 AS SOMA, (ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)/60)*-1 AS MEDIA FROM sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   LEFT JOIN sankhya.TGFVOA VOA WITH(NOLOCK) ON VOA.CODVOL = ITE.CODVOL AND ITE.CODPROD = VOA.CODPROD WHERE ITE.CODPROD = :CODPROD   AND CAB.DTNEG >= DATEADD(DAY,-60,GETDATE())   AND RESERVA = 'N'   AND ATUALESTOQUE IN (-1)]]>
+					</expression>
+					<metadata>
+						<field name="SOMA" label="SOMA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+						<field name="MEDIA" label="MEDIA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<table style="table-layout: fixed; width: 200px;border: 1px solid #AAA">   <tr>     <th style="background-color: #444; color: #FFF;"><span style='font-size: 30px;'><div style='text-align: center;'>60 DIAS</div></span></th>   </tr>   <tr>     <td><span style='font-size: 30px;'><b><div style='text-align: center;'>$SOMA</div></b></span></td>   </tr>   <tr>     <td><div style='text-align: center;'>média/dia: <span style='font-size: 22px;'>$MEDIA</span></div></td>   </tr> </table>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="10">
+				<simple-value id="svl_n3l3p2">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)*-1 AS SOMA, (ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)/90)*-1 AS MEDIA FROM  sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   LEFT JOIN sankhya.TGFVOA VOA WITH(NOLOCK) ON VOA.CODVOL = ITE.CODVOL AND ITE.CODPROD = VOA.CODPROD WHERE ITE.CODPROD = :CODPROD   AND CAB.DTNEG >= DATEADD(DAY,-90,GETDATE())   AND RESERVA = 'N'   AND ATUALESTOQUE IN (-1) ]]>
+					</expression>
+					<metadata>
+						<field name="SOMA" label="SOMA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+						<field name="MEDIA" label="MEDIA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<table style="table-layout: fixed; width: 200px;border: 1px solid #AAA">   <tr>     <th style="background-color: #444; color: #FFF;"><span style='font-size: 30px;'><div style='text-align: center;'>90 DIAS</div></span></th>   </tr>   <tr>     <td><span style='font-size: 30px;'><b><div style='text-align: center;'>$SOMA</div></b></span></td>   </tr>   <tr>     <td><div style='text-align: center;'>média/dia: <span style='font-size: 22px;'>$MEDIA</span></div></td>   </tr> </table>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="10">
+				<simple-value id="svl_n3l3ra">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)*-1 AS SOMA, (ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)/120)*-1 AS MEDIA FROM  sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   LEFT JOIN sankhya.TGFVOA VOA WITH(NOLOCK) ON VOA.CODVOL = ITE.CODVOL AND ITE.CODPROD = VOA.CODPROD WHERE ITE.CODPROD = :CODPROD   AND CAB.DTNEG >= DATEADD(DAY,-120,GETDATE())   AND RESERVA = 'N'   AND ATUALESTOQUE IN (-1) ]]>
+					</expression>
+					<metadata>
+						<field name="SOMA" label="SOMA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+						<field name="MEDIA" label="MEDIA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<table style="table-layout: fixed; width: 200px;border: 1px solid #AAA">   <tr>     <th style="background-color: #444; color: #FFF;"><span style='font-size: 30px;'><div style='text-align: center;'>120 DIAS</div></span></th>   </tr>   <tr>     <td><span style='font-size: 30px;'><b><div style='text-align: center;'>$SOMA</div></b></span></td>   </tr>   <tr>     <td><div style='text-align: center;'>média/dia: <span style='font-size: 22px;'>$MEDIA</span></div></td>   </tr> </table>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="10">
+				<simple-value id="svl_n3l3rj">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)*-1 AS SOMA, (ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)/150)*-1 AS MEDIA FROM  sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   LEFT JOIN sankhya.TGFVOA VOA WITH(NOLOCK) ON VOA.CODVOL = ITE.CODVOL AND ITE.CODPROD = VOA.CODPROD WHERE ITE.CODPROD = :CODPROD   AND CAB.DTNEG >= DATEADD(DAY,-150,GETDATE())   AND RESERVA = 'N'   AND ATUALESTOQUE IN (-1) ]]>
+					</expression>
+					<metadata>
+						<field name="SOMA" label="SOMA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+						<field name="MEDIA" label="MEDIA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<table style="table-layout: fixed; width: 200px;border: 1px solid #AAA">   <tr>     <th style="background-color: #444; color: #FFF;"><span style='font-size: 30px;'><div style='text-align: center;'>150 DIAS</div></span></th>   </tr>   <tr>     <td><span style='font-size: 30px;'><b><div style='text-align: center;'>$SOMA</div></b></span></td>   </tr>   <tr>     <td><div style='text-align: center;'>média/dia: <span style='font-size: 22px;'>$MEDIA</span></div></td>   </tr> </table>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+			<container orientacao="V" tamanhoRelativo="10">
+				<simple-value id="svl_n3l3rt">
+					<expression type="sql" data-source="MGEDS">
+						<![CDATA[SELECT ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)*-1 AS SOMA, (ISNULL(SUM(ITE.QTDNEG * ATUALESTOQUE),0)/180)*-1 AS MEDIA FROM  sankhya.TGFITE ITE WITH(NOLOCK)   INNER JOIN sankhya.TGFCAB CAB WITH(NOLOCK) ON CAB.NUNOTA = ITE.NUNOTA   LEFT JOIN sankhya.TGFVOA VOA WITH(NOLOCK) ON VOA.CODVOL = ITE.CODVOL AND ITE.CODPROD = VOA.CODPROD WHERE ITE.CODPROD = :CODPROD    AND CAB.DTNEG >= DATEADD(DAY,-180,GETDATE())   AND RESERVA = 'N'   AND ATUALESTOQUE IN (-1) ]]>
+					</expression>
+					<metadata>
+						<field name="SOMA" label="SOMA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+						<field name="MEDIA" label="MEDIA" type="I" visible="true" useFooter="false" mask="#.##0,00;-n"/>
+					</metadata>
+					<value-expression>
+						<![CDATA[<table style="table-layout: fixed; width: 200px;border: 1px solid #AAA">   <tr>     <th style="background-color: #444; color: #FFF;"><span style='font-size: 30px;'><div style='text-align: center;'>180 DIAS</div></span></th>   </tr>   <tr>     <td><span style='font-size: 30px;'><b><div style='text-align: center;'>$SOMA</div></b></span></td>   </tr>   <tr>     <td><div style='text-align: center;'>média/dia: <span style='font-size: 22px;'>$MEDIA</span></div></td>   </tr> </table>]]>
+					</value-expression>
+				</simple-value>
+			</container>
+		</container>
+	</level>
+</gadget>

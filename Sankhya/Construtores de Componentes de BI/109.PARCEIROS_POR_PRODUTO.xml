@@ -1,0 +1,34 @@
+<gadget>
+	<prompt-parameters>
+		<parameter id="DATAINI" description="1. Data Inicial" metadata="date" required="true" keep-last="true"/>
+		<parameter id="DATAFIM" description="2. Data Final" metadata="date" required="true" keep-last="true"/>
+		<parameter id="CODPROD" description="3. Código do Produto" metadata="entity:Produto@CODPROD" required="false" keep-last="false"/>
+		<parameter id="DESCRPROD" description="4. Descrição do Produto" metadata="text" required="false" keep-last="true"/>
+		<parameter id="GRUPOPROD" description="5. Grupo de Produtos" metadata="entity:GrupoProduto@CODGRUPOPROD" required="false" keep-last="false"/>
+		<parameter id="TOP" description="6. Somente desta TOP: " metadata="integer" required="false" keep-last="true"/>
+		<parameter id="SOMENTEMAILING" description="Considerar apenas quem aceita Mailing'" metadata="boolean" required="false" keep-last="false"/>
+		<parameter id="EMAIL" description="Parceiros com e-mail" metadata="boolean" required="false" keep-last="false" keep-date="false" default="false"/>
+		<parameter id="NAOPAGOS" description="Pedidos Não Pagos" metadata="boolean" required="false" keep-last="true"/>
+		<parameter id="PAGOS" description="Pedidos Pagos" metadata="boolean" required="false" keep-last="true"/>
+		<parameter id="AVULSO" description="Somente itens avulsos" metadata="boolean" required="false" keep-last="true"/>
+	</prompt-parameters>
+	<level id="lvl_r72ktc" description="Principal">
+		<container orientacao="V" tamanhoRelativo="100">
+			<grid id="grd_r72ktd">
+				<expression type="sql" data-source="MGEDS">
+					<![CDATA[SELECT DISTINCT TGFPAR.CODPARC,     TGFPAR.NOMEPARC,     ISNULL(TGFPAR.TELEFONE, '-') TELEFONE,     ISNULL(TGFPAR.FAX, '-') FAX,     ISNULL(TGFPAR.EMAIL, '-') EMAIL      FROM TGFITE TGFITE with(nolock)  INNER JOIN TGFPRO TGFPRO  with(nolock) ON TGFPRO.CODPROD = TGFITE.CODPROD  INNER JOIN TGFCAB TGFCAB  with(nolock) ON TGFCAB.NUNOTA = TGFITE.NUNOTA  INNER JOIN TGFPAR TGFPAR  with(nolock) ON TGFPAR.CODPARC = TGFCAB.CODPARC    WHERE (TGFCAB.DTNEG BETWEEN :DATAINI AND :DATAFIM)       AND  (TGFPRO.CODPROD = :CODPROD OR DESCRPROD LIKE '%'+:descrprod +'%' OR COMPLDESC LIKE '%' + :DESCRPROD +'%' OR TGFPRO.CODGRUPOPROD = :GRUPOPROD)    AND ((TGFCAB.CODTIPOPER = :TOP AND TGFCAB.CODTIPOPER IN (500,501,502,503,504,515,505,550,600)) OR (CODTIPOPER IN (500,501,502,515) AND :TOP IS NULL))    AND ((TGFCAB.AD_STATUSPGTO = 'E' AND :PAGOS = 'S' ) or ((TGFCAB.AD_STATUSPGTO = 'P' or tgfcab.ad_statuspgto is null) AND :NAOPAGOS = 'S'))    AND ((TGFPAR.AD_INCMAILING = 'S' AND :SOMENTEMAILING = 'S') OR (:SOMENTEMAILING = 'N' AND (AD_INCMAILING = AD_INCMAILING OR AD_INCMAILING IS NULL)))    AND ((TGFITE.USOPROD = 'R' AND :AVULSO = 'S') OR (TGFITE.USOPROD = TGFITE.USOPROD AND :AVULSO = 'N'))        AND ((TGFPAR.EMAIL IS NOT NULL AND TGFPAR.EMAIL NOT LIKE 'pedido@editorainovacao.com.br' and :EMAIL = 'S') OR (:EMAIL = 'N'))   ORDER BY TGFPAR.NOMEPARC]]>
+				</expression>
+				<metadata>
+					<field name="CODPARC" label="Código" type="I" visible="true" useFooter="false"/>
+					<field name="NOMEPARC" label="Nome" type="S" visible="true" useFooter="false"/>
+					<field name="TELEFONE" label="Telefone" type="S" visible="true" useFooter="false"/>
+					<field name="FAX" label="Telefone 2" type="S" visible="true" useFooter="false"/>
+					<field name="EMAIL" label="E-mail" type="S" visible="true" useFooter="false"/>
+				</metadata>
+				<on-click-launcher resource-id="br.com.sankhya.core.cad.parceiros">
+					<CODPARC>$CODPARC</CODPARC>
+				</on-click-launcher>
+			</grid>
+		</container>
+	</level>
+</gadget>
