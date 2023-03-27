@@ -5,9 +5,9 @@
 
 ## CI/CD
 
-| Build status | Last commit | Coverage | Code Smells | LoC | 
-|--------------|-------------|----------|-------------|-----|
-| [![Sonar Cloud Analysis](https://github.com/InovacaoMediaBrasil/SistemasEBancoDeDados/actions/workflows/sonarcloud.yml/badge.svg)](https://github.com/InovacaoMediaBrasil/SistemasEBancoDeDados/actions/workflows/sonarcloud.yml) | [![GitHub last commit](https://img.shields.io/github/last-commit/InovacaoMediaBrasil/SistemasEBancoDeDados/main)](https://github.com/InovacaoMediaBrasil/SistemasEBancoDeDados) | [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=InovacaoMediaBrasil_SistemasEBancoDeDados&metric=coverage&branch=main)](https://sonarcloud.io/dashboard?id=InovacaoMediaBrasil_SistemasEBancoDeDados) | [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=InovacaoMediaBrasil_SistemasEBancoDeDados&metric=code_smells&branch=main)](https://sonarcloud.io/dashboard?id=InovacaoMediaBrasil_SistemasEBancoDeDados) | [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=InovacaoMediaBrasil_SistemasEBancoDeDados&metric=ncloc&branch=main)](https://sonarcloud.io/dashboard?id=InovacaoMediaBrasil_SistemasEBancoDeDados) | 
+| Build status | Last commit | Code Smells | LoC | 
+|--------------|-------------|-------------|-----|
+| [![Sonar Cloud Analysis](https://github.com/InovacaoMediaBrasil/SistemasEBancoDeDados/actions/workflows/sonarcloud.yml/badge.svg)](https://github.com/InovacaoMediaBrasil/SistemasEBancoDeDados/actions/workflows/sonarcloud.yml) | [![GitHub last commit](https://img.shields.io/github/last-commit/InovacaoMediaBrasil/SistemasEBancoDeDados/main)](https://github.com/InovacaoMediaBrasil/SistemasEBancoDeDados) | [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=InovacaoMediaBrasil_SistemasEBancoDeDados&metric=code_smells&branch=main)](https://sonarcloud.io/dashboard?id=InovacaoMediaBrasil_SistemasEBancoDeDados) | [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=InovacaoMediaBrasil_SistemasEBancoDeDados&metric=ncloc&branch=main)](https://sonarcloud.io/dashboard?id=InovacaoMediaBrasil_SistemasEBancoDeDados) | 
 
 
 ## Code Quality (main branch)
