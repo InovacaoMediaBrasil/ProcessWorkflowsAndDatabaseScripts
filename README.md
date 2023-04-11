@@ -1,7 +1,8 @@
 # Sistemas & Banco de dados
 
-[![GitHub license](https://img.shields.io/github/license/InovacaoMediaBrasil/SistemasEBancoDeDados)](https://github.com/InovacaoMediaBrasil/SistemasEBancoDeDados)
 [![wakatime](https://wakatime.com/badge/github/InovacaoMediaBrasil/SistemasEBancoDeDados.svg)](https://wakatime.com/badge/github/InovacaoMediaBrasil/SistemasEBancoDeDados)
+[![GitHub license](https://img.shields.io/github/license/InovacaoMediaBrasil/SistemasEBancoDeDados)](https://github.com/InovacaoMediaBrasil/SistemasEBancoDeDados)
+[![GitHub last commit](https://img.shields.io/github/last-commit/InovacaoMediaBrasil/SistemasEBancoDeDados/main)](https://github.com/InovacaoMediaBrasil/SistemasEBancoDeDados)
 
 ## CI/CD
 
