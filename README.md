@@ -34,4 +34,6 @@
 
 Processos e scripts de banco de dados
 
-Desenvolvido por [Guilherme Branco Stracini](https://www.guilherme.stracini.com.br) [*guilherme(at)guilhermebranco(dot)com(dot)br*] para [Editora Inovação](https://www.editorainovacao.com.br) - © 2012 - 2023. 
+---
+
+Desenvolvido por [Guilherme Branco Stracini](https://www.guilhermebranco.com.br) [*guilherme(at)guilhermebranco(dot)com(dot)br*] para [Editora Inovação](https://www.editorainovacao.com.br) - © 2015 - 2023. 
