@@ -14,6 +14,7 @@
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/6216e02766b0e116db54/maintainability)](https://codeclimate.com/github/InovacaoMediaBrasil/SistemasEBancoDeDados/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/6216e02766b0e116db54/test_coverage)](https://codeclimate.com/github/InovacaoMediaBrasil/SistemasEBancoDeDados/test_coverage)
+[![CodeFactor](https://www.codefactor.io/repository/github/inovacaomediabrasil/sistemasebancodedados/badge)](https://www.codefactor.io/repository/github/inovacaomediabrasil/sistemasebancodedados)
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=InovacaoMediaBrasil_SistemasEBancoDeDados&metric=alert_status)](https://sonarcloud.io/dashboard?id=InovacaoMediaBrasil_SistemasEBancoDeDados)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=InovacaoMediaBrasil_SistemasEBancoDeDados&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=InovacaoMediaBrasil_SistemasEBancoDeDados)
