@@ -37,8 +37,8 @@ Process workflows and database scripts
 
 ---
 
-Developed by [Guilherme Branco Stracini](https://guilherme.stracini.com) [*guilherme(at)guilhermebranco(dot)com(dot)br*] for [Editora Inovação](https://www.editorainovacao.com.br).
+Developed by [Guilherme Branco Stracini](https://guilherme.stracini.com) for [Editora Inovação](https://www.editorainovacao.com.br).
 
-2015 ~ 2018 © [Guilherme Branco Stracini](https://guilherme.stracini.com). All rights reserved.
+2015 ~ 2018 © All rights reserved.
 
 ---
