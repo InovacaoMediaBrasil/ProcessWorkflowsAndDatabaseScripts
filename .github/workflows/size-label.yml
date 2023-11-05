@@ -1,9 +1,13 @@
 name: Label based on PR size
 
 on:
-  pull_request:
   workflow_dispatch:
-  
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   size-label:
     permissions: write-all
