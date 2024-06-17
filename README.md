@@ -39,6 +39,6 @@ Process workflows and database scripts
 
 Developed by [Guilherme Branco Stracini](https://guilherme.stracini.com) for [Editora Inovação](https://www.editorainovacao.com.br).
 
-2015 ~ 2018 © All rights reserved.
+© 2015 ~ 2018 All rights reserved.
 
 ---
