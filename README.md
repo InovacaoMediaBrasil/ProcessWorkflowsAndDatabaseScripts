@@ -6,9 +6,9 @@
 
 ## CI/CD
 
-| Build status | Last commit | Code Smells | LoC | 
-|--------------|-------------|-------------|-----|
-| [![Sonar Cloud Analysis](https://github.com/InovacaoMediaBrasil/ProcessWorkflowsAndDatabaseScripts/actions/workflows/sonar-cloud.yml/badge.svg)](https://github.com/InovacaoMediaBrasil/ProcessWorkflowsAndDatabaseScripts/actions/workflows/sonar-cloud.yml) | [![GitHub last commit](https://img.shields.io/github/last-commit/InovacaoMediaBrasil/ProcessWorkflowsAndDatabaseScripts/main)](https://github.com/InovacaoMediaBrasil/ProcessWorkflowsAndDatabaseScripts) | [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=InovacaoMediaBrasil_ProcessWorkflowsAndDatabaseScripts&metric=code_smells&branch=main)](https://sonarcloud.io/dashboard?id=InovacaoMediaBrasil_ProcessWorkflowsAndDatabaseScripts) | [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=InovacaoMediaBrasil_ProcessWorkflowsAndDatabaseScripts&metric=ncloc&branch=main)](https://sonarcloud.io/dashboard?id=InovacaoMediaBrasil_ProcessWorkflowsAndDatabaseScripts) | 
+| Build status | Last commit | Code Smells | 
+|--------------|-------------|-------------|
+| [![Sonar Cloud Analysis](https://github.com/InovacaoMediaBrasil/ProcessWorkflowsAndDatabaseScripts/actions/workflows/sonar-cloud.yml/badge.svg)](https://github.com/InovacaoMediaBrasil/ProcessWorkflowsAndDatabaseScripts/actions/workflows/sonar-cloud.yml) | [![GitHub last commit](https://img.shields.io/github/last-commit/InovacaoMediaBrasil/ProcessWorkflowsAndDatabaseScripts/main)](https://github.com/InovacaoMediaBrasil/ProcessWorkflowsAndDatabaseScripts) | [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=InovacaoMediaBrasil_ProcessWorkflowsAndDatabaseScripts&metric=code_smells&branch=main)](https://sonarcloud.io/dashboard?id=InovacaoMediaBrasil_ProcessWorkflowsAndDatabaseScripts) | 
 
 
 ## Code Quality (main branch)
