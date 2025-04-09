@@ -53,3 +53,7 @@ Developed by [Guilherme Branco Stracini](https://guilherme.stracini.com) for [Ed
 © 2015 ~ 2018 All rights reserved.
 
 ---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
